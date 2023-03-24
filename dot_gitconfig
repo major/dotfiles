@@ -1,0 +1,51 @@
+[user]
+    name = Major Hayden
+    email = major@mhtx.net
+[color]
+    branch = auto
+    diff = auto
+    interactive = auto
+    pager = true
+    status = auto
+    ui = true
+[color "status"]
+    added = green
+    changed = yellow
+    untracked = red
+[push]
+    default = current
+	followTags = true
+[core]
+    autocrlf = input
+    pager = less -FRSX
+    excludesfile = /Users/major/.gitignore_global
+    editor = vim
+[alias]
+    ci = commit
+    co = checkout
+    st = status -sbu
+    lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lgn = log --color=never --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    tree = log --pretty=oneline --graph
+    commit = commit --verbose
+    squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\"; };f"
+[pull]
+    rebase = true
+[init]
+    defaultBranch = main
+
+# Allow different configs based on my personal and Fedora repos.
+[includeIf "gitdir:/home/major/git/major/"]
+    path = /home/major/git/major/.gitconfig
+[includeIf "gitdir:~/git/fedora/"]
+    path = ~/git/fedora/.gitconfig
+
+# 1Password git commit signing
+[user]
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyoH6gU4lgEiSiwihyD0Rxk/o5xYIfA3stVDgOGM9N0
+[gpg]
+  format = ssh
+[gpg "ssh"]
+  program = "/opt/1Password/op-ssh-sign"
+[commit]
+  gpgsign = true
