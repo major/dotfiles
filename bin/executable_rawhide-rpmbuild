@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Take a spec file in any directory and build an RPM in mock (rawhide by
+# default). Try to install the package in mock and then lint it afterwards.
+#
+set -euxo pipefail
+
+FEDORA_RELEASE=${FEDORA_RELEASE:-rawhide}
+
+if ls *.patch; then
+  cp *.patch ~/rpmbuild/SOURCES/
+fi
+
+SPEC=$1
+rpmdev-spectool -R -g $SPEC
+rpmbuild -bs $SPEC | tee /tmp/srpm-name.txt
+SRPM_NAME=$(grep Wrote /tmp/srpm-name.txt | awk '{print $2}')
+mock -r /etc/mock/fedora-${FEDORA_RELEASE}-x86_64.cfg --postinstall $SRPM_NAME
+rpmlint /var/lib/mock/fedora-${FEDORA_RELEASE}-x86_64/result/*.rpm

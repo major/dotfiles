@@ -1,0 +1,31 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Get arguments.
+VER=$1
+BZ=$2
+
+# Look up the spec file name.
+SPEC=$(ls *.spec | head -n 1)
+
+# Ensure working environment is clean.
+git fetch --all
+git clean -fxd
+git reset --hard
+git checkout rawhide
+git pull
+git reset --hard origin/rawhide
+
+# Update the spec file.
+rpmdev-bumpspec -n $VER $SPEC
+git add $SPEC
+
+# Manage the source code.
+spectool -g $SPEC
+fedpkg new-sources *${VER}*
+
+# Make a commit
+git commit -m "Update to ${VER} rhbz#${BZ}"
+
+# Test a build.
+rawhide-rpmbuild $SPEC
