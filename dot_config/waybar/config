@@ -1,0 +1,120 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 30,
+    "modules-left": [
+        "sway/workspaces"
+    ],
+    "sway/workspaces": {
+        "all-outputs": false
+    },
+    "modules-center": [
+        "clock#eu",
+        "clock#home",
+        "custom/weather"
+    ],
+    "sway/window": {
+        "format": "{}",
+        "max-length": 100,
+        "rewrite": {
+            "(.*) — Firefox Developer Edition": "🌎 $1",
+            "(.*) - vim": " $1",
+        }
+    },
+    "modules-right": [
+        "custom/uname",
+        "memory",
+        "cpu",
+        "disk",
+        "pulseaudio",
+        "tray"
+    ],
+    "custom/weather": {
+        "exec": "curl --connect-timeout 2 'wttr.in/?format=%C+%c+%t+(%f)+%h+%P+%m+UV%u+%w'",
+        "format": "{}",
+        "interval": 1500
+    },
+    "custom/uname": {
+        "exec": "uname -r | sed 's/\\.fc.*//'",
+        "format": " {}",
+        "interval": 3600
+    },
+    "custom/egauge": {
+        "exec": "~/bin/egauge",
+        "format": "{}",
+        "interval": 300
+    },
+    "custom/amdups": {
+        "exec": "~/bin/ups_wattage",
+        "format": " {}W"
+    },
+    "custom/firewallups": {
+        "exec": "~/bin/ups_wattage_firewall",
+        "format": " {}W"
+    },
+    "memory": {
+        "interval": 30,
+        "format": " {used:0.1f}G"
+    },
+    "cpu": {
+        "interval": 10,
+        "format": " {avg_frequency:0.2f}GHz",
+        "max-length": 10
+    },
+    "disk": {
+        "interval": 30,
+        "format": " {free}",
+        "path": "/"
+    },
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": false,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                ""
+            ]
+        },
+        "scroll-step": 1,
+        "on-click": "pavucontrol"
+    },
+    "clock#eu": {
+        "format": "{:%H:%M} 🇨🇿",
+        "timezone": "Europe/Prague"
+    },
+    "clock#home": {
+        "format": "{:%m/%d  🇺🇸 %H:%M:%S}",
+        "interval": 1,
+        "timezone": "America/Chicago"
+    },
+    "tray": {
+        "icon-size": 14,
+        "spacing": 5
+    },
+    "battery": {
+        "interval": 60,
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{power:0.1f}W {capacity}% {icon}",
+        "format-icons": ["", "", "", "", ""],
+        "max-length": 25
+    }
+}
