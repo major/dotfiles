@@ -15,6 +15,7 @@
 [push]
     default = current
 	followTags = true
+	autoSetupRemote = true
 [core]
     autocrlf = input
     pager = less -FRSX

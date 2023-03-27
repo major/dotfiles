@@ -5,7 +5,7 @@
 # Uncomment the following line to add additional VM parameters
 # INSTALL4J_ADD_VM_PARAMS=
 
-#export _JAVA_AWT_WM_NONREPARENTING=1
+export _JAVA_AWT_WM_NONREPARENTING=1
 
 INSTALL4J_JAVA_PREFIX=""
 GREP_OPTIONS=""
