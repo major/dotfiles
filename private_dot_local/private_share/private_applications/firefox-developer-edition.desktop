@@ -42,7 +42,7 @@ Comment[pt]=Navegue na Internet
 Comment[pt_BR]=Navegue na Internet
 Comment[sk]=Prehliadanie internetu
 Comment[sv]=Surfa på webben
-Exec=/home/major/bin/firefox/firefox %u
+Exec=env MOZ_ENABLE_WAYLAND=1 /home/major/bin/firefox/firefox %u
 Icon=/home/major/bin/firefox/browser/chrome/icons/default/default128.png
 Terminal=false
 Type=Application
