@@ -11,7 +11,11 @@ term=xterm-256color
 # title=foot
 # locked-title=no
 
+{{- if eq .chezmoi.hostname "amdbox" }}
 font=Hack Nerd Font:size=6
+{{ else if eq .chezmoi.hostname "nano" }}
+font=Hack Nerd Font:size=5
+{{- end }}
 # font-bold=<bold variant of regular font>
 # font-italic=<italic variant of regular font>
 # font-bold-italic=<bold+italic variant of regular font>
