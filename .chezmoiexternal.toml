@@ -26,9 +26,3 @@
     url = "https://github.com/restic/restic/releases/download/v{{ $restic_version }}/restic_{{ $restic_version }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.bz2"
     executable = true
     refreshPeriod = "168h"
-
-["bin/wofi-emoji"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/dln/wofi-emoji/master/wofi-emoji"
-    executable = true
-    refreshPeriod = "168h"
