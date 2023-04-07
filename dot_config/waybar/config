@@ -22,6 +22,7 @@
         }
     },
     "modules-right": [
+        "custom/egauge",
         "custom/uname",
         "memory",
         "cpu",
@@ -114,7 +115,13 @@
             "critical": 15
         },
         "format": "{power:0.1f}W {capacity}% {icon}",
-        "format-icons": ["", "", "", "", ""],
+        "format-icons": [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
         "max-length": 25
     }
 }
