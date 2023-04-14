@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 
-op document get "Morning Logins" | bash
+op document get morning_logins | bash
