@@ -52,3 +52,5 @@
   gpgsign = true
 [rebase]
 	autoStash = true
+[checkout]
+	defaultRemote = origin
