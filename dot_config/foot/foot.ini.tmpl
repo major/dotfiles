@@ -10,12 +10,7 @@ term=xterm-256color
 # app-id=foot
 # title=foot
 # locked-title=no
-
-{{- if eq .chezmoi.hostname "amdbox" }}
 font=Hack Nerd Font:size=6
-{{- else if eq .chezmoi.hostname "nano" }}
-font=Hack Nerd Font:size=5
-{{- end }}
 # font-bold=<bold variant of regular font>
 # font-italic=<italic variant of regular font>
 # font-bold-italic=<bold+italic variant of regular font>
@@ -74,7 +69,7 @@ lines=10000
 # alternate-scroll-mode=yes
 
 [colors]
-# alpha=1.0
+alpha=0.97
 # foreground=dcdccc
 # background=111111
 
