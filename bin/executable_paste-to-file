@@ -1,0 +1,8 @@
+#!/bin/bash
+# Paste a file from the clipboard using the appropriate file type.
+
+MIME_TYPE=$(wl-paste --list-types | head -n 1 | sed 's/;.*$//')
+EXTENSION=$(grep ^${MIME_TYPE} /etc/mime.types | awk '{print $NF}')
+FILENAME=${1:-paste}
+
+wl-paste > ${FILENAME}.${EXTENSION}
