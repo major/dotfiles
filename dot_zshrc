@@ -35,7 +35,7 @@ export AWS_PROFILE=cloudx
 #alias aws='mkdir -p /tmp/aws; podman run --rm -ti --pull newer -v ~/.aws:/root/.aws:z -e AWS_PROFILE -v /tmp/aws:/host:z docker.io/amazon/aws-cli $@'
 
 # Use azure-cli via its container.
-alias az='podman run --rm -ti --pull newer -v ~/.azure:/root/.azure:z mcr.microsoft.com/azure-cli az $@'
+#alias az='podman run --rm -ti --pull newer -v ~/.azure:/root/.azure:z mcr.microsoft.com/azure-cli az $@'
 
 alias gcloud="podman run --rm -ti --pull newer -v ~/.config/gcloud:/root/.config/gcloud:z docker.io/google/cloud-sdk gcloud"
 
