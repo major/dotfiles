@@ -3,14 +3,14 @@
     url = "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     refreshPeriod = "168h"
 
-{{ $autorestic_version := "1.7.7" -}}
+{{ $autorestic_version := "1.7.9" -}}
 ["bin/autorestic"]
     type = "file"
     url = "https://github.com/cupcakearmy/autorestic/releases/download/v{{ $autorestic_version }}/autorestic_{{ $autorestic_version }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.bz2"
     executable = true
     refreshPeriod = "168h"
 
-{{ $hugo_version := "0.115.4" -}}
+{{ $hugo_version := "0.119.0" -}}
 ["bin/hugo"]
     type = "file"
     url = "https://github.com/gohugoio/hugo/releases/download/v{{ $hugo_version }}/hugo_extended_{{ $hugo_version }}_{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
@@ -20,7 +20,7 @@
         command = "tar"
         args = ["--extract", "--file", "/dev/stdin", "--gzip", "--to-stdout", "hugo"]
 
-{{ $restic_version := "0.15.1" -}}
+{{ $restic_version := "0.16.0" -}}
 ["bin/restic"]
     type = "file"
     url = "https://github.com/restic/restic/releases/download/v{{ $restic_version }}/restic_{{ $restic_version }}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.bz2"
