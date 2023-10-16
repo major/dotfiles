@@ -3,7 +3,7 @@ set -euxo pipefail
 
 # Get arguments.
 VER=$1
-BZ=$2
+#BZ=$2
 
 # Look up the spec file name.
 SPEC=$(ls *.spec | head -n 1)
@@ -25,7 +25,7 @@ spectool -g $SPEC
 fedpkg new-sources *${VER}*
 
 # Make a commit
-git commit -m "Update to ${VER} rhbz#${BZ}"
+git commit -m "Update to ${VER}"
 
 # Test a build.
-rawhide-rpmbuild $SPEC
+fedpkg mockbuild

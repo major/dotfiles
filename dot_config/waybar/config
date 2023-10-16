@@ -31,7 +31,7 @@
         "tray"
     ],
     "custom/weather": {
-        "exec": "curl --connect-timeout 2 'wttr.in/?format=%C+%c+%t+(%f)+%h+%P+%m+UV%u+%w'",
+        "exec": "curl -s --connect-timeout 2 'wttr.in/?format=%C+%c+%t+(%f)+%h+%P+%m+UV%u+%w'",
         "format": "{}",
         "interval": 1500
     },

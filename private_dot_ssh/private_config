@@ -1,2 +1,5 @@
 Host *
-  IdentityAgent ~/.1password/agent.sock
+        IdentityAgent ~/.1password/agent.sock
+
+Host *.redhat.com
+        User mhayden
