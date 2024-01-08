@@ -22,7 +22,9 @@
         }
     },
     "modules-right": [
-        {{- if eq .chezmoi.hostname "nano" }}
+        {{- if eq .chezmoi.hostname "amdbox" }}
+        "custom/egauge",
+        {{- else }}
         "battery",
         {{- end }}
         "custom/egauge",
@@ -110,7 +112,6 @@
     "tray": {
         "icon-size": 14,
         "spacing": 5
-{{- if eq .chezmoi.hostname "nano" }}
     },
     "battery": {
         "interval": 60,
@@ -127,6 +128,5 @@
             ""
         ],
         "max-length": 25
-{{- end }}
     }
 }
