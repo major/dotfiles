@@ -22,12 +22,6 @@
         }
     },
     "modules-right": [
-        {{- if eq .chezmoi.hostname "amdbox" }}
-        "custom/egauge",
-        {{- else }}
-        "battery",
-        {{- end }}
-        "custom/egauge",
         "custom/uname",
         "memory",
         "cpu",
@@ -44,11 +38,6 @@
         "exec": "uname -r | sed 's/\\.fc.*//'",
         "format": " {}",
         "interval": 3600
-    },
-    "custom/egauge": {
-        "exec": "~/bin/egauge",
-        "format": "{}",
-        "interval": 300
     },
     "custom/amdups": {
         "exec": "~/bin/ups_wattage",
