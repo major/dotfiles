@@ -25,8 +25,8 @@
     ci = commit
     co = checkout
     st = status -sbu
-    lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    lgn = log --color=never --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
+    lgn = log --color=never --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
     tree = log --pretty=oneline --graph
     commit = commit --verbose
     squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\"; };f"
@@ -51,6 +51,11 @@
 [commit]
   gpgsign = true
 [rebase]
-	autoStash = true
+  autoStash = true
 [checkout]
-	defaultRemote = origin
+  defaultRemote = origin
+
+# Difftastic setup
+# https://difftastic.wilfred.me.uk/git.html
+[diff]
+  external = difft
