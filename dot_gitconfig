@@ -55,7 +55,3 @@
 [checkout]
   defaultRemote = origin
 
-# Difftastic setup
-# https://difftastic.wilfred.me.uk/git.html
-[diff]
-  external = difft
