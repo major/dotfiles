@@ -14,8 +14,8 @@
     untracked = red
 [push]
     default = current
-	followTags = true
-	autoSetupRemote = true
+	  followTags = true
+	  autoSetupRemote = true
 [core]
     autocrlf = input
     pager = less -FRSX
@@ -31,7 +31,7 @@
     commit = commit --verbose
     squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\"; };f"
 [pull]
-	rebase = true
+	  rebase = true
 [init]
     defaultBranch = main
 
@@ -55,3 +55,13 @@
 [checkout]
   defaultRemote = origin
 
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true    # use n and N to move between diff sections
+[merge]
+    conflictstyle = diff3
+[diff]
+    colorMoved = default
