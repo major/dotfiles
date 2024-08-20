@@ -36,10 +36,10 @@
     defaultBranch = main
 
 # Allow different configs based on my personal and Fedora repos.
-[includeIf "gitdir:/home/major/git/major/"]
-    path = /home/major/git/major/.gitconfig
 [includeIf "gitdir:~/git/fedora/"]
     path = ~/git/fedora/.gitconfig
+[includeIf "gitdir:~/git/redhat/"]
+    path = ~/git/redhat/.gitconfig
 
 # 1Password git commit signing
 [user]
