@@ -1,0 +1,47 @@
+icons_format = "{icon}"
+
+[theme]
+theme = "solarized-dark"
+[theme.overrides]
+idle_bg = "#123456"
+idle_fg = "#abcdef"
+
+[icons]
+icons = "awesome4"
+[icons.overrides]
+bat = ["|E|", "|_|", "|=|", "|F|"]
+bat_charging = "|^| "
+
+[[block]]
+block = "battery"
+format = " $power $percentage {$time_remaining.dur(hms:true, min_unit:m) |}"
+device = "DisplayDevice"
+driver = "upower"
+
+[[block]]
+block = "cpu"
+info_cpu = 50
+warning_cpu = 70
+critical_cpu = 90
+
+[[block]]
+block = "memory"
+format = " $icon $mem_total_used_percents.eng(w:2) "
+format_alt = " $icon_swap $swap_used_percents.eng(w:2) "
+
+[[block]]
+block = "sound"
+[[block.click]]
+button = "left"
+cmd = "pavucontrol"
+
+[[block]]
+block = "time"
+interval = 5
+format = " $timestamp.datetime(f:'%R 🇺🇸 %Y-%m-%d')"
+
+[[block]]
+block = "time"
+interval = 5
+timezone = "Europe/Berlin"
+format = "$timestamp.datetime(f:'🇨🇿 %R') "
