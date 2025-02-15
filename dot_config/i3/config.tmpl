@@ -167,7 +167,7 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 bindsym $mod+l exec "i3lock -c 000000"
-exec "xautolock -detectsleep -time 3 -locker \"i3lock -c 000000\""
+exec "xautolock -detectsleep -time 15 -locker \"i3lock -c 000000\""
 
 default_border pixel 1
 default_floating_border pixel 1
@@ -182,7 +182,7 @@ bindsym Print exec --no-startup-id maim --select | xclip -selection clipboard -t
 bindsym Shift+Print exec --no-startup-id maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
 
 exec_always setxkbmap -option compose:rctrl
-exec_always --no-startup-id numlockx off
+exec_always --no-startup-id numlockx on
 
 exec --no-startup-id picom --config ~/.config/picom/picom.conf -b
 exec_always feh --bg-scale --zoom fill ~/Pictures/wallpaper/wallpaper.jpg
@@ -206,7 +206,7 @@ bar {
     {{ end }}
     colors {
         separator #666666
-        background #222222bb
+        background #000000
         statusline #dddddd
         focused_workspace #0088CC #0088CC #ffffff
         active_workspace #333333 #333333 #ffffff

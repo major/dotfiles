@@ -1,16 +1,25 @@
 icons_format = "{icon}"
 
 [theme]
-theme = "solarized-dark"
-[theme.overrides]
-idle_bg = "#123456"
-idle_fg = "#abcdef"
+theme = "native"
+#[theme.overrides]
+#idle_bg = "#123456"
+#idle_fg = "#abcdef"
 
 [icons]
 icons = "awesome4"
 [icons.overrides]
 bat = ["|E|", "|_|", "|=|", "|F|"]
 bat_charging = "|^| "
+
+[[block]]
+block = "weather"
+autolocate = true
+format = " $icon  $weather_verbose ($location) $temp"
+format_alt = " $icon_ffin  Forecast {$temp_favg ({$temp_fmin}-{$temp_fmax})|Unavailable} "
+[block.service]
+name = "nws"
+units = "metric"
 
 [[block]]
 block = "battery"
