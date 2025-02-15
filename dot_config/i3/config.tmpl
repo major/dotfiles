@@ -199,7 +199,11 @@ bar {
     i3bar_command i3bar -t
     status_command i3status-rs ~/.config/i3status-rust/config.toml
     tray_output primary
+    {{ if .chezmoi.hostname | contains "amdbox" }}
     font pango:Hack Nerd Font, FontAwesome 10
+    {{ else }}
+    font pango:Hack Nerd Font, FontAwesome 12
+    {{ end }}
     colors {
         separator #666666
         background #222222bb
