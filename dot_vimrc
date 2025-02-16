@@ -1,6 +1,7 @@
 call plug#begin()
 Plug 'vim-airline/vim-airline'
 Plug 'sickill/vim-monokai'
+Plug 'tribela/vim-transparent'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
