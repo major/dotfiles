@@ -2,10 +2,15 @@
    
     ### Display ###
 
-    # Display notifications on monitor with mouse focus
-    follow = mouse
-    # Set {width}x{height} and {x_pos}+{y_pos}
-    geometry = "400x30-5+60"
+    # Notifications only on the primary display.
+    monitor = 0
+    # Keep notifications only on one monitor. 
+    follow = none
+    # Size of the popup
+    width = 500
+    height = 50
+    # Location of notification
+    origin = top-right
     # Show number of hidden notifications
     indicate_hidden = yes
     # Shrink window if smaller than width
