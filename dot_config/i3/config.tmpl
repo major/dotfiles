@@ -13,7 +13,7 @@ set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:Hack 10
+font pango:Hack, Font Awesome 6 Free Regular 10
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -36,8 +36,8 @@ exec --no-startup-id nm-applet
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
@@ -169,6 +169,8 @@ bindsym $mod+r mode "resize"
 bindsym $mod+l exec "i3lock -c 000000"
 exec "xautolock -detectsleep -time 15 -locker \"i3lock -c 000000\""
 
+exec --no-startup-id /usr/libexec/polkit-gnome-authentication-agent-1
+
 default_border pixel 1
 default_floating_border pixel 1
 gaps inner 8
@@ -193,6 +195,19 @@ exec_always --no-startup-id pkill blueman-applet; blueman-applet
 
 bindsym $mod+e exec rofimoji
 
+# Media player controls
+bindsym XF86AudioPlay exec playerctl --player=spotify play-pause
+bindsym XF86AudioPause exec playerctl --player=spotify play-pause
+bindsym XF86AudioNext exec playerctl --player=spotify next
+bindsym XF86AudioPrev exec playerctl --player=spotify previous
+
+for_window [class="gnome-calculator"] floating enable
+for_window [class="firefox-aurora"] floating disable
+for_window [window_role="GtkFileChooserDialog"] floating enable
+for_window [window_role="About"] floating enable
+
+#for_window [class="java-lang-Thread"] floating enable, move container to workspace 6
+
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
@@ -200,13 +215,13 @@ bar {
     status_command i3status-rs ~/.config/i3status-rust/config.toml
     tray_output primary
     {{ if .chezmoi.hostname | contains "amdbox" }}
-    font pango:Hack Nerd Font, FontAwesome 10
+    font pango:Hack, Font Awesome 6 Free 10
     {{ else }}
-    font pango:Hack Nerd Font, FontAwesome 12
+    font pango:Hack, Font Awesome 6 Free 12
     {{ end }}
     colors {
         separator #666666
-        background #000000
+        background #000000ff
         statusline #dddddd
         focused_workspace #0088CC #0088CC #ffffff
         active_workspace #333333 #333333 #ffffff

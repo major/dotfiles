@@ -14,7 +14,7 @@
     untracked = red
 [push]
     default = current
-	  followTags = true
+	followTags = true
 	  autoSetupRemote = true
 [core]
     autocrlf = input

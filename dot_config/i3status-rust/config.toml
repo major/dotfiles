@@ -1,7 +1,7 @@
 icons_format = "{icon}"
 
 [theme]
-theme = "native"
+theme = "dracula"
 #[theme.overrides]
 #idle_bg = "#123456"
 #idle_fg = "#abcdef"
@@ -13,10 +13,15 @@ bat = ["|E|", "|_|", "|=|", "|F|"]
 bat_charging = "|^| "
 
 [[block]]
+block = "custom"
+command = "uname -r | sed 's/\\.fc.*//'"
+format = "  $text "
+
+[[block]]
 block = "weather"
 autolocate = true
 format = " $icon  $weather_verbose ($location) $temp"
-format_alt = " $icon_ffin  Forecast {$temp_favg ({$temp_fmin}-{$temp_fmax})|Unavailable} "
+format_alt = " $icon_ffin Forecast {$temp_favg ({$temp_fmin}-{$temp_fmax})|Unavailable} "
 [block.service]
 name = "nws"
 units = "metric"

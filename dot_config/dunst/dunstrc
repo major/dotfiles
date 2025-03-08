@@ -8,13 +8,13 @@
     follow = none
     # Size of the popup
     width = 500
-    height = 50
+    #height = 50
     # Location of notification
     origin = top-right
     # Show number of hidden notifications
     indicate_hidden = yes
     # Shrink window if smaller than width
-    shrink = no
+    shrink = yes
     # Set transparency of notifications
     transparency = 0
     # Height of whole notification    
@@ -74,7 +74,7 @@
     ### Icons ###
     
     # Disable icons
-    icon_position = off
+    icon_position = left
 
     ### History ###
     
