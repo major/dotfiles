@@ -3,7 +3,7 @@
     url = "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     refreshPeriod = "168h"
 
-{{ $hugo_version := "0.133.0" -}}
+{{ $hugo_version := "0.143.1" -}}
 ["bin/hugo"]
     type = "file"
     url = "https://github.com/gohugoio/hugo/releases/download/v{{ $hugo_version }}/hugo_extended_{{ $hugo_version }}_{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"

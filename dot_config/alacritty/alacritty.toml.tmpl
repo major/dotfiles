@@ -5,7 +5,11 @@ shell = "/usr/bin/zsh"
 opacity = 0.95
 
 [font]
+{{ if .chezmoi.hostname | contains "amdbox" }}
 size = 9.0
+{{ else }}
+size = 10.0
+{{ end }}
 
 [font.bold]
 family = "Hack Nerd Font"
