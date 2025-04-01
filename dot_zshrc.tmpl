@@ -33,7 +33,7 @@ autoload -U promptinit
 promptinit
 
 # use the ssh-agent started by systemd.
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
+export SSH_AUTH_SOCK=~/.1password/agent.sock
 
 # ensure gpg works properly in each terminal.
 export GPG_TTY="$(tty)"
