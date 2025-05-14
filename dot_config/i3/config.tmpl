@@ -49,7 +49,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec kitty
+bindsym $mod+Return exec alacritty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -195,11 +195,17 @@ exec_always --no-startup-id pkill blueman-applet; blueman-applet
 
 bindsym $mod+e exec rofimoji
 
+# Move windows to other workspaces
+bindsym $mod+Ctrl+Shift+Left  move workspace to output left
+bindsym $mod+Ctrl+Shift+Right move workspace to output right
+bindsym $mod+Ctrl+Shift+Up move workspace to output up
+bindsym $mod+Ctrl+Shift+Down move workspace to output down
+
 # Media player controls
-bindsym XF86AudioPlay exec playerctl --player=spotify play-pause
-bindsym XF86AudioPause exec playerctl --player=spotify play-pause
-bindsym XF86AudioNext exec playerctl --player=spotify next
-bindsym XF86AudioPrev exec playerctl --player=spotify previous
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioPause exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
 
 for_window [class="gnome-calculator"] floating enable
 for_window [class="firefox-aurora"] floating disable
