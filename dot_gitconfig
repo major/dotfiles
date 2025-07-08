@@ -27,6 +27,14 @@
     st = status -sbu
     lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
     lgn = log --color=never --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
+    # my awesome git log replacement
+    lol  = log --graph --pretty=format:\"%C(auto)%h%d%Creset %C(cyan)(%cr)%Creset %C(green)%cn <%ce>%Creset %s\"
+    # same as above, but ISO date
+    lold = log --graph --pretty=format:\"%C(auto)%h%d%Creset %C(cyan)(%ci)%Creset %C(green)%cn <%ce>%Creset %s\"
+    # using build-in standards
+    lol2 = log --oneline --graph --decorate
+    # shows branches and their last commits
+    lol3 = log --all --graph --decorate --oneline --simplify-by-decoration
     tree = log --pretty=oneline --graph
     commit = commit --verbose
     squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\"; };f"

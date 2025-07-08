@@ -8,7 +8,19 @@ fi
 # oh-my-zsh config
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(colored-man-pages dirhistory docker fzf podman python virtualenv z zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(
+        colored-man-pages
+        dirhistory
+        docker
+        fzf
+        podman
+        python
+        virtualenv
+        z
+        zsh-autosuggestions
+        zsh-prompt-benchmark
+        zsh-syntax-highlighting
+)
 source $ZSH/oh-my-zsh.sh
 
 export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$PATH
@@ -62,3 +74,29 @@ eval "$(pyenv init -)"
 
 export FLYCTL_INSTALL="/home/major/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
+
+# Hugo Version Manager: override path to the hugo executable.
+hugo() {
+  hvm_show_status=true
+  if hugo_bin=$(hvm status --printExecPathCached); then
+    if [ "${hvm_show_status}" = "true" ]; then
+      >&2 printf "Hugo version management is enabled in this directory.\\n"
+      >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
+    fi
+  else
+    if hugo_bin=$(hvm status --printExecPath); then
+      if ! hvm use --useVersionInDotFile; then
+        return 1
+      fi
+    else
+      if ! hugo_bin=$(whence -p hugo); then
+        >&2 printf "Command not found.\\n"
+        return 1
+      fi
+    fi
+  fi
+  "${hugo_bin}" "$@"
+}
+
+eval "$(rbenv init - --no-rehash zsh)"
+
