@@ -3,9 +3,9 @@
     "position": "bottom",
     "height": 30,
     "modules-left": [
-        "sway/workspaces"
+        "hyprland/workspaces"
     ],
-    "sway/workspaces": {
+    "hyprland/workspaces": {
         "all-outputs": false
     },
     "modules-center": [
@@ -13,15 +13,8 @@
         "clock#home",
         "custom/weather"
     ],
-    "sway/window": {
-        "format": "{}",
-        "max-length": 100,
-        "rewrite": {
-            "(.*) — Firefox Developer Edition": "🌎 $1",
-            "(.*) - vim": " $1",
-        }
-    },
     "modules-right": [
+        "battery",
         "custom/uname",
         "memory",
         "cpu",
@@ -38,6 +31,11 @@
         "exec": "uname -r | sed 's/\\.fc.*//'",
         "format": " {}",
         "interval": 3600
+    },
+    "custom/egauge": {
+        "exec": "~/bin/egauge",
+        "format": "{}",
+        "interval": 300
     },
     "custom/amdups": {
         "exec": "~/bin/ups_wattage",
