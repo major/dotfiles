@@ -3,7 +3,7 @@
     ### Display ###
 
     # Notifications only on the primary display.
-    monitor = 0
+    monitor = 1
     # Keep notifications only on one monitor. 
     follow = none
     # Size of the popup
