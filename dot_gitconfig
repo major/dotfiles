@@ -15,7 +15,7 @@
 [push]
     default = current
 	followTags = true
-	  autoSetupRemote = true
+	autoSetupRemote = true
 [core]
     autocrlf = input
     pager = less -FRSX
@@ -25,7 +25,7 @@
     ci = commit
     co = checkout
     st = status -sbu
-    lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
+    lg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ci) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
     lgn = log --color=never --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --ext-diff
     # my awesome git log replacement
     lol  = log --graph --pretty=format:\"%C(auto)%h%d%Creset %C(cyan)(%cr)%Creset %C(green)%cn <%ce>%Creset %s\"
@@ -39,7 +39,7 @@
     commit = commit --verbose
     squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\"; };f"
 [pull]
-	  rebase = true
+	rebase = true
 [init]
     defaultBranch = main
 
@@ -49,15 +49,6 @@
 [includeIf "gitdir:~/git/redhat/"]
     path = ~/git/redhat/.gitconfig
 
-# 1Password git commit signing
-[user]
-  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyoH6gU4lgEiSiwihyD0Rxk/o5xYIfA3stVDgOGM9N0
-[gpg]
-  format = ssh
-[gpg "ssh"]
-  program = "/opt/1Password/op-ssh-sign"
-[commit]
-  gpgsign = true
 [rebase]
   autoStash = true
 [checkout]
@@ -76,3 +67,13 @@
     conflictstyle = diff3
 [diff]
     colorMoved = default
+
+# Sign commits with 1password ssh key
+[user]
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyoH6gU4lgEiSiwihyD0Rxk/o5xYIfA3stVDgOGM9N0
+[gpg]
+  format = ssh
+[gpg "ssh"]
+  program = "/opt/1Password/op-ssh-sign"
+[commit]
+  gpgsign = true

@@ -51,7 +51,7 @@
     # %p - progress value (if set)
     # %n - progress value no extra characters
     # %% - literal %
-    format = "<b>%a</b>\n<i>%s</i>\n%b"
+    format = "<b>%s</b>\n%b"
     # Align message text horizontally
     alignment = center
     # Align message text vertically
@@ -123,11 +123,20 @@
     # Normal urgency notifications
     background = "#202632"
     foreground = "#ffffff"
-    timeout = 5
+    timeout = 10
 
 [urgency_critical]
 
     # High urgency notifications
     background = "#ffffff"
     foreground = "#db0101"
+    timeout = 0
+
+[vl-notifier]
+
+    # VolumeLeaders notifications - persistent with dark green background
+    summary = "\[VL\]*"
+    background = "#1a472a"
+    foreground = "#ffffff"
+    frame_color = "#2d6b45"
     timeout = 0

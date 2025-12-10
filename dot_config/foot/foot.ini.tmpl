@@ -11,13 +11,8 @@ term=xterm-256color
 # title=foot
 # locked-title=no
 
-{{ if eq .chezmoi.hostname "amdbox" }}
-font=Hack Nerd Font:size=6
-{{ else if eq .chezmoi.hostname "nano" }}
-font=Hack Nerd Font:size=5
-{{ else }}
-font=Hack Nerd Font:size=5
-{{ end }}
+
+font=Hack Nerd Font:size=9
 
 # font-bold=<bold variant of regular font>
 # font-italic=<italic variant of regular font>
@@ -28,7 +23,7 @@ font=Hack Nerd Font:size=5
 # vertical-letter-offset=0
 # underline-offset=<font metrics>
 # box-drawings-uses-font-glyphs=no
-dpi-aware=yes
+dpi-aware=no
 
 # initial-window-size-pixels=700x500  # Or,
 # initial-window-size-chars=<COLSxROWS>
@@ -190,6 +185,8 @@ alpha=0.97
 
 [text-bindings]
 # \x03=Mod4+c  # Map Super+c -> Ctrl+c
+# 🔢 Make numpad Enter send literal newline (LF) instead of CR like regular Enter
+\x0a=KP_Enter
 
 [mouse-bindings]
 # selection-override-modifiers=Shift
