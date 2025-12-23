@@ -21,3 +21,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/flux"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=fluxcd/flux2
+    url = "https://github.com/fluxcd/flux2/releases/download/v2.7.5/flux_2.7.5_linux_amd64.tar.gz"
+    path = "flux"
+    executable = true
+    refreshPeriod = "168h"
+
