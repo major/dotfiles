@@ -75,5 +75,6 @@
   format = ssh
 [gpg "ssh"]
   program = "/opt/1Password/op-ssh-sign"
+	allowedSignersFile = /home/major/.ssh/allowed_signers
 [commit]
   gpgsign = true

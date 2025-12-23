@@ -123,3 +123,6 @@ if [ -f '/home/major/Downloads/google-cloud-cli-linux-x86_64/google-cloud-sdk/pa
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/major/Downloads/google-cloud-cli-linux-x86_64/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/major/Downloads/google-cloud-cli-linux-x86_64/google-cloud-sdk/completion.zsh.inc'; fi
+
+# Source machine-local secrets/config (not tracked in dotfiles)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
