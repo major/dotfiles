@@ -29,3 +29,26 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/kubectl"]
+    type = "file"
+    # renovate: datasource=github-releases depName=kubernetes/kubernetes
+    url = "https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl"
+    executable = true
+    refreshPeriod = "168h"
+
+["bin/kubeseal"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=bitnami-labs/sealed-secrets
+    url = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.34.0/kubeseal-0.34.0-linux-amd64.tar.gz"
+    path = "kubeseal"
+    executable = true
+    refreshPeriod = "168h"
+
+["bin/kustomize"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>.*)$
+    url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.0/kustomize_v5.8.0_linux_amd64.tar.gz"
+    path = "kustomize"
+    executable = true
+    refreshPeriod = "168h"
+
