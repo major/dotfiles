@@ -6,7 +6,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["\\.chezmoiexternal\\.toml$"],
+      "managerFilePatterns": [
+        "/\\.chezmoiexternal\\.toml$/"
+      ],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?/v?(?<currentValue>[\\d.]+)[^\"]*\""
       ],
