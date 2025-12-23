@@ -33,6 +33,24 @@
 - Branch for upstream PRs
 - Don't ever write to a remote repo, such as using a git push, without my permission 
 - Always use Conventional Commits style commit messages
+- Do not include any Claude-related items in commit messages as these will be rejected by upstream developers
+- Always use my signed-off-by messages in commit messages along with GPG signatures (-s and -S)
+- When addressing feedback on a pull request, use fixup commits so that I can autosquash them at the end
+- When addressing feedback on a pull request, always rechech that all feedback was addressed in the changes when you finish. Also, suggest responses to the developer giving feedback in the PR.
+
+## 🎫 Jira (Atlassian MCP)
+- **Reviewing**: Use `jira_search` with JQL for bulk queries, `jira_get_issue` for details. Include `expand: 'changelog'` for history.
+- **Creating**: Use `jira_create_issue`. Default to **Task** issue type unless specified otherwise. Always ask for project key if not provided—never assume.
+- **Updating**: `jira_transition_issue` for status changes (get IDs via `jira_get_transitions` first), `jira_add_comment` for notes.
+- **Context**: Summarize tickets concisely—key, summary, status, assignee. Link related tickets when relevant.
+- **Backfill a Jira ticket**: Create a ticket for an existing PR. Steps:
+  1. Get PR details (title, body, URL) via `gh pr view`
+  2. Create ticket with human-readable title (scrum-friendly, not commit-style)
+  3. Description must have two sections: "What is being done?" and "Why is it being done?"
+  4. Set fields: assignee, story points, sprint (find sprint ID from existing ticket in that sprint)
+  5. Transition to "In Progress"
+  6. Update PR title with Jira ticket number prefix (e.g., "RSPEED-1234: original title")
+  7. ⚠️ MANUAL: Add GitHub PR link via More > Link > Web Link (MCP tool doesn't create proper Issue Links)
 
 ## 💡 Meta
 - Proactively recommend improvements (maintainability, efficiency, security, reliability)
