@@ -22,6 +22,9 @@
 ################
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
+{{- if eq .chezmoi.hostname "zorro" }}
+monitor=eDP-1,preferred,auto-left,1
+{{- end }}
 monitor=DP-1,preferred,auto-left,1
 monitor=DP-2,preferred,auto-right,1
 
