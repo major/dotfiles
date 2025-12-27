@@ -58,13 +58,21 @@
     },
     "temperature": {
         "thermal-zone": 0,
+{{- if eq .chezmoi.hostname "zorro" }}
+        "hwmon-path": "/sys/class/hwmon/hwmon8/temp1_input",
+{{- else if eq .chezmoi.hostname "amdbox" }}
         "hwmon-path": "/sys/class/hwmon/hwmon3/temp1_input",
+{{- end }}
         "critical-threshold": 80,
         "format": " {temperatureC}°C",
         "interval": 5
     },
     "temperature#gpu": {
+{{- if eq .chezmoi.hostname "zorro" }}
+        "hwmon-path": "/sys/class/hwmon/hwmon7/temp1_input",
+{{- else if eq .chezmoi.hostname "amdbox" }}
         "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+{{- end }}
         "critical-threshold": 90,
         "format": " {temperatureC}°C",
         "interval": 5
