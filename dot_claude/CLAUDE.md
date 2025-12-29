@@ -25,6 +25,7 @@
 - TDD when possible
 
 ## 🛠️ Dev Tools
+- **Shell**: zsh is primary shell—write POSIX-compatible scripts or use `#!/bin/zsh` shebang. Avoid bash-only syntax (e.g., `[[ ]]` arrays, `declare -A`).
 - **Python stack**: uv/ruff/pyright/pytest for all Python projects
 - **Automation**: Makefiles for task automation. Omit flags that are already defaults. Use context-appropriate outputs (HTML coverage local, XML for CI).
 - **Containers**: podman + Containerfile (not docker/Dockerfile)
