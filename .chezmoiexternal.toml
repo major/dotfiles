@@ -68,3 +68,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/k9s"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=derailed/k9s
+    url = "https://github.com/derailed/k9s/releases/download/v0.50.16/k9s_Linux_amd64.tar.gz"
+    path = "k9s"
+    executable = true
+    refreshPeriod = "168h"
+
