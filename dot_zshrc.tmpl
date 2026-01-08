@@ -18,7 +18,6 @@ plugins=(
         virtualenv
         z
         zsh-autosuggestions
-        zsh-prompt-benchmark
         zsh-syntax-highlighting
 )
 source $ZSH/oh-my-zsh.sh
@@ -126,3 +125,6 @@ if [ -f '/home/major/Downloads/google-cloud-cli-linux-x86_64/google-cloud-sdk/co
 
 # Source machine-local secrets/config (not tracked in dotfiles)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# opencode
+export PATH=/home/major/.opencode/bin:$PATH
