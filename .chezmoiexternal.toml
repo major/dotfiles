@@ -68,6 +68,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/hugo"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=gohugoio/hugo
+    url = "https://github.com/gohugoio/hugo/releases/download/v0.154.4/hugo_0.154.4_linux-amd64.tar.gz"
+    path = "hugo"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/k9s"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=derailed/k9s
