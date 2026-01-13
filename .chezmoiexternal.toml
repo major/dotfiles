@@ -71,7 +71,7 @@
 ["bin/hugo"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=gohugoio/hugo
-    url = "https://github.com/gohugoio/hugo/releases/download/v0.154.4/hugo_extended_0.154.4_linux-amd64.tar.gz"
+    url = "https://github.com/gohugoio/hugo/releases/download/v0.154.5/hugo_extended_0.154.5_linux-amd64.tar.gz"
     path = "hugo"
     executable = true
     refreshPeriod = "168h"
