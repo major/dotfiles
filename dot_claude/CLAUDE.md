@@ -37,6 +37,7 @@
 - Do not include any Claude-related items in commit messages as these will be rejected by upstream developers
 - Always use my signed-off-by messages in commit messages along with GPG signatures (-s and -S)
 - When addressing feedback on a pull request, use fixup commits so that I can autosquash them at the end
+- **Never push fixup commits**: Always squash fixups locally (`git rebase -i --autosquash`) before pushing. No `fixup!` commits should appear in PRs.
 - When addressing feedback on a pull request, always rechech that all feedback was addressed in the changes when you finish. Also, suggest responses to the developer giving feedback in the PR.
 
 ## 🎫 Jira (Atlassian MCP)
@@ -52,6 +53,9 @@
   5. Transition to "In Progress"
   6. Update PR title with Jira ticket number prefix (e.g., "RSPEED-1234: original title")
   7. ⚠️ MANUAL: Add GitHub PR link via More > Link > Web Link (MCP tool doesn't create proper Issue Links)
+
+## 📈 Schwab Trading
+- **Stop order status**: Query `AWAITING_STOP_CONDITION` (not just `WORKING` or `PENDING_ACTIVATION`) to find trailing stops that haven't triggered yet
 
 ## 💡 Meta
 - Proactively recommend improvements (maintainability, efficiency, security, reliability)
