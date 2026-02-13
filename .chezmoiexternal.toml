@@ -84,3 +84,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/glab"]
+    type = "archive-file"
+    # renovate: datasource=gitlab-releases depName=gitlab-org/cli
+    url = "https://gitlab.com/gitlab-org/cli/-/releases/v1.82.0/downloads/glab_1.82.0_linux_amd64.tar.gz"
+    path = "bin/glab"
+    executable = true
+    refreshPeriod = "168h"
+
