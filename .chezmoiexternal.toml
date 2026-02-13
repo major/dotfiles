@@ -92,3 +92,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/bun"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.*)$
+    url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.9/bun-linux-x64.zip"
+    path = "bun-linux-x64/bun"
+    executable = true
+    refreshPeriod = "168h"
+
