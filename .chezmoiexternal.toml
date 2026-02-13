@@ -39,7 +39,7 @@
 ["bin/kubeseal"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=bitnami-labs/sealed-secrets
-    url = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.34.0/kubeseal-0.34.0-linux-amd64.tar.gz"
+    url = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.35.0/kubeseal-0.35.0-linux-amd64.tar.gz"
     path = "kubeseal"
     executable = true
     refreshPeriod = "168h"
