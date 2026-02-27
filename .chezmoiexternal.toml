@@ -92,6 +92,13 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/switcher"]
+    type = "file"
+    # renovate: datasource=github-releases depName=danielfoehrKn/kubeswitch
+    url = "https://github.com/danielfoehrKn/kubeswitch/releases/download/0.9.3/switcher_linux_amd64"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/bun"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.*)$
