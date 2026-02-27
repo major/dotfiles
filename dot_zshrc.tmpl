@@ -127,6 +127,12 @@ if [ -f '/home/major/Downloads/google-cloud-cli-linux-x86_64/google-cloud-sdk/co
 # Source machine-local secrets/config (not tracked in dotfiles)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
+# kubeswitch (per-terminal kube context switching)
+if command -v switcher &>/dev/null; then
+  source <(switcher init zsh)
+  alias s=switch
+fi
+
 # opencode
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export PATH=/home/major/.opencode/bin:$PATH
