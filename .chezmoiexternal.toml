@@ -101,8 +101,7 @@
 
 ["bin/coderabbit"]
     type = "archive-file"
-    # No renovate datasource available (proprietary CDN, not GitHub releases)
-    # Check latest version: curl -fsSL https://cli.coderabbit.ai/releases/latest/VERSION
+    # renovate: datasource=custom.coderabbit-cli depName=coderabbit-cli
     url = "https://cli.coderabbit.ai/releases/0.3.11/coderabbit-linux-x64.zip"
     path = "coderabbit"
     executable = true

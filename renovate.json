@@ -4,6 +4,12 @@
     "config:recommended"
   ],
   "minimumReleaseAge": "1 day",
+  "customDatasources": {
+    "coderabbit-cli": {
+      "defaultRegistryUrlTemplate": "https://cli.coderabbit.ai/releases/latest/VERSION",
+      "format": "plain"
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -11,7 +17,7 @@
         "/\\.chezmoiexternal\\.toml$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?/v?(?<currentValue>[\\d.]+)[^\"]*\""
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?[-/]v?(?<currentValue>[\\d.]+)[^\"]*\""
       ],
       "versioningTemplate": "semver"
     }
