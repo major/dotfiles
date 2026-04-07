@@ -55,7 +55,7 @@
 ["bin/helm"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=helm/helm
-    url = "https://get.helm.sh/helm-v4.0.4-linux-amd64.tar.gz"
+    url = "https://get.helm.sh/helm-v4.1.3-linux-amd64.tar.gz"
     path = "linux-amd64/helm"
     executable = true
     refreshPeriod = "168h"
