@@ -63,7 +63,7 @@
 ["bin/immich-go"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=simulot/immich-go
-    url = "https://github.com/simulot/immich-go/releases/download/v1.21.3/immich-go_Linux_x86_64.tar.gz"
+    url = "https://github.com/simulot/immich-go/releases/download/v0.31.0/immich-go_Linux_x86_64.tar.gz"
     path = "immich-go"
     executable = true
     refreshPeriod = "168h"
