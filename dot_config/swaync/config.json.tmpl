@@ -38,6 +38,13 @@
   "hide-on-clear": false,
   "hide-on-action": true,
   "script-fail-notify": true,
+  "scripts": {
+    "opencode-sound": {
+      "exec": "paplay /usr/share/sounds/freedesktop/stereo/complete.oga",
+      "summary": "^OpenCode$",
+      "run-on": "receive"
+    }
+  },
   "widgets": [
     "inhibitors",
     "title",
