@@ -25,9 +25,10 @@
         "tray"
     ],
     "custom/weather": {
-        "exec": "curl -s --connect-timeout 2 'wttr.in/?format=%C+%c+%t+(%f)+%h+%P+%m+UV%u+%w'",
+        "exec": "~/bin/weather",
+        "return-type": "json",
         "format": "{}",
-        "interval": 1500
+        "interval": 900
     },
     "custom/uname": {
         "exec": "uname -r | sed 's/\\.fc.*//'",

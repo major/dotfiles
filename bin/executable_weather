@@ -1,0 +1,175 @@
+#!/usr/bin/env zsh
+# Waybar weather module using Open-Meteo API.
+# Outputs JSON with text (bar display) and tooltip (hover details).
+# Caches results and coordinates for reliability.
+#
+# Coordinates auto-detected via IP geolocation on first run.
+# To force re-detection, delete ~/.cache/waybar/coords.json
+
+set -euo pipefail
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar"
+WEATHER_CACHE="$CACHE_DIR/weather.json"
+COORDS_CACHE="$CACHE_DIR/coords.json"
+
+mkdir -p "$CACHE_DIR"
+
+c_to_f() {
+    awk -v c="$1" 'BEGIN {printf "%.0f", (c * 9/5) + 32}'
+}
+
+round() {
+    printf "%.0f" "$1"
+}
+
+# Degrees to cardinal direction
+wind_cardinal() {
+    local deg=$1
+    local dirs=(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW)
+    local idx=$(awk -v d="$deg" 'BEGIN {printf "%d", int((d + 11.25) / 22.5) % 16}')
+    echo "${dirs[$((idx + 1))]}"
+}
+
+# Wind direction (where it comes FROM) to arrow (where it blows TO)
+wind_arrow() {
+    local deg=$1
+    local flow_deg=$(( (deg + 180) % 360 ))
+    local arrows=(↑ ↗ → ↘ ↓ ↙ ← ↖)
+    local idx=$(awk -v d="$flow_deg" 'BEGIN {printf "%d", int((d + 22.5) / 45) % 8}')
+    echo "${arrows[$((idx + 1))]}"
+}
+
+# WMO weather interpretation codes: https://open-meteo.com/en/docs
+weather_info() {
+    case $1 in
+        0)        echo "☀️|Clear" ;;
+        1)        echo "🌤️|Mostly clear" ;;
+        2)        echo "⛅|Partly cloudy" ;;
+        3)        echo "☁️|Overcast" ;;
+        45|48)    echo "🌫️|Fog" ;;
+        51|53|55) echo "🌦️|Drizzle" ;;
+        56|57)    echo "🌧️|Freezing drizzle" ;;
+        61)       echo "🌧️|Light rain" ;;
+        63)       echo "🌧️|Rain" ;;
+        65)       echo "🌧️|Heavy rain" ;;
+        66|67)    echo "🧊|Freezing rain" ;;
+        71)       echo "🌨️|Light snow" ;;
+        73)       echo "🌨️|Snow" ;;
+        75)       echo "🌨️|Heavy snow" ;;
+        77)       echo "🌨️|Snow grains" ;;
+        80|81|82) echo "🌧️|Showers" ;;
+        85|86)    echo "🌨️|Snow showers" ;;
+        95)       echo "⛈️|Thunderstorm" ;;
+        96|99)    echo "⛈️|T-storm + hail" ;;
+        *)        echo "❓|Unknown" ;;
+    esac
+}
+
+get_coords() {
+    if [[ -f "$COORDS_CACHE" ]]; then
+        cat "$COORDS_CACHE"
+        return
+    fi
+
+    local result
+    result=$(curl -sf --max-time 5 'http://ip-api.com/json/?fields=lat,lon,city') || return 1
+    [[ -n "$result" ]] || return 1
+    echo "$result" > "$COORDS_CACHE"
+    echo "$result"
+}
+
+fetch_weather() {
+    local coords lat lon
+    coords=$(get_coords) || return 1
+    lat=$(echo "$coords" | jq -r '.lat')
+    lon=$(echo "$coords" | jq -r '.lon')
+
+    curl -sf --connect-timeout 3 --max-time 8 \
+        "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,uv_index,is_day,precipitation&wind_speed_unit=mph"
+}
+
+main() {
+    local data
+    data=$(fetch_weather 2>/dev/null) || data=""
+
+    # Only cache responses that look valid
+    if [[ -n "$data" ]] && echo "$data" | jq -e '.current.temperature_2m' > /dev/null 2>&1; then
+        echo "$data" > "$WEATHER_CACHE"
+    elif [[ -f "$WEATHER_CACHE" ]]; then
+        data=$(<"$WEATHER_CACHE")
+    else
+        jq -nc '{"text":"⚠️ No weather data","tooltip":"Fetch failed and no cache available"}'
+        return
+    fi
+
+    local temp_c feels_c humidity wind wind_dir gusts pressure uv code is_day precip
+    temp_c=$(echo "$data" | jq -r '.current.temperature_2m')
+    feels_c=$(echo "$data" | jq -r '.current.apparent_temperature')
+    humidity=$(echo "$data" | jq -r '.current.relative_humidity_2m')
+    wind=$(echo "$data" | jq -r '.current.wind_speed_10m')
+    wind_dir=$(echo "$data" | jq -r '.current.wind_direction_10m')
+    gusts=$(echo "$data" | jq -r '.current.wind_gusts_10m')
+    pressure=$(echo "$data" | jq -r '.current.surface_pressure')
+    uv=$(echo "$data" | jq -r '.current.uv_index // 0')
+    code=$(echo "$data" | jq -r '.current.weather_code')
+    is_day=$(echo "$data" | jq -r '.current.is_day // 1')
+    precip=$(echo "$data" | jq -r '.current.precipitation // 0')
+
+    local info icon desc
+    info=$(weather_info "$code")
+    icon=${info%%|*}
+    desc=${info##*|}
+
+    # Swap clear sky icon for moon at night
+    if [[ "$is_day" == "0" && "$code" == "0" ]]; then
+        icon="🌙"
+    elif [[ "$is_day" == "0" && "$code" == "1" ]]; then
+        icon="🌙"
+        desc="Mostly clear"
+    fi
+
+    local temp_f feels_f
+    temp_f=$(c_to_f "$temp_c")
+    feels_f=$(c_to_f "$feels_c")
+
+    local temp_c_r feels_c_r uv_r wind_r gusts_r pressure_r precip_r
+    temp_c_r=$(round "$temp_c")
+    feels_c_r=$(round "$feels_c")
+    uv_r=$(round "$uv")
+    wind_r=$(round "$wind")
+    gusts_r=$(round "$gusts")
+    pressure_r=$(round "$pressure")
+    precip_r=$(awk -v p="$precip" 'BEGIN {printf "%.1f", p}')
+
+    local cardinal arrow
+    cardinal=$(wind_cardinal "$wind_dir")
+    arrow=$(wind_arrow "$wind_dir")
+
+    local text="${icon} ${temp_f}°F / ${temp_c_r}°C (${feels_f}°F / ${feels_c_r}°C) 💧${humidity}% ${arrow}${wind_r}mph"
+
+    local wind_dir_r
+    wind_dir_r=$(round "$wind_dir")
+
+    local day_night
+    if [[ "$is_day" == "1" ]]; then
+        day_night="Day"
+    else
+        day_night="Night"
+    fi
+
+    local tooltip
+    tooltip="${desc}
+Temperature: ${temp_f}°F / ${temp_c_r}°C
+Feels like: ${feels_f}°F / ${feels_c_r}°C
+Humidity: ${humidity}%
+Wind: ${cardinal} (${wind_dir_r}°) ${arrow} ${wind_r} mph
+Gusts: ${gusts_r} mph
+Precipitation: ${precip_r} mm
+UV Index: ${uv_r}
+Pressure: ${pressure_r} hPa
+Day/Night: ${day_night}"
+
+    jq -nc --arg t "$text" --arg tt "$tooltip" '{"text":$t,"tooltip":$tt}'
+}
+
+main
