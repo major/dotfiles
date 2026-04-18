@@ -26,8 +26,8 @@ main() {
     local data
     data=$(fetch_alerts 2>/dev/null) || data=""
 
-    if [[ -n "$data" ]] && echo "$data" | jq -e '.features' > /dev/null 2>&1; then
-        echo "$data" > "$ALERTS_CACHE"
+    if [[ -n "$data" ]] && jq -e '.features' <<< "$data" > /dev/null 2>&1; then
+        printf '%s' "$data" > "$ALERTS_CACHE"
     elif [[ -f "$ALERTS_CACHE" ]]; then
         data=$(<"$ALERTS_CACHE")
     else
@@ -37,20 +37,21 @@ main() {
 
     # Deduplicate alerts by ID (same alert can cover multiple zones)
     local count
-    count=$(echo "$data" | jq '[.features[].properties.id] | unique | length')
+    count=$(jq '[.features[].properties.id] | unique | length' <<< "$data")
 
     if [[ "$count" == "0" ]]; then
         echo ""
         return
     fi
 
-    # Deduplicated alert properties
+    # Deduplicate and extract only the fields we need
+    # (full properties contain description/instruction with control chars that break jq)
     local alerts
-    alerts=$(echo "$data" | jq '[.features | group_by(.properties.id)[] | .[0].properties]')
+    alerts=$(jq '[.features | group_by(.properties.id)[] | .[0].properties | {event, severity, urgency, headline, areaDesc}]' <<< "$data")
 
     # Determine highest severity for icon/class
     local max_severity
-    max_severity=$(echo "$alerts" | jq -r '[.[].severity] | if any(. == "Extreme") then "Extreme" elif any(. == "Severe") then "Severe" elif any(. == "Moderate") then "Moderate" else "Minor" end')
+    max_severity=$(jq -r '[.[].severity] | if any(. == "Extreme") then "Extreme" elif any(. == "Severe") then "Severe" elif any(. == "Moderate") then "Moderate" else "Minor" end' <<< "$alerts")
 
     local icon class
     case "$max_severity" in
@@ -64,15 +65,15 @@ main() {
     local text
     if [[ "$count" == "1" ]]; then
         local event
-        event=$(echo "$alerts" | jq -r '.[0].event')
+        event=$(jq -r '.[0].event' <<< "$alerts")
         text="${icon} ${event}"
     else
         text="${icon} ${count} alerts"
     fi
 
-    # Tooltip: all alerts with severity, event, area, and headline
+    # Tooltip: all alerts with severity, urgency, event, area, and headline
     local tooltip
-    tooltip=$(echo "$alerts" | jq -r '.[] | "[\(.severity)] \(.event)\n\(.areaDesc)\n\(.headline // "No details")\n"')
+    tooltip=$(jq -r '.[] | "[\(.severity)/\(.urgency)] \(.event)\n\(.areaDesc)\n\(.headline // "No details")\n"' <<< "$alerts")
 
     jq -nc --arg t "$text" --arg tt "$tooltip" --arg c "$class" \
         '{"text":$t,"tooltip":$tt,"class":$c}'
