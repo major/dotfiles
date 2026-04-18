@@ -75,7 +75,7 @@
 	# Check the output of 'sensors' program, decide which line contains desired CPU temperature
 	# and store an unique part of that line in this variable. It will be used by 'grep' program
 	# to distinct the 'CPU temperature' line from the rest output lines.
-	export TMUX_POWERLINE_SEG_CPU_TEMP_SENSORS_LINE_MARKER="Package id 0\|Physical id 0\|temp1"
+	export TMUX_POWERLINE_SEG_CPU_TEMP_SENSORS_LINE_MARKER="Tctl"
 # }
 
 # date.sh {
@@ -461,7 +461,7 @@
 	# The data provider to use. Currently only "yrno" is supported.
 	export TMUX_POWERLINE_SEG_WEATHER_DATA_PROVIDER="yrno"
 	# What unit to use. Can be any of {c,f,k}.
-	export TMUX_POWERLINE_SEG_WEATHER_UNIT="c"
+	export TMUX_POWERLINE_SEG_WEATHER_UNIT="f"
 	# How often to update the weather in seconds.
 	export TMUX_POWERLINE_SEG_WEATHER_UPDATE_PERIOD="600"
 	# How often to update the weather location in seconds (this is only used when latitude and longitude settings are set to "auto")
