@@ -11,7 +11,8 @@
     "modules-center": [
         "clock#eu",
         "clock#home",
-        "custom/weather"
+        "custom/weather",
+        "custom/nws-alerts"
     ],
     "modules-right": [
         "battery",
@@ -26,6 +27,12 @@
     ],
     "custom/weather": {
         "exec": "~/bin/weather",
+        "return-type": "json",
+        "format": "{}",
+        "interval": 900
+    },
+    "custom/nws-alerts": {
+        "exec": "~/bin/nws-alerts",
         "return-type": "json",
         "format": "{}",
         "interval": 900

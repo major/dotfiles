@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+# NWS weather alerts for waybar.
+# Monitors Guadalupe County, TX and surrounding counties.
+# Outputs JSON for waybar. Hidden (empty output) when no alerts active.
+#
+# Zone codes: https://api.weather.gov/zones?type=county&area=TX
+
+set -euo pipefail
+
+# Guadalupe (TXC187) + Bexar, Caldwell, Comal, Gonzales, Hays, Wilson
+ZONES="TXC187,TXC029,TXC055,TXC091,TXC177,TXC209,TXC493"
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar"
+ALERTS_CACHE="$CACHE_DIR/nws-alerts.json"
+
+mkdir -p "$CACHE_DIR"
+
+fetch_alerts() {
+    curl -sf --connect-timeout 3 --max-time 8 \
+        -H 'User-Agent: waybar-nws-alerts (github.com/major/dotfiles)' \
+        -H 'Accept: application/geo+json' \
+        "https://api.weather.gov/alerts/active?zone=${ZONES}"
+}
+
+main() {
+    local data
+    data=$(fetch_alerts 2>/dev/null) || data=""
+
+    if [[ -n "$data" ]] && echo "$data" | jq -e '.features' > /dev/null 2>&1; then
+        echo "$data" > "$ALERTS_CACHE"
+    elif [[ -f "$ALERTS_CACHE" ]]; then
+        data=$(<"$ALERTS_CACHE")
+    else
+        echo ""
+        return
+    fi
+
+    # Deduplicate alerts by ID (same alert can cover multiple zones)
+    local count
+    count=$(echo "$data" | jq '[.features[].properties.id] | unique | length')
+
+    if [[ "$count" == "0" ]]; then
+        echo ""
+        return
+    fi
+
+    # Deduplicated alert properties
+    local alerts
+    alerts=$(echo "$data" | jq '[.features | group_by(.properties.id)[] | .[0].properties]')
+
+    # Determine highest severity for icon/class
+    local max_severity
+    max_severity=$(echo "$alerts" | jq -r '[.[].severity] | if any(. == "Extreme") then "Extreme" elif any(. == "Severe") then "Severe" elif any(. == "Moderate") then "Moderate" else "Minor" end')
+
+    local icon class
+    case "$max_severity" in
+        Extreme)  icon="🚨"; class="extreme" ;;
+        Severe)   icon="⚠️";  class="severe" ;;
+        Moderate) icon="⚠️";  class="moderate" ;;
+        *)        icon="ℹ️";  class="minor" ;;
+    esac
+
+    # Bar text: single alert shows event name, multiple shows count
+    local text
+    if [[ "$count" == "1" ]]; then
+        local event
+        event=$(echo "$alerts" | jq -r '.[0].event')
+        text="${icon} ${event}"
+    else
+        text="${icon} ${count} alerts"
+    fi
+
+    # Tooltip: all alerts with severity, event, area, and headline
+    local tooltip
+    tooltip=$(echo "$alerts" | jq -r '.[] | "[\(.severity)] \(.event)\n\(.areaDesc)\n\(.headline // "No details")\n"')
+
+    jq -nc --arg t "$text" --arg tt "$tooltip" --arg c "$class" \
+        '{"text":$t,"tooltip":$tt,"class":$c}'
+}
+
+main
