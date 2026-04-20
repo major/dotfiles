@@ -115,3 +115,10 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/acli"]
+    type = "file"
+    # No versioned URLs available - chezmoi refreshPeriod handles updates
+    url = "https://acli.atlassian.com/linux/latest/acli_linux_amd64/acli"
+    executable = true
+    refreshPeriod = "168h"
+
