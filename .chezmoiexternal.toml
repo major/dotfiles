@@ -115,6 +115,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/oc"]
+    type = "archive-file"
+    # No versioned URLs available - chezmoi refreshPeriod handles updates
+    url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux-amd64-rhel9.tar.gz"
+    path = "oc"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/acli"]
     type = "file"
     # No versioned URLs available - chezmoi refreshPeriod handles updates
