@@ -1,28 +1,46 @@
 {
     "layer": "top",
     "position": "bottom",
-    "height": 30,
+    "height": 24,
+    "spacing": 0,
+    "reload_style_on_change": true,
     "modules-left": [
-        "hyprland/workspaces"
+        "hyprland/workspaces",
+        "custom/arrow-l1"
     ],
     "hyprland/workspaces": {
         "all-outputs": false
     },
     "modules-center": [
+        "custom/arrow-c1",
         "clock#eu",
         "clock#home",
+        "custom/arrow-c2",
         "custom/weather",
-        "custom/nws-alerts"
+        "custom/nws-alerts",
+        "custom/arrow-c3"
     ],
     "modules-right": [
+{{- if eq .chezmoi.hostname "zorro" }}
+        "custom/arrow-r1-bat",
         "battery",
+        "custom/arrow-r2",
+{{- else }}
+        "custom/arrow-r1-nobat",
+{{- end }}
         "custom/uname",
+        "custom/arrow-r3",
         "memory",
+        "custom/arrow-r4",
         "cpu",
+        "custom/arrow-r5",
         "temperature",
         "temperature#gpu",
+        "custom/arrow-r6",
         "disk",
+        "custom/arrow-r7",
         "pulseaudio",
+        "custom/arrow-r8",
         "tray"
     ],
     "custom/weather": {
@@ -39,7 +57,7 @@
     },
     "custom/uname": {
         "exec": "uname -r | sed 's/\\.fc.*//'",
-        "format": " {}",
+        "format": "\uf17c {}",
         "interval": 3600
     },
     "custom/egauge": {
@@ -49,19 +67,19 @@
     },
     "custom/amdups": {
         "exec": "~/bin/ups_wattage",
-        "format": " {}W"
+        "format": "\uf0e7 {}W"
     },
     "custom/firewallups": {
         "exec": "~/bin/ups_wattage_firewall",
-        "format": " {}W"
+        "format": "\uf0e7 {}W"
     },
     "memory": {
         "interval": 30,
-        "format": " {used:0.1f}G"
+        "format": "\uf2db {used:0.1f}G"
     },
     "cpu": {
         "interval": 10,
-        "format": " {avg_frequency:0.2f}GHz",
+        "format": "\uf2db {avg_frequency:0.2f}GHz",
         "max-length": 10
     },
     "temperature": {
@@ -72,7 +90,7 @@
         "hwmon-path": "/sys/class/hwmon/hwmon3/temp1_input",
 {{- end }}
         "critical-threshold": 80,
-        "format": " {temperatureC}°C",
+        "format": "\uf2c9 {temperatureC}\u00b0C",
         "interval": 5
     },
     "temperature#gpu": {
@@ -82,12 +100,12 @@
         "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
 {{- end }}
         "critical-threshold": 90,
-        "format": " {temperatureC}°C",
+        "format": "\uf26c {temperatureC}\u00b0C",
         "interval": 5
     },
     "disk": {
         "interval": 30,
-        "format": " {free}",
+        "format": "\uf0a0 {free}",
         "path": "/"
     },
     "keyboard-state": {
@@ -95,35 +113,35 @@
         "capslock": false,
         "format": "{name} {icon}",
         "format-icons": {
-            "locked": "",
-            "unlocked": ""
+            "locked": "\uf023",
+            "unlocked": "\uf09c"
         }
     },
     "pulseaudio": {
         "format": "{volume}% {icon}",
-        "format-bluetooth": "{volume}% {icon}",
-        "format-muted": "",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "\uf6a9",
         "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
+            "headphone": "\uf025",
+            "hands-free": "\uf590",
+            "headset": "\uf590",
+            "phone": "\uf095",
+            "portable": "\uf095",
+            "car": "\uf1b9",
             "default": [
-                "",
-                ""
+                "\uf026",
+                "\uf028"
             ]
         },
         "scroll-step": 1,
         "on-click": "pavucontrol"
     },
     "clock#eu": {
-        "format": "{:%H:%M} 🇨🇿",
+        "format": "{:%H:%M} \ud83c\udde8\ud83c\uddff",
         "timezone": "Europe/Prague"
     },
     "clock#home": {
-        "format": "{:%m/%d  🇺🇸 %H:%M:%S}",
+        "format": "{:%m/%d  \ud83c\uddfa\ud83c\uddf8 %H:%M:%S}",
         "interval": 1,
         "timezone": "America/Chicago"
     },
@@ -139,12 +157,64 @@
         },
         "format": "{power:0.1f}W {capacity}% {icon}",
         "format-icons": [
-            "",
-            "",
-            "",
-            "",
-            ""
+            "\uf244",
+            "\uf243",
+            "\uf242",
+            "\uf241",
+            "\uf240"
         ],
         "max-length": 25
+    },
+    "custom/arrow-l1": {
+        "format": "\ue0b0",
+        "tooltip": false
+    },
+    "custom/arrow-c1": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-c2": {
+        "format": "\ue0b0",
+        "tooltip": false
+    },
+    "custom/arrow-c3": {
+        "format": "\ue0b0",
+        "tooltip": false
+    },
+    "custom/arrow-r1-bat": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r1-nobat": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r2": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r3": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r4": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r5": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r6": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r7": {
+        "format": "\ue0b2",
+        "tooltip": false
+    },
+    "custom/arrow-r8": {
+        "format": "\ue0b2",
+        "tooltip": false
     }
 }

@@ -1,0 +1,19 @@
+/* Dracula palette */
+/* Edit these colors to customize your powerline theme */
+
+@define-color foreground #f8f8f2;
+@define-color foreground-dark #282a36;
+@define-color background rgba(40, 42, 54, 0.9);
+
+@define-color workspace #44475a;
+@define-color clock #44475a;
+@define-color weather #373a4a;
+
+@define-color battery #f1fa8c;
+@define-color kernel #ffb86c;
+@define-color memory #bd93f9;
+@define-color cpu #8be9fd;
+@define-color temp #50fa7b;
+@define-color disk #6272a4;
+@define-color sound #ff79c6;
+@define-color tray #373a4a;
