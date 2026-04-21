@@ -130,3 +130,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/marketsurge-agent"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=major/marketsurge-agent
+    url = "https://github.com/major/marketsurge-agent/releases/download/v0.1.0/marketsurge-agent_0.1.0_linux_amd64.tar.gz"
+    path = "marketsurge-agent"
+    executable = true
+    refreshPeriod = "168h"
+
