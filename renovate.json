@@ -3,7 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  "minimumReleaseAge": "1 day",
   "customDatasources": {
     "coderabbit-cli": {
       "defaultRegistryUrlTemplate": "https://cli.coderabbit.ai/releases/latest/VERSION",
