@@ -141,7 +141,7 @@
 ["bin/volumeleaders-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/volumeleaders-agent
-    url = "https://github.com/major/volumeleaders-agent/releases/download/v0.2.0/volumeleaders-agent_0.2.0_linux_amd64.tar.gz"
+    url = "https://github.com/major/volumeleaders-agent/releases/download/v0.3.0/volumeleaders-agent_0.3.0_linux_amd64.tar.gz"
     path = "volumeleaders-agent"
     executable = true
     refreshPeriod = "168h"
