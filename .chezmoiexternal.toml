@@ -154,3 +154,11 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/goreleaser"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=goreleaser/goreleaser
+    url = "https://github.com/goreleaser/goreleaser/releases/download/v2.15.4/goreleaser_Linux_x86_64.tar.gz"
+    path = "goreleaser"
+    executable = true
+    refreshPeriod = "168h"
+
