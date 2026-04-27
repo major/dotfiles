@@ -149,7 +149,7 @@
 ["bin/schwab-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/schwab-agent
-    url = "https://github.com/major/schwab-agent/releases/download/v1.3.2/schwab-agent_1.3.2_linux_amd64.tar.gz"
+    url = "https://github.com/major/schwab-agent/releases/download/v1.4.0/schwab-agent_1.4.0_linux_amd64.tar.gz"
     path = "schwab-agent"
     executable = true
     refreshPeriod = "168h"
