@@ -162,6 +162,14 @@
     executable = true
     refreshPeriod = "168h"
 
+[".agents/skills/jira-agent"]
+    type = "archive"
+    url = "https://github.com/major/jira-agent/archive/refs/heads/main.tar.gz"
+    exact = true
+    stripComponents = 3
+    include = ["*/skills/jira-agent", "*/skills/jira-agent/**"]
+    refreshPeriod = "168h"
+
 ["bin/goreleaser"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=goreleaser/goreleaser
