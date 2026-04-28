@@ -179,6 +179,14 @@
     include = ["*/skills/marketsurge-agent", "*/skills/marketsurge-agent/**"]
     refreshPeriod = "168h"
 
+[".agents/skills/schwab-agent"]
+    type = "archive"
+    url = "https://github.com/major/schwab-agent/archive/refs/heads/main.tar.gz"
+    exact = true
+    stripComponents = 3
+    include = ["*/skills/schwab-agent", "*/skills/schwab-agent/**"]
+    refreshPeriod = "168h"
+
 ["bin/goreleaser"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=goreleaser/goreleaser
