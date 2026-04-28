@@ -163,6 +163,22 @@
     include = ["*/skills/jira-agent", "*/skills/jira-agent/**"]
     refreshPeriod = "168h"
 
+[".agents/skills/volumeleaders-agent"]
+    type = "archive"
+    url = "https://github.com/major/volumeleaders-agent/archive/refs/heads/main.tar.gz"
+    exact = true
+    stripComponents = 3
+    include = ["*/skills/volumeleaders-agent", "*/skills/volumeleaders-agent/**"]
+    refreshPeriod = "168h"
+
+[".agents/skills/marketsurge-agent"]
+    type = "archive"
+    url = "https://github.com/major/marketsurge-agent/archive/refs/heads/main.tar.gz"
+    exact = true
+    stripComponents = 3
+    include = ["*/skills/marketsurge-agent", "*/skills/marketsurge-agent/**"]
+    refreshPeriod = "168h"
+
 ["bin/goreleaser"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=goreleaser/goreleaser
