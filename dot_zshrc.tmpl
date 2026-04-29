@@ -92,6 +92,9 @@ if command -v rbenv &>/dev/null; then
 fi
 export PATH=~/.npm-global/bin:$PATH
 
+# Use the global markdownlint config by default.
+alias markdownlint='command markdownlint --config "$HOME/.markdownlint.json"'
+
 #source /home/major/.config/op/plugins.sh
 
 # Keypad
