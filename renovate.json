@@ -3,6 +3,22 @@
   "extends": [
     "config:recommended"
   ],
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "packageRules": [
+    {
+      "description": "Automerge chezmoi external tool updates",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        ".chezmoiexternal.toml"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
+    }
+  ],
   "customDatasources": {
     "coderabbit-cli": {
       "defaultRegistryUrlTemplate": "https://cli.coderabbit.ai/releases/latest/VERSION",
