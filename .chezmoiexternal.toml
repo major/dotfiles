@@ -84,6 +84,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/stern"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=stern/stern
+    url = "https://github.com/stern/stern/releases/download/v1.33.1/stern_1.33.1_linux_amd64.tar.gz"
+    path = "stern"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/glab"]
     type = "archive-file"
     # renovate: datasource=gitlab-releases depName=gitlab-org/cli
