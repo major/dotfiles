@@ -158,7 +158,7 @@
 ["bin/jira-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/jira-agent
-    url = "https://github.com/major/jira-agent/releases/download/v0.2.0/jira-agent_0.2.0_linux_amd64.tar.gz"
+    url = "https://github.com/major/jira-agent/releases/download/v0.3.0/jira-agent_0.3.0_linux_amd64.tar.gz"
     path = "jira-agent"
     executable = true
     refreshPeriod = "168h"
