@@ -142,7 +142,7 @@
 ["bin/volumeleaders-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/volumeleaders-agent
-    url = "https://github.com/major/volumeleaders-agent/releases/download/v0.8.0/volumeleaders-agent_0.8.0_linux_amd64.tar.gz"
+    url = "https://github.com/major/volumeleaders-agent/releases/download/v0.8.1/volumeleaders-agent_0.8.1_linux_amd64.tar.gz"
     path = "volumeleaders-agent"
     executable = true
     refreshPeriod = "168h"
@@ -150,7 +150,7 @@
 ["bin/schwab-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/schwab-agent
-    url = "https://github.com/major/schwab-agent/releases/download/v1.8.0/schwab-agent_1.8.0_linux_amd64.tar.gz"
+    url = "https://github.com/major/schwab-agent/releases/download/v1.8.1/schwab-agent_1.8.1_linux_amd64.tar.gz"
     path = "schwab-agent"
     executable = true
     refreshPeriod = "168h"
