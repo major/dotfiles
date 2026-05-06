@@ -171,6 +171,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/golangci-lint"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=golangci/golangci-lint
+    url = "https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz"
+    path = "golangci-lint-2.12.2-linux-amd64/golangci-lint"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/go"]
     type = "archive-file"
     # renovate: datasource=golang-version depName=go
