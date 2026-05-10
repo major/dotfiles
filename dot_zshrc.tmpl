@@ -143,3 +143,14 @@ if [ -f '/home/major/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/major
 
 export GOROOT=/usr/local/go
 export PATH="$HOME/go/bin:/usr/local/go/bin:$PATH"
+
+# tmux dev layout: opencode left, neovim right
+dev() {
+  local session="${1:-dev}"
+  tmux new-session -d -s "$session" -x "$(tput cols)" -y "$(tput lines)" 'opencode' \; \
+    split-window -h 'nvim' \; \
+    select-pane -t 0 \; \
+    set-hook -t "$session" after-new-window \
+      "send-keys 'opencode' Enter ; split-window -h 'nvim' ; select-pane -t 0" \; \
+    attach
+}
