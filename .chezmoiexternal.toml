@@ -198,9 +198,11 @@
     refreshPeriod = "168h"
 
 ["bin/nvim"]
-    type = "file"
+    type = "archive-file"
     # renovate: datasource=github-releases depName=neovim/neovim
-    url = "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.appimage"
+    url = "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz"
+    path = "bin/nvim"
+    stripComponents = 1
     executable = true
     refreshPeriod = "168h"
 
