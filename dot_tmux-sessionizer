@@ -1,0 +1,3 @@
+# Global tmux-sessionizer hydration: nvim in the sole pane
+# Start opencode manually when needed (e.g. split-window + opencode)
+tmux send-keys 'nvim' Enter
