@@ -1,5 +1,12 @@
 # Host-specific and custom kitty overrides
 # This file is included at the end of kitty.conf and overrides defaults.
+#
+# This is a chezmoi template (local.conf.tmpl). To edit:
+#   1. Edit the source: chezmoi edit ~/.config/kitty/local.conf
+#   2. Apply changes:   chezmoi apply ~/.config/kitty/
+#
+# Go template expressions ({{ }}) are evaluated per host at apply time.
+# Use .chezmoi.hostname to vary settings by machine.
 
 font_family      family="Hack Nerd Font"
 font_size {{ if eq .chezmoi.hostname "zorro" }}10{{ else }}9{{ end }}
