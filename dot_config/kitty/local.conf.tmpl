@@ -1,1 +1,15 @@
+# Host-specific and custom kitty overrides
+# This file is included at the end of kitty.conf and overrides defaults.
+
+font_family      family="Hack Nerd Font"
 font_size {{ if eq .chezmoi.hostname "zorro" }}10{{ else }}9{{ end }}
+
+background_opacity 0.95
+
+shell /usr/bin/zsh
+
+map shift+page_up scroll_page_up
+map shift+page_down scroll_page_down
+
+# Make numpad Enter send literal newline (LF) instead of CR like regular Enter
+map kp_enter send_text all \x0a
