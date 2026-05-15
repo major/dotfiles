@@ -5,11 +5,17 @@
 #   1. Edit the source: chezmoi edit ~/.config/kitty/local.conf
 #   2. Apply changes:   chezmoi apply ~/.config/kitty/
 #
-# Go template expressions ({{ }}) are evaluated per host at apply time.
+# Go template expressions are evaluated per host at apply time.
 # Use .chezmoi.hostname to vary settings by machine.
 
-font_family      family="Hack Nerd Font"
+# Load theme here (not in kitty.conf) so theme colors override defaults
+include theme.conf
+
+font_family      family="Hack"
 font_size {{ if eq .chezmoi.hostname "zorro" }}10{{ else }}9{{ end }}
+
+# Prevent descender clipping (g, j, p, q, y)
+modify_font cell_height 104%
 
 background_opacity 0.95
 
