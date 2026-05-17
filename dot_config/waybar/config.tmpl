@@ -155,7 +155,12 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{power:0.1f}W {capacity}% {icon}",
+        "format": "{capacity}% {icon}",
+        "format-discharging": "{power:0.1f}W {capacity}% ({time}) {icon}",
+        "format-charging": "\uf0e7 {power:0.1f}W {capacity}% ({time}) {icon}",
+        "format-plugged": "\uf1e6 {capacity}%",
+        "format-full": "\uf1e6 {capacity}%",
+        "format-time": "{H}:{m}",
         "format-icons": [
             "\uf244",
             "\uf243",
@@ -163,7 +168,7 @@
             "\uf241",
             "\uf240"
         ],
-        "max-length": 25
+        "max-length": 40
     },
     "custom/arrow-l1": {
         "format": "\ue0b0",
