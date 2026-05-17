@@ -28,6 +28,12 @@ style = "Bold Italic"
 key = "NumpadEnter"
 chars = "\u000A"
 
+# Shift+Enter sends literal newline (LF), same as NumpadEnter
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u000A"
+
 # Tokyo Night color theme
 # https://github.com/folke/tokyonight.nvim
 [colors.primary]
