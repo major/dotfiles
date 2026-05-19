@@ -133,8 +133,9 @@
 
 ["bin/marketsurge-agent"]
     type = "archive-file"
-    # renovate: datasource=github-releases depName=major/marketsurge-agent
-    url = "https://github.com/major/marketsurge-agent/releases/download/v1.0.0/marketsurge-agent_1.0.0_linux_amd64.tar.gz"
+    # renovate: datasource=github-releases depName=major/marketsurge-rs
+    url = "https://github.com/major/marketsurge-rs/releases/download/v0.1.1/marketsurge-agent-x86_64-unknown-linux-gnu.tar.xz"
+    stripComponents = 1
     path = "marketsurge-agent"
     executable = true
     refreshPeriod = "168h"
