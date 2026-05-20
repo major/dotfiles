@@ -6,6 +6,11 @@
 3. Touch only what you must. Clean up only your own mess.
 4. Define success criteria. Loop until verified.
 
+## 🙋 Clarification
+- When a task is ambiguous, has multiple valid interpretations, or requires preference input, use the `question` tool to ask the user directly rather than guessing or making assumptions.
+- Prefer structured multiple-choice questions with clear option descriptions over open-ended prompts.
+- Ask early (before starting work), not after going down the wrong path.
+
 ## 🎨 Communication
 - **Markdown formatting**: Never use hard line wraps in generated markdown files, GitHub issues, or PRs. Let the renderer handle line wrapping.
 - **Fenced code blocks**: Always add a language tag to fenced code blocks (e.g., ` ```python `, ` ```bash `, ` ```text `). Use `text` for plain-text blocks like directory trees, diagrams, or dependency graphs. Unlabeled fences trigger markdownlint MD040 and get flagged in PR reviews.
@@ -27,6 +32,7 @@
 - **Containers**: podman + Containerfile (not docker/Dockerfile)
 - **Browser automation**: Default to Firefox headless (`--browser=firefox`). Only use headed mode when explicitly requested or when visual inspection is needed.
 - **Rust stack**: Installed via rustup (`curl https://sh.rustup.rs`). Toolchains and cargo live in `~/.cargo/bin/`. Currently on stable 1.95.0, which is newer than most project MSRVs. Run `rustup update` to stay current.
+- **JSON processing**: Prefer `jq` for parsing, filtering, and transforming JSON over writing one-off Python/Ruby/Go scripts. Pipe API responses and config files through `jq` directly. Use `yq` for the same with YAML/XML.
 - **Search scope**: Never run `rg`, `grep`, `find`, or similar recursive search tools from `~` or `/`. Always scope searches to a specific project directory (e.g., `~/git/major/<repo>`). Home directory contains massive git repos and container storage that will cause timeouts.
 
 ## 🔀 Git Workflow
@@ -39,7 +45,7 @@
   - Check MR template at `.gitlab/merge_request_templates/` and use its structure in `--description`.
   - Other useful commands: `glab mr list`, `glab mr view NUMBER`, `glab mr check NUMBER` (pipeline status).
 - **Pre-commit formatting**: In Python projects, always run `ruff format --check` on changed files before committing. If it fails, run `ruff format` to fix, then stage the reformatted files. This catches formatting issues before they hit CI.
-- Don't ever write to a remote repo, such as using a git push, without my permission 
+- Don't push to a remote without permission. Exception: when I explicitly invoke a PR/MR-creation command (e.g. `/pr-create`), that invocation counts as push permission for the working branch. 
 - Always use my signed-off-by messages in commit messages along with GPG signatures (-s and -S)
 - When addressing feedback on a pull request, always recheck that all feedback was addressed in the changes when you finish. Also, suggest responses to the developer giving feedback in the PR.
 - **Worktrees**: Prefer worktrees over branch switching for all work. Use `git worktree add ../<repo>-<label> <branch>` to work on branches without stashing or switching. Remove with `git worktree remove ../<repo>-<label>` when done.
@@ -86,3 +92,4 @@
 - Proactively recommend improvements (maintainability, efficiency, security, reliability)
 - Write token-efficient AGENTS.md files
 - **Dotfiles**: After editing any dotfile, remind the user to sync changes with chezmoi (e.g., `chezmoi re-add <file>`)
+- **PII**: Never put personal information (emails, account IDs, API credentials, hostnames) in AGENTS.md or command files. Store all PII in PERSONAL_INSTRUCTIONS.md and reference it from commands.
