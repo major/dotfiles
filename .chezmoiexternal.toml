@@ -152,7 +152,7 @@
 ["bin/schwab-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/schwab-agent-rs
-    url = "https://github.com/major/schwab-agent-rs/releases/download/v0.2.0/schwab-agent-rs-x86_64-unknown-linux-gnu.tar.xz"
+    url = "https://github.com/major/schwab-agent-rs/releases/download/v0.4.3/schwab-agent-rs-x86_64-unknown-linux-gnu.tar.xz"
     path = "schwab-agent"
     stripComponents = 1
     executable = true
