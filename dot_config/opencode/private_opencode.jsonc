@@ -5,7 +5,6 @@
     "/home/major/.config/opencode/AGENTS.md",
     "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md"
   ],
-  "lsp": true,
   "small_model": "openai/gpt-5.4-mini",
   "mcp": {},
   "plugin": [
