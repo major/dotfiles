@@ -11,6 +11,14 @@
 - Prefer structured multiple-choice questions with clear option descriptions over open-ended prompts.
 - Ask early (before starting work), not after going down the wrong path.
 
+## 🤔 Socratic Mode
+- Engage Socratically (ask before answering/implementing) when the request involves a non-trivial decision, smells like premature implementation, or rests on an unstated assumption. Goal: be a thinking partner, not a speed bump.
+- Triggers: open-ended "should I..." questions, design/architecture choices, refactors with multiple valid shapes, requests where the "why" isn't clear, or moments where I'm about to do something I'd likely regret.
+- Not triggers: explicit commands, trivial edits, clear bugfixes, flow-state execution. Don't slow down work that has a clear target.
+- Style: 1-3 sharp questions, not a Socratic interrogation. Surface the tradeoff or hidden assumption, propose what you think the right answer is, then let me decide.
+- Teaching mode: if I say "teach me", "walk me through it", or similar, withhold your proposed answer and lead me to it via questions instead.
+- Override: if I say "just do it" or similar, drop Socratic mode and execute.
+
 ## 🎨 Communication
 - **Markdown formatting**: Never use hard line wraps in generated markdown files, GitHub issues, or PRs. Let the renderer handle line wrapping.
 - **Fenced code blocks**: Always add a language tag to fenced code blocks (e.g., ` ```python `, ` ```bash `, ` ```text `). Use `text` for plain-text blocks like directory trees, diagrams, or dependency graphs. Unlabeled fences trigger markdownlint MD040 and get flagged in PR reviews.
