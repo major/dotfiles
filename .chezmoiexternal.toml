@@ -134,7 +134,7 @@
 ["bin/marketsurge-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/marketsurge-rs
-    url = "https://github.com/major/marketsurge-rs/releases/download/v0.2.0/marketsurge-agent-x86_64-unknown-linux-gnu.tar.xz"
+    url = "https://github.com/major/marketsurge-rs/releases/download/v0.3.0/marketsurge-agent-x86_64-unknown-linux-gnu.tar.xz"
     stripComponents = 1
     path = "marketsurge-agent"
     executable = true
