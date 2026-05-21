@@ -17,7 +17,7 @@
 - **Em dashes**: Never use em dashes (—) anywhere: not in prose, tables, commit messages, or any output. Use commas, parentheses, colons, hyphens (-), or separate sentences instead. Em dashes render as ~2 cells wide in monospace terminals but count as 1 character, breaking alignment in tables and box-drawing output.
 
 ## 🧪 Testing
-- Focus on critical paths (don't chase 100% coverage)
+- Focus on critical paths; language-specific coverage targets in skills override this default
 - TDD when possible
 
 ## 📂 Repository Layout
