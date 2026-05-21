@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Kill the current tmux session and drop back into the tmux-sessionizer picker
+# instead of detaching to the parent shell.
+set -u
+
+current=$(tmux display-message -p '#S')
+picker="_picker"
+
+# Spin up a holding session that runs tmux-sessionizer. It cleans itself up
+# once sessionizer exits (either after switching to a project or on Esc).
+if ! tmux has-session -t="$picker" 2>/dev/null; then
+    tmux new-session -d -s "$picker" \
+        "tmux-sessionizer; tmux kill-session -t $picker"
+fi
+
+# Switch the client over before killing the old session so tmux does not
+# detach us to the parent shell.
+tmux switch-client -t "$picker"
+tmux kill-session -t "$current"
