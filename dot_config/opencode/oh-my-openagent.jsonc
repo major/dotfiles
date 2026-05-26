@@ -1,9 +1,8 @@
 {
   // Provider constraints:
-  // - Anthropic models (haiku, sonnet, opus) via Google Vertex AI only
-  // - OpenAI GPT models (direct)
-  // - No access to minimax, grok, gemini, or other providers
-  // - Claude Opus 4-7 not yet available on Vertex AI (pinned to 4-6)
+  // - Anthropic models (haiku, sonnet, opus) via direct Anthropic API
+  // - Avoid -fast variants (cost)
+  // - Top tier: claude-opus-4-7, Mid tier: claude-sonnet-4-6, Fast tier: claude-haiku-4-5
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
   "disabled_hooks": [
     "comment-checker"
@@ -27,8 +26,8 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
-      "variant": "high"
+      "model": "anthropic/claude-opus-4-7",
+      "variant": "max"
     },
     "hephaestus": {
       "model": "openai/gpt-5.5",
@@ -39,65 +38,62 @@
       "variant": "high"
     },
     "librarian": {
-      "model": "openai/gpt-5.4-mini-fast"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "explore": {
-      "model": "openai/gpt-5.4-mini-fast"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "multimodal-looker": {
-      "model": "openai/gpt-5.5",
+      "model": "anthropic/claude-sonnet-4-6",
       "variant": "medium"
     },
     "prometheus": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "max"
     },
     "metis": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
-      "variant": "max"
+      "model": "anthropic/claude-sonnet-4-6"
     },
     "momus": {
-      "model": "openai/gpt-5.5",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "xhigh"
     },
     "atlas": {
-      "model": "google-vertex-anthropic/claude-sonnet-4-6@default",
-      "variant": "medium"
+      "model": "anthropic/claude-sonnet-4-6"
     },
     "sisyphus-junior": {
-      "model": "google-vertex-anthropic/claude-sonnet-4-6@default",
-      "variant": "medium"
+      "model": "anthropic/claude-sonnet-4-6"
     }
   },
   "categories": {
     "visual-engineering": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "max"
     },
     "ultrabrain": {
-      "model": "openai/gpt-5.5",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "xhigh"
     },
     "deep": {
-      "model": "openai/gpt-5.5",
-      "variant": "high"
+      "model": "anthropic/claude-opus-4-7",
+      "variant": "medium"
     },
     "artistry": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "max"
     },
     "quick": {
-      "model": "openai/gpt-5.4-mini"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "unspecified-low": {
-      "model": "google-vertex-anthropic/claude-sonnet-4-6@default"
+      "model": "anthropic/claude-sonnet-4-6"
     },
     "unspecified-high": {
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "anthropic/claude-opus-4-7",
       "variant": "max"
     },
     "writing": {
-      "model": "google-vertex-anthropic/claude-sonnet-4-6@default"
+      "model": "anthropic/claude-sonnet-4-6"
     }
   }
 }
