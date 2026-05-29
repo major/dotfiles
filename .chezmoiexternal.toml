@@ -196,7 +196,7 @@
 ["bin/lazygit"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=jesseduffield/lazygit
-    url = "https://github.com/jesseduffield/lazygit/releases/download/v0.62.0/lazygit_0.62.0_linux_x86_64.tar.gz"
+    url = "https://github.com/jesseduffield/lazygit/releases/download/v0.62.1/lazygit_0.62.1_linux_x86_64.tar.gz"
     path = "lazygit"
     executable = true
     refreshPeriod = "168h"
