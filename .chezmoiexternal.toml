@@ -143,7 +143,7 @@
 ["bin/volumeleaders-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/volumeleaders-rs
-    url = "https://github.com/major/volumeleaders-rs/releases/download/v0.6.0/rusty-volumeleaders-x86_64-unknown-linux-gnu.tar.xz"
+    url = "https://github.com/major/volumeleaders-rs/releases/download/v0.6.1/rusty-volumeleaders-x86_64-unknown-linux-gnu.tar.xz"
     path = "volumeleaders-agent"
     stripComponents = 1
     executable = true
