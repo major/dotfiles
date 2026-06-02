@@ -234,7 +234,7 @@
 ["bin/openshell"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=NVIDIA/OpenShell
-    url = "https://github.com/NVIDIA/OpenShell/releases/download/v0.0.52/openshell-x86_64-unknown-linux-musl.tar.gz"
+    url = "https://github.com/NVIDIA/OpenShell/releases/download/v0.0.53/openshell-x86_64-unknown-linux-musl.tar.gz"
     path = "openshell"
     executable = true
     refreshPeriod = "168h"
