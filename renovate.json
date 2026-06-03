@@ -1,11 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "github>major/renovate-config"
   ],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "packageRules": [
+    {
+      "description": "Disable cooldown period for this repo",
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "minimumReleaseAge": null
+    },
     {
       "description": "Automerge chezmoi external tool updates",
       "matchManagers": [
