@@ -223,10 +223,3 @@
     path = "terraform"
     executable = true
     refreshPeriod = "168h"
-
-["bin/mise"]
-    type = "file"
-    # renovate: datasource=github-releases depName=jdx/mise
-    url = "https://github.com/jdx/mise/releases/download/v2026.5.18/mise-v2026.5.18-linux-x64"
-    executable = true
-    refreshPeriod = "168h"
