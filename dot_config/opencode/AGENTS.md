@@ -40,6 +40,7 @@
 - **Containers**: podman + Containerfile (not docker/Dockerfile)
 - **Browser automation**: Default to Firefox headless (`--browser=firefox`). Only use headed mode when explicitly requested or when visual inspection is needed.
 - **Rust stack**: Installed via rustup (`curl https://sh.rustup.rs`). Toolchains and cargo live in `~/.cargo/bin/`. Currently on stable 1.95.0, which is newer than most project MSRVs. Run `rustup update` to stay current.
+- **Credentials**: Do not add secret values or broad credential exports to shell startup files. Prefer native tool auth first, then 1Password `op run` wrappers with per-tool env files under `~/.config/secret-env/`. Wrappers used over SSH must use a scoped 1Password service account token from `~/.config/op/service-account-token` and must fail fast instead of triggering desktop approval. For crates.io publishing, use `cargo-env cargo publish` so `CARGO_REGISTRY_TOKEN` is injected only into that process tree.
 - **JSON processing**: Prefer `jq` for parsing, filtering, and transforming JSON over writing one-off Python/Ruby/Go scripts. Pipe API responses and config files through `jq` directly. Use `yq` for the same with YAML/XML.
 - **Search scope**: Never run `rg`, `grep`, `find`, or similar recursive search tools from `~` or `/`. Always scope searches to a specific project directory (e.g., `~/git/major/<repo>`). Home directory contains massive git repos and container storage that will cause timeouts.
 
@@ -51,6 +52,7 @@
   - Create MR: `glab mr create --source-branch BRANCH --target-branch master --repo UPSTREAM_GROUP/REPO --title "..." --description "..."`
   - The `--repo` flag targets the upstream project, not the fork.
   - Check MR template at `.gitlab/merge_request_templates/` and use its structure in `--description`.
+  - For internal GitLab repos, qualify with hostname: `glab mr view NUMBER -R gitlab.cee.redhat.com/GROUP/PROJECT`. Without the hostname prefix, glab defaults to gitlab.com.
   - Other useful commands: `glab mr list`, `glab mr view NUMBER`, `glab mr check NUMBER` (pipeline status).
 - **Pre-commit formatting**: In Python projects, always run `ruff format --check` on changed files before committing. If it fails, run `ruff format` to fix, then stage the reformatted files. This catches formatting issues before they hit CI.
 - Don't push to a remote without permission. Exception: when I explicitly invoke a PR/MR-creation command (e.g. `/pr-create`), that invocation counts as push permission for the working branch. 
@@ -92,6 +94,26 @@
 - Extended reasoning about unwritten code is almost always less productive than writing it and seeing what happens.
 - When debugging: reproduce first, theorize second. Run the code before reasoning about why it might fail.
 - "Will this work?" - Write it, run it, find out. Faster than reasoning through every edge case mentally.
+
+## 🤝 Parallel Agents
+- Use parallel agents when independent work can happen without duplicating effort or sharing edit targets.
+- Good fits:
+  - Review from different angles
+  - Validating assumptions
+  - Comparing competing diagnoses
+  - Checking tests or CI failures
+  - Mining separate context sources
+- Before delegating:
+  - Define a narrow task
+  - Set clear success criteria
+  - Provide the exact context each agent needs
+  - Prefer several small, independent prompts over one broad prompt that forces agents to rediscover the same information
+- Avoid parallel agents when:
+  - The task is small
+  - The goal is unclear
+  - Agents would inspect the same files for the same reason
+  - Multiple agents might edit the same area
+- In those cases, do the work directly or ask one focused agent.
 
 ## 🖥️ Machines
 - See PERSONAL_INSTRUCTIONS.md for hostnames
