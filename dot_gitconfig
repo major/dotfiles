@@ -19,7 +19,6 @@
 [core]
     autocrlf = input
     pager = less -FRSX
-    excludesfile = /Users/major/.gitignore_global
     editor = vim
 [alias]
     ci = commit
@@ -86,3 +85,5 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[bugzilla]
+	user = mhayden@redhat.com
