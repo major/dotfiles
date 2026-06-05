@@ -31,6 +31,7 @@
 ## 📂 Repository Layout
 - **Personal**: `~/git/major/<repo>`
 - **Work (Red Hat)**: `~/git/redhat/<repo>`
+- **Worktrees**: `~/git/worktrees/<repo>-<short-purpose>`
 - **Fedora packaging**: `~/git/fedora/<package>`
 - **Miscellaneous**: `~/git/<repo>`
 
@@ -58,7 +59,7 @@
 - Don't push to a remote without permission. Exception: when I explicitly invoke a PR/MR-creation command (e.g. `/pr-create`), that invocation counts as push permission for the working branch. 
 - Always use my signed-off-by messages in commit messages along with GPG signatures (-s and -S)
 - When addressing feedback on a pull request, always recheck that all feedback was addressed in the changes when you finish. Also, suggest responses to the developer giving feedback in the PR.
-- **Worktrees**: Prefer worktrees over branch switching for all work. Use `git worktree add ../<repo>-<label> <branch>` to work on branches without stashing or switching. Remove with `git worktree remove ../<repo>-<label>` when done.
+- **Worktrees**: Prefer worktrees over branch switching for all work. Create them under `/home/major/git/worktrees/` unless I explicitly request another location. Use names in the form `<repo>-<short-purpose>`, for example `/home/major/git/worktrees/schwab-rs-fix-order-status`. Do not create worktrees inside the source repository directory. Remove with `git worktree remove /home/major/git/worktrees/<repo>-<short-purpose>` when done.
 - **Worktree/branch cleanup**: After pushing code or creating a PR/MR, check for stale worktrees (`git worktree list`) and merged/stale local branches. Identify candidates for cleanup and offer to remove them. Don't auto-delete; list what's stale and ask for confirmation first.
 - **PR feedback fixup workflow** (no `fixup!` commits should appear in pushed PRs):
   1. For each changed file, find the original commit it belongs to (`git log --oneline -- <file>`)

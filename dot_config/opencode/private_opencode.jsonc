@@ -9,6 +9,10 @@
   "lsp": true,
   "mcp": {},
   "permission": {
+    "external_directory": {
+      "*": "ask",
+      "/home/major/git/worktrees/**": "allow"
+    },
     "websearch": "allow"
   },
   "plugin": [
