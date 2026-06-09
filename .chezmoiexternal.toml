@@ -201,6 +201,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/rtk"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=rtk-ai/rtk
+    url = "https://github.com/rtk-ai/rtk/releases/download/v0.42.3/rtk-x86_64-unknown-linux-musl.tar.gz"
+    path = "rtk"
+    executable = true
+    refreshPeriod = "168h"
+
 [".local/lib/nvim"]
     type = "archive"
     # renovate: datasource=github-releases depName=neovim/neovim

@@ -2,7 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/Opencode-DCP/opencode-dynamic-context-pruning/master/dcp.schema.json",
 
   // Master switch to enable or disable the DCP plugin entirely
-  "enabled": true,
+  // Temporarily disabled to A/B test opencode-lcm + context-mode. Set back to true to restore DCP.
+  "enabled": false,
 
   // Automatically update npm-installed DCP when a newer version is available.
   // Version-locked plugin specs (e.g. @tarquinen/opencode-dcp@3.1.0) are not updated.
