@@ -5,7 +5,7 @@ return {
       picker = {
         sources = {
           projects = {
-            dev = { "~/git", "~/git/major", "~/git/redhat", "~/git/fedora" },
+            dev = { "~/git", "~/git/major", "~/git/redhat", "~/git/fedora", "~/git/worktrees" },
           },
         },
       },

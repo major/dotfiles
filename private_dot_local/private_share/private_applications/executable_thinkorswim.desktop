@@ -2,6 +2,6 @@
 [Desktop Entry]
 Type=Application
 Name=thinkorswim
-Exec="/home/major/thinkorswim/thinkorswim"  %U
+Exec=env INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-zulu-openjdk-ca "/home/major/thinkorswim/thinkorswim" %U
 Icon=/home/major/thinkorswim/.install4j/thinkorswim.png
 StartupWMClass=install4j-com-devexperts-jnlp-Launcher
