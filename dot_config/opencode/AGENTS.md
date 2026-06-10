@@ -23,6 +23,7 @@
 - **Markdown formatting**: Never use hard line wraps in generated markdown files, GitHub issues, or PRs. Let the renderer handle line wrapping.
 - **Fenced code blocks**: Always add a language tag to fenced code blocks (e.g., ` ```python `, ` ```bash `, ` ```text `). Use `text` for plain-text blocks like directory trees, diagrams, or dependency graphs. Unlabeled fences trigger markdownlint MD040 and get flagged in PR reviews.
 - **Em dashes**: Never use em dashes (—) anywhere: not in prose, tables, commit messages, or any output. Use commas, parentheses, colons, hyphens (-), or separate sentences instead. Em dashes render as ~2 cells wide in monospace terminals but count as 1 character, breaking alignment in tables and box-drawing output.
+- **Emojis in chat**: Use emojis liberally in conversational replies to me in the terminal: think of how many you'd reach for, then roughly double it. Treat them as a compression channel, not decoration: a good emoji conveys status, outcome, or tone in one glyph (✅ done, ⚠️ caution, 🔴 broken, 🤔 thinking, 🎯 on target). Reach for one when (1) it says something compactly, (2) it adds humor to the exchange, or (3) it's just fun. Avoid random confetti that carries no meaning. This applies ONLY to chat. Artifacts stay emoji-clean: commit messages, PR/MR/issue bodies, code, comments, and docs get zero emojis unless I explicitly ask, per the voice and writing rules below.
 
 ## 🧪 Testing
 - Focus on critical paths; language-specific coverage targets in skills override this default
@@ -37,6 +38,7 @@
 
 ## 🛠️ Dev Tools
 - **Shell**: zsh is primary shell. Write POSIX-compatible scripts or use `#!/bin/zsh` shebang. Avoid bash-only syntax (e.g., `[[ ]]` arrays, `declare -A`).
+- **Scratch space**: Use `/tmp/opencode` for all temporary files, logs, and scratch work. It is pre-approved and never prompts. Never write to bare `/tmp/<file>` (that triggers a permission prompt). Create the dir if missing (`mkdir -p /tmp/opencode`).
 - **Automation**: Makefiles for task automation. Omit flags that are already defaults. Use context-appropriate outputs (HTML coverage local, XML for CI).
 - **Containers**: podman + Containerfile (not docker/Dockerfile)
 - **Browser automation**: Default to Firefox headless (`--browser=firefox`). Only use headed mode when explicitly requested or when visual inspection is needed.
@@ -44,9 +46,10 @@
 - **Credentials**: Do not add secret values or broad credential exports to shell startup files. Prefer native tool auth first, then 1Password `op run` wrappers with per-tool env files under `~/.config/secret-env/`. Wrappers used over SSH must use a scoped 1Password service account token from `~/.config/op/service-account-token` and must fail fast instead of triggering desktop approval. For crates.io publishing, use `cargo-env cargo publish` so `CARGO_REGISTRY_TOKEN` is injected only into that process tree.
 - **JSON processing**: Prefer `jq` for parsing, filtering, and transforming JSON over writing one-off Python/Ruby/Go scripts. Pipe API responses and config files through `jq` directly. Use `yq` for the same with YAML/XML.
 - **Search scope**: Never run `rg`, `grep`, `find`, or similar recursive search tools from `~` or `/`. Always scope searches to a specific project directory (e.g., `~/git/major/<repo>`). Home directory contains massive git repos and container storage that will cause timeouts.
-- **Long-running commands**: For anything slow, expensive, or hard to reproduce (provisioning, deploys, full test suites, builds, migrations), capture the full output to a log file with `tee`, then inspect the file. Never pipe a long run straight into `head`/`tail`/`grep`: those discard everything that scrolled past, which is usually the part you need when it fails. Pattern: `cmd 2>&1 | tee /tmp/<task>-$(date +%Y%m%d-%H%M%S).log`, then Grep/Read the log. For repeatable harnesses, bake the `tee` into the script itself (re-exec once with a logging guard, write a timestamped file plus a stable `last-run.log`, gitignore the log dir) so every invocation always lands a log without relying on the caller.
+- **Long-running commands**: For anything slow, expensive, or hard to reproduce (provisioning, deploys, full test suites, builds, migrations), capture the full output to a log file with `tee`, then inspect the file. Never pipe a long run straight into `head`/`tail`/`grep`: those discard everything that scrolled past, which is usually the part you need when it fails. Pattern: `cmd 2>&1 | tee /tmp/opencode/<task>-$(date +%Y%m%d-%H%M%S).log`, then Grep/Read the log. For repeatable harnesses, bake the `tee` into the script itself (re-exec once with a logging guard, write a timestamped file plus a stable `last-run.log`, gitignore the log dir) so every invocation always lands a log without relying on the caller.
 
 ## 🔀 Git Workflow
+- **Specs & plans are never committed**: Design specs, plans, and brainstorming docs may be written into the repo (so I can read them in my editor), but they must NEVER be staged or committed. Treat them as local scratch. Never `git add` a spec/plan file, and if a skill (brainstorming, writing-plans, executing-plans) tells me to commit one, don't. Before any commit, verify no spec/plan/brainstorm doc is staged. Prefer a repo-local `.git/info/exclude` entry to keep them untracked.
 - Branch for upstream PRs
 - **GitLab connectivity**: Internal GitLab SSH/HTTPS can be flaky, retry pushes/fetches on failure before giving up
 - **glab CLI**: Use `glab` (not `gh`) for GitLab MRs. Key patterns:
