@@ -23,6 +23,7 @@
 - **Markdown formatting**: Never use hard line wraps in generated markdown files, GitHub issues, or PRs. Let the renderer handle line wrapping.
 - **Fenced code blocks**: Always add a language tag to fenced code blocks (e.g., ` ```python `, ` ```bash `, ` ```text `). Use `text` for plain-text blocks like directory trees, diagrams, or dependency graphs. Unlabeled fences trigger markdownlint MD040 and get flagged in PR reviews.
 - **Em dashes**: Never use em dashes (—) anywhere: not in prose, tables, commit messages, or any output. Use commas, parentheses, colons, hyphens (-), or separate sentences instead. Em dashes render as ~2 cells wide in monospace terminals but count as 1 character, breaking alignment in tables and box-drawing output.
+- **Whitelist/blacklist**: Never use "whitelist" or "blacklist" in conversation, code, or any artifact. Use "allow list" / "deny list" (or "allowlist" / "denylist") instead.
 - **Emojis in chat**: Use emojis liberally in conversational replies to me in the terminal: think of how many you'd reach for, then roughly double it. Treat them as a compression channel, not decoration: a good emoji conveys status, outcome, or tone in one glyph (✅ done, ⚠️ caution, 🔴 broken, 🤔 thinking, 🎯 on target). Reach for one when (1) it says something compactly, (2) it adds humor to the exchange, or (3) it's just fun. Avoid random confetti that carries no meaning. This applies ONLY to chat. Artifacts stay emoji-clean: commit messages, PR/MR/issue bodies, code, comments, and docs get zero emojis unless I explicitly ask, per the voice and writing rules below.
 
 ## 🧪 Testing
@@ -52,6 +53,7 @@
 - **Specs & plans are never committed**: Design specs, plans, and brainstorming docs may be written into the repo (so I can read them in my editor), but they must NEVER be staged or committed. Treat them as local scratch. Never `git add` a spec/plan file, and if a skill (brainstorming, writing-plans, executing-plans) tells me to commit one, don't. Before any commit, verify no spec/plan/brainstorm doc is staged. Prefer a repo-local `.git/info/exclude` entry to keep them untracked.
 - Branch for upstream PRs
 - **GitLab connectivity**: Internal GitLab SSH/HTTPS can be flaky, retry pushes/fetches on failure before giving up
+- **GitHub status**: If the `gh` tool misbehaves or a git push/pull/fetch fails, check GitHub's status page (https://www.githubstatus.com) before assuming a local problem
 - **glab CLI**: Use `glab` (not `gh`) for GitLab MRs. Key patterns:
   - Fork remote and upstream remote are separate. Push branches to fork remote, create MRs against upstream remote. See PERSONAL_INSTRUCTIONS.md for remote names.
   - Create MR: `glab mr create --source-branch BRANCH --target-branch master --repo UPSTREAM_GROUP/REPO --title "..." --description "..."`
@@ -65,6 +67,7 @@
 - When addressing feedback on a pull request, always recheck that all feedback was addressed in the changes when you finish. Also, suggest responses to the developer giving feedback in the PR.
 - **Renovate PRs**: Before merging any PR from Renovate, always submit an approving code review so the PR has a green check mark. Do not merge Renovate PRs without that approval review.
 - **Worktrees**: Prefer worktrees over branch switching for all work. Create them under `/home/major/git/worktrees/` unless I explicitly request another location. Use names in the form `<repo>-<short-purpose>`, for example `/home/major/git/worktrees/schwab-rs-fix-order-status`. Do not create worktrees inside the source repository directory. Remove with `git worktree remove /home/major/git/worktrees/<repo>-<short-purpose>` when done.
+- **Sync the base before writing tests**: When creating a worktree/branch for a PR, rebase onto the latest upstream base (`git fetch && git rebase origin/<base>`) before writing or verifying tests. A stale merge-base lets locally-built artifacts assert against old behavior that green-lights locally but fails in CI's clean build.
 - **Worktree/branch cleanup**: After pushing code or creating a PR/MR, check for stale worktrees (`git worktree list`) and merged/stale local branches. Identify candidates for cleanup and offer to remove them. Don't auto-delete; list what's stale and ask for confirmation first.
 - **PR feedback fixup workflow** (no `fixup!` commits should appear in pushed PRs):
   1. For each changed file, find the original commit it belongs to (`git log --oneline -- <file>`)
@@ -100,6 +103,7 @@
 - Extended reasoning about unwritten code is almost always less productive than writing it and seeing what happens.
 - When debugging: reproduce first, theorize second. Run the code before reasoning about why it might fail.
 - "Will this work?" - Write it, run it, find out. Faster than reasoning through every edge case mentally.
+- **Green local, red CI**: Reproduce in a clean room before theorizing: fresh `git clone` of the pushed branch + `env -i HOME=$HOME PATH=$PATH cargo test` (no inherited env, no warm target cache). If it passes clean locally too, the divergence is environment/cache/base, not the code.
 
 ## 🤝 Parallel Agents
 - Use parallel agents when independent work can happen without duplicating effort or sharing edit targets.
