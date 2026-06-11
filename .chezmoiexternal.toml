@@ -149,7 +149,15 @@
     executable = true
     refreshPeriod = "168h"
 
-["bin/fmp-agent"]
+# fmp-agent: secrets-injection split.
+# Why: FMP_API_KEY used to be a plaintext export in ~/.zshrc.local (exposed in
+# every shell). We moved it to 1Password (op://Private/FMP API Key/credential).
+# The real release binary is downloaded here into ~/.local/libexec (NOT on PATH),
+# and a chezmoi-managed wrapper at bin/executable_fmp-agent shadows it on PATH at
+# ~/bin/fmp-agent, running this binary via `op run` so the key is injected only
+# into that process tree. Do not move this back to bin/ or the wrapper and binary
+# will collide. Same pattern is the model for schwab-agent if it needs a key too.
+[".local/libexec/fmp-agent"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=major/fmp-rs
     url = "https://github.com/major/fmp-rs/releases/download/v0.5.3/rusty-fmp-x86_64-unknown-linux-gnu.tar.xz"

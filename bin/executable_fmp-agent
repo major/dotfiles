@@ -1,0 +1,6 @@
+#!/bin/sh
+# Wrapper for fmp-agent: injects FMP_API_KEY from 1Password at runtime so the
+# credential never lives in a shell rc or on disk. The real binary is managed
+# by chezmoi as an archive-file external at ~/.local/libexec/fmp-agent.
+exec env FMP_API_KEY="op://Private/FMP API Key/credential" \
+  op run -- "${HOME}/.local/libexec/fmp-agent" "$@"
