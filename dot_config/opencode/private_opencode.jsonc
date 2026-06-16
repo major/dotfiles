@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false,
+  "autoupdate": "notify",
   "instructions": [
     "/home/major/.config/opencode/AGENTS.md",
     "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md"
