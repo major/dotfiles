@@ -123,6 +123,49 @@
     executable = true
     refreshPeriod = "168h"
 
+[".opencode/bin/opencode"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=anomalyco/opencode
+    url = "https://github.com/anomalyco/opencode/releases/download/v1.17.7/opencode-linux-x64.tar.gz"
+    path = "opencode"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/share/opencode/plugins/opencode-codebase-index"]
+    type = "archive"
+    # renovate: datasource=npm depName=opencode-codebase-index
+    url = "https://registry.npmjs.org/opencode-codebase-index/-/opencode-codebase-index-0.11.0.tgz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/opencode/plugins/openrtk"]
+    type = "archive"
+    # renovate: datasource=npm depName=openrtk
+    url = "https://registry.npmjs.org/openrtk/-/openrtk-0.1.0.tgz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/opencode/plugins/context-mode"]
+    type = "archive"
+    # renovate: datasource=npm depName=context-mode
+    url = "https://registry.npmjs.org/context-mode/-/context-mode-1.0.162.tgz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/opencode/plugins/opencode-lcm"]
+    type = "archive"
+    # renovate: datasource=npm depName=opencode-lcm
+    url = "https://registry.npmjs.org/opencode-lcm/-/opencode-lcm-0.14.4.tgz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/share/opencode/plugins/superpowers"]
+    type = "archive"
+    # renovate: datasource=github-tags depName=obra/superpowers
+    url = "https://github.com/obra/superpowers/archive/refs/tags/v5.1.0.tar.gz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
 ["bin/oc"]
     type = "archive-file"
     # No versioned URLs available - chezmoi refreshPeriod handles updates

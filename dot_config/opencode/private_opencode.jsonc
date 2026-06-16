@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": true,
+  "autoupdate": false,
   "instructions": [
     "/home/major/.config/opencode/AGENTS.md",
     "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md"
@@ -28,12 +28,12 @@
   "plugin": [
     //"oh-my-openagent@latest",
     //"@tarquinen/opencode-dcp@latest",
-    "opencode-codebase-index",
-    "superpowers@git+https://github.com/obra/superpowers.git",
-    "openrtk",
-    "context-mode",
+    "file:///home/major/.local/share/opencode/plugins/opencode-codebase-index/dist/index.js",
+    "file:///home/major/.local/share/opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
+    "file:///home/major/.local/share/opencode/plugins/openrtk/lib/index.js",
+    "file:///home/major/.local/share/opencode/plugins/context-mode/build/adapters/opencode/plugin.js",
     [
-      "opencode-lcm",
+      "file:///home/major/.local/share/opencode/plugins/opencode-lcm/dist/index.js",
       {
         "interop": {
           "contextMode": true,
