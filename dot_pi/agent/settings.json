@@ -1,0 +1,15 @@
+{
+  "lastChangelogVersion": "0.79.6",
+  "theme": "tokyo-night",
+  "packages": [
+    "git:github.com/MitoroMisaka/pi-tokyo-night",
+    "npm:context-mode",
+    "npm:@ifi/oh-pi-themes",
+    "local-extensions/notify.ts",
+    "skills/commit",
+    "skills/github"
+  ],
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "high"
+}

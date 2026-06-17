@@ -130,3 +130,12 @@ dmypy.json
 
 # Claude Code local settings
 .claude/
+
+# Pi runtime state, secrets, and generated package caches
+/dot_pi/agent/auth.json
+/dot_pi/agent/trust.json
+/dot_pi/agent/sessions/
+/dot_pi/context-mode/
+/dot_pi/agent/npm/
+/dot_pi/agent/git/
+/dot_pi/agent/bin/
