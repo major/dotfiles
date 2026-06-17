@@ -1,39 +1,28 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>major/renovate-config"
-  ],
+  "extends": ["github>major/renovate-config"],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "packageRules": [
     {
       "description": "Disable cooldown period for this repo",
-      "matchUpdateTypes": [
-        "major",
-        "minor",
-        "patch"
-      ],
+      "matchUpdateTypes": ["major", "minor", "patch"],
       "minimumReleaseAge": null
     },
     {
       "description": "Automerge chezmoi external tool updates",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchFileNames": [
-        ".chezmoiexternal.toml"
-      ],
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": [".chezmoiexternal.toml"],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false
     },
     {
       "description": "Require review for opencode and opencode plugin updates",
-      "matchManagers": [
-        "custom.regex"
-      ],
+      "matchManagers": ["custom.regex"],
       "matchFileNames": [
-        ".chezmoiexternal.toml"
+        ".chezmoiexternal.toml",
+        "dot_config/opencode/private_opencode.jsonc"
       ],
       "matchPackageNames": [
         "anomalyco/opencode",
@@ -41,6 +30,7 @@
         "openrtk",
         "context-mode",
         "opencode-lcm",
+        "oh-my-opencode-slim",
         "obra/superpowers"
       ],
       "automerge": false,
@@ -56,11 +46,19 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/\\.chezmoiexternal\\.toml$/"
-      ],
+      "managerFilePatterns": ["/\\.chezmoiexternal\\.toml$/"],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?[-/]v?(?<currentValue>\\d+(?:\\.\\d+)*(?:[-+][A-Za-z0-9.-]+)?)[^\"]*\""
+      ],
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^dot_config/opencode/private_opencode\\.jsonc$/"
+      ],
+      "matchStrings": [
+        "//\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*\"[^\"]+@(?<currentValue>\\d+(?:\\.\\d+)*(?:[-+][A-Za-z0-9.-]+)?)\""
       ],
       "versioningTemplate": "semver"
     }

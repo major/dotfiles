@@ -1,0 +1,83 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "openai",
+  "setDefaultAgent": true,
+  "autoUpdate": false,
+  "presets": {
+    "openai": {
+      "orchestrator": {
+        "model": "openai/gpt-5.5",
+        "variant": "medium",
+        "skills": ["*"],
+        "mcps": ["*"],
+      },
+      "oracle": {
+        "model": "openai/gpt-5.5",
+        "variant": "high",
+        "skills": [],
+        "mcps": [],
+      },
+      "council": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": [],
+      },
+      "librarian": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": ["websearch", "context7", "grep_app"],
+      },
+      "explorer": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": [],
+      },
+      "designer": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": [],
+      },
+      "fixer": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": [],
+      },
+      "observer": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": [],
+      },
+    },
+  },
+  "disabled_agents": ["observer"],
+  "multiplexer": {
+    "type": "auto",
+    "layout": "main-vertical",
+    "main_pane_size": 60,
+  },
+  "council": {
+    "presets": {
+      "default": {
+        "alpha": {
+          "model": "openai/gpt-5.5",
+          "variant": "high",
+        },
+        "beta": {
+          "model": "openai/gpt-5.4-mini",
+          "variant": "low",
+        },
+        "gamma": {
+          "model": "openai/gpt-5.4-mini",
+          "variant": "low",
+        },
+      },
+    },
+    "councillor_execution_mode": "serial",
+  },
+}

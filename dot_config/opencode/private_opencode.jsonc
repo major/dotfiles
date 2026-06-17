@@ -3,15 +3,15 @@
   "autoupdate": "notify",
   "instructions": [
     "/home/major/.config/opencode/AGENTS.md",
-    "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md"
+    "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md",
   ],
   "small_model": "anthropic/claude-haiku-4-5",
   "lsp": true,
   "mcp": {},
   "agent": {
     "explore": {
-      "model": "anthropic/claude-haiku-4-5"
-    }
+      "model": "anthropic/claude-haiku-4-5",
+    },
   },
   "permission": {
     "external_directory": {
@@ -21,26 +21,30 @@
       "/tmp": "allow",
       "/tmp/opencode": "allow",
       "/tmp/opencode/**": "allow",
-      "/home/major/git/worktrees/**": "allow"
+      "/home/major/git/worktrees/**": "allow",
     },
-    "websearch": "allow"
+    "websearch": "allow",
   },
   "plugin": [
-    //"oh-my-openagent@latest",
-    //"@tarquinen/opencode-dcp@latest",
-    "file:///home/major/.local/share/opencode/plugins/opencode-codebase-index/dist/index.js",
-    "file:///home/major/.local/share/opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
-    "file:///home/major/.local/share/opencode/plugins/openrtk/lib/index.js",
-    "file:///home/major/.local/share/opencode/plugins/context-mode/build/adapters/opencode/plugin.js",
+    // renovate: datasource=npm depName=opencode-codebase-index
+    "opencode-codebase-index@0.11.0",
+    //"file:///home/major/.local/share/opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
+    // renovate: datasource=npm depName=oh-my-opencode-slim
+    "oh-my-opencode-slim@2.0.3",
+    // renovate: datasource=npm depName=openrtk
+    "openrtk@0.1.0",
+    // renovate: datasource=npm depName=context-mode
+    "context-mode@1.0.162",
     [
-      "file:///home/major/.local/share/opencode/plugins/opencode-lcm/dist/index.js",
+      // renovate: datasource=npm depName=opencode-lcm
+      "opencode-lcm@0.14.4",
       {
         "interop": {
           "contextMode": true,
           "neverOverrideCompactionPrompt": true,
-          "ignoreToolPrefixes": ["ctx_"]
-        }
-      }
+          "ignoreToolPrefixes": ["ctx_"],
+        },
+      },
     ],
-  ]
+  ],
 }
