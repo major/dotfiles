@@ -20,3 +20,11 @@
 - Worktrees should live in `~/git/worktrees/<repo>-<short-purpose>`.
 - Keep worktrees and branches cleaned up, especially when PRs/MRs merge.
 - Always look for opportunities to clean up stale worktrees and branches.
+
+# Skill improvement loop
+
+- Whenever you use a skill, watch for ways to make that skill better: missing preflight checks, stale assumptions, token-heavy instructions that should become scripts, unclear failure handling, or reusable project/forge/tooling patterns.
+- Do not update skills automatically just because you noticed an improvement opportunity.
+- At the end of work that used one or more skills, briefly tell the user about any concrete skill-improvement ideas you noticed. Keep suggestions actionable and tied to what happened.
+- Only modify a skill after the user agrees that the improvement makes sense.
+- For `/pr-create` especially, report opportunities to tighten PR/MR gates, template handling, coverage checks, review tooling, push/fork behavior, or PR body quality whenever the skill is used.
