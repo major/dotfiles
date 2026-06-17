@@ -18,8 +18,8 @@
         "mcps": [],
       },
       "council": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
+        "model": "openai/gpt-5.5",
+        "variant": "high",
         "skills": [],
         "mcps": [],
       },
@@ -37,12 +37,12 @@
       },
       "designer": {
         "model": "openai/gpt-5.4-mini",
-        "variant": "low",
+        "variant": "medium",
         "skills": [],
         "mcps": [],
       },
       "fixer": {
-        "model": "openai/gpt-5.4-mini",
+        "model": "openai/gpt-5.5",
         "variant": "low",
         "skills": [],
         "mcps": [],
