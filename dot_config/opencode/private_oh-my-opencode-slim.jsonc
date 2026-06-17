@@ -65,16 +65,16 @@
     "presets": {
       "default": {
         "alpha": {
-          "model": "openai/gpt-5.5",
+          "model": "google-vertex/claude-opus-4-6@default",
           "variant": "high",
         },
         "beta": {
-          "model": "openai/gpt-5.4-mini",
-          "variant": "low",
+          "model": "deepseek/deepseek-v4-pro",
+          "variant": "high",
         },
         "gamma": {
-          "model": "openai/gpt-5.4-mini",
-          "variant": "low",
+          "model": "openai/gpt-5.5",
+          "variant": "high",
         },
       },
     },
