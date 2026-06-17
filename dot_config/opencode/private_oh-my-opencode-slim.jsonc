@@ -78,6 +78,6 @@
         },
       },
     },
-    "councillor_execution_mode": "serial",
+    "councillor_execution_mode": "parallel",
   },
 }
