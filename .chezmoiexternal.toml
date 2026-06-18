@@ -138,6 +138,13 @@
     stripComponents = 1
     refreshPeriod = "168h"
 
+[".local/share/opencode/plugins/ponytail"]
+    type = "archive"
+    # renovate: datasource=github-tags depName=DietrichGebert/ponytail
+    url = "https://github.com/DietrichGebert/ponytail/archive/refs/tags/v4.7.0.tar.gz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
 ["bin/oc"]
     type = "archive-file"
     # No versioned URLs available - chezmoi refreshPeriod handles updates

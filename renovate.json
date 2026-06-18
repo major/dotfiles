@@ -30,7 +30,8 @@
         "openrtk",
         "context-mode",
         "opencode-lcm",
-        "obra/superpowers"
+        "obra/superpowers",
+        "DietrichGebert/ponytail"
       ],
       "automerge": false,
       "platformAutomerge": false
