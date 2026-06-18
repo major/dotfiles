@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl --compressed https://api-hummingbird.hummingbird-project.io/*)",
+      "Bash(jq *)"
+    ]
+  }
+}

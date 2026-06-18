@@ -1,0 +1,32 @@
+---
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' &&
+          $CI_MERGE_REQUEST_EVENT_TYPE != 'merge_train'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' &&
+          $CI_MERGE_REQUEST_EVENT_TYPE == 'merge_train'
+    - if: $CI_PIPELINE_SOURCE == 'web' &&
+          $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'push' &&
+          $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+default:
+  image: quay.io/hummingbird-ci/gitlab-ci:latest
+  tags: [small-runner]
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+      - api_failure
+      - job_execution_timeout
+
+.rules:
+  mr: {if: $CI_PIPELINE_SOURCE == 'merge_request_event'}
+
+check:
+  script:
+    - make check-host
+  rules:
+    - !reference [.rules, mr]
