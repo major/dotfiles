@@ -141,7 +141,7 @@
 [".config/opencode/skills"]
     type = "archive"
     # renovate: datasource=npm depName=oh-my-opencode-slim
-    url = "https://registry.npmjs.org/oh-my-opencode-slim/-/oh-my-opencode-slim-2.0.3.tgz"
+    url = "https://registry.npmjs.org/oh-my-opencode-slim/-/oh-my-opencode-slim-2.0.4.tgz"
     include = ["package/src/skills/**"]
     stripComponents = 3
     refreshPeriod = "168h"
