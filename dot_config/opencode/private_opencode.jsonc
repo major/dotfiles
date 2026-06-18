@@ -30,7 +30,7 @@
     "opencode-codebase-index@0.11.0",
     //"file:///home/major/.local/share/opencode/plugins/superpowers/.opencode/plugins/superpowers.js",
     // renovate: datasource=npm depName=oh-my-opencode-slim
-    "oh-my-opencode-slim@2.0.3",
+    "oh-my-opencode-slim@2.0.4",
     // renovate: datasource=npm depName=openrtk
     "openrtk@0.1.0",
     // renovate: datasource=npm depName=context-mode
