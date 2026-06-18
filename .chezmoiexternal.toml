@@ -134,7 +134,7 @@
 [".local/share/opencode/plugins/superpowers"]
     type = "archive"
     # renovate: datasource=github-tags depName=obra/superpowers
-    url = "https://github.com/obra/superpowers/archive/refs/tags/v6.0.0.tar.gz"
+    url = "https://github.com/obra/superpowers/archive/refs/tags/v6.0.2.tar.gz"
     stripComponents = 1
     refreshPeriod = "168h"
 
