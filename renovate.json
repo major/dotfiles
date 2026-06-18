@@ -30,7 +30,6 @@
         "openrtk",
         "context-mode",
         "opencode-lcm",
-        "oh-my-opencode-slim",
         "obra/superpowers"
       ],
       "automerge": false,
