@@ -126,7 +126,7 @@
 [".opencode/bin/opencode"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=anomalyco/opencode
-    url = "https://github.com/anomalyco/opencode/releases/download/v1.17.7/opencode-linux-x64.tar.gz"
+    url = "https://github.com/anomalyco/opencode/releases/download/v1.17.8/opencode-linux-x64.tar.gz"
     path = "opencode"
     executable = true
     refreshPeriod = "168h"
