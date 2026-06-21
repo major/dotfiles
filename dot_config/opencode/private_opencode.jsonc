@@ -28,7 +28,7 @@
     // renovate: datasource=npm depName=openrtk
     "openrtk@0.1.0",
     // renovate: datasource=npm depName=context-mode
-    "context-mode@1.0.162",
+    "context-mode@1.0.163",
     [
       // renovate: datasource=npm depName=opencode-lcm
       "opencode-lcm@0.14.4",
