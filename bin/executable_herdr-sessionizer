@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v herdr >/dev/null; then
+  echo "herdr is not installed. Please install it first." >&2
+  exit 1
+fi
+
+if ! command -v fzf >/dev/null; then
+  echo "fzf is not installed. Please install it first." >&2
+  exit 1
+fi
+
+if ! command -v jq >/dev/null; then
+  echo "jq is not installed. Please install it first." >&2
+  exit 1
+fi
+
+find_dirs() {
+  for path in "$HOME/git/major" "$HOME/git/redhat" "$HOME/git/fedora" "$HOME/git"; do
+    [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth 1 -type d -print
+  done
+}
+
+workspace_id_for_label() {
+  local label="$1"
+  herdr workspace list | jq -r --arg label "$label" '(.workspaces // .)[]? | select(.label == $label) | .id' | head -n 1
+}
+
+selected="${1:-}"
+if [[ -z "$selected" ]]; then
+  selected="$(find_dirs | fzf)"
+fi
+
+[[ -n "$selected" ]] || exit 0
+
+label="$(basename "$selected" | tr . _)"
+workspace_id="$(workspace_id_for_label "$label")"
+
+if [[ -n "$workspace_id" ]]; then
+  herdr workspace focus "$workspace_id" >/dev/null
+  exit 0
+fi
+
+workspace_json="$(herdr workspace create --cwd "$selected" --label "$label" --focus)"
+workspace_id="$(jq -r '.workspace.id // .id' <<<"$workspace_json")"
+
+pane_id="$(herdr pane current --current | jq -r '.pane.id // .id')"
+right_pane_id="$(herdr pane split "$pane_id" --direction right --cwd "$selected" --focus | jq -r '.pane.id // .id')"
+
+herdr pane run "$pane_id" opencode >/dev/null
+herdr pane run "$right_pane_id" nvim >/dev/null
+herdr pane focus --direction left --pane "$right_pane_id" >/dev/null

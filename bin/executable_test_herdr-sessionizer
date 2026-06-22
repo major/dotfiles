@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+mkdir -p "$tmp/bin" "$tmp/git/major/project"
+
+cat >"$tmp/bin/fzf" <<'EOF'
+#!/usr/bin/env bash
+cat >/dev/null
+printf '%s\n' "$HOME/git/major/project"
+EOF
+chmod +x "$tmp/bin/fzf"
+
+cat >"$tmp/bin/herdr" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >>"$HERDR_TEST_LOG"
+case "$*" in
+  'workspace list') printf '{"workspaces":[{"id":"ws_existing","label":"project"}]}\n' ;;
+  *) printf '{}\n' ;;
+esac
+EOF
+chmod +x "$tmp/bin/herdr"
+
+cat >"$tmp/bin/jq" <<'EOF'
+#!/usr/bin/env bash
+input=$(cat)
+case "$input" in
+  *'"id":"ws_existing"'*) printf 'ws_existing\n' ;;
+  *) printf '\n' ;;
+esac
+EOF
+chmod +x "$tmp/bin/jq"
+
+export HOME="$tmp"
+export PATH="$tmp/bin:$PATH"
+export HERDR_TEST_LOG="$tmp/herdr.log"
+
+bash "$(dirname "$0")/executable_herdr-sessionizer"
+
+grep -qx 'workspace focus ws_existing' "$HERDR_TEST_LOG"
+! grep -q '^workspace create ' "$HERDR_TEST_LOG"
