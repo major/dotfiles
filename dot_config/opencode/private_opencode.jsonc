@@ -5,8 +5,27 @@
     "/home/major/.config/opencode/AGENTS.md",
     "/home/major/.config/opencode/PERSONAL_INSTRUCTIONS.md",
   ],
-  "small_model": "anthropic/claude-haiku-4-5",
+  "small_model": "google-vertex-anthropic/claude-haiku-4-5@20251001",
+  "agent": {
+    "explore": {
+      "model": "google-vertex-anthropic/claude-haiku-4-5@20251001"
+    }
+  },
   "lsp": true,
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "qwen2.5:32b": {
+          "name": "Qwen 2.5 32B"
+        }
+      }
+    }
+  },
   "mcp": {},
   "permission": {
     "external_directory": {

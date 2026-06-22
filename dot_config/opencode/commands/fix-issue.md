@@ -6,6 +6,8 @@ Fix an issue end to end in a dedicated git worktree: inspect the issue, implemen
 
 Invoking `/fix-issue` is permission to complete the full issue-to-merge workflow without asking for routine confirmations, including creating a worktree, committing with `git commit -s -S`, invoking `/pr-create`, pushing through that command, pushing CI fixups with `--force-with-lease` after an amend or autosquash, watching CI, merging when required checks are green, deleting the remote branch, and cleaning up the local worktree and branch. Ask only when there is a real safety choice that cannot be inferred, such as unrelated uncommitted changes, likely secrets, multiple equally plausible issues, or a failing check that appears flaky or infrastructure-only.
 
+Do not create PRs or MRs directly from `/fix-issue` unless `/pr-create` is unavailable or explicitly fails in a way that cannot be retried. If a manual fallback is unavoidable, write the description to a real Markdown file and pass it with `gh pr create --body-file` or `glab mr create --description-file`; never pass generated Markdown through inline `--body`, inline `--description`, JSON string literals, or escaped `\n` sequences.
+
 ## Inputs
 
 Accept any of these argument shapes:
@@ -173,6 +175,8 @@ git commit -s -S -m "fix(<scope>): <short issue fix>"
 ## Phase 7: Create PR or MR with `/pr-create`
 
 Invoke `/pr-create` from the issue worktree. Include the branch, worktree path, base branch, issue number or URL, verification commands that passed, and any review result already obtained. `/pr-create` owns pushing, optional local CodeRabbit review, template discovery, PR/MR body generation, and PR/MR creation.
+
+Treat `/pr-create` as the required path for PR/MR creation. Manual forge CLI creation is only a fallback after `/pr-create` is unavailable or cannot be retried. In that fallback, create a body file and use `--body-file` or `--description-file`; reject any body containing literal `\n` before creating or editing the PR/MR.
 
 Example invocation context:
 

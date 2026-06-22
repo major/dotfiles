@@ -81,9 +81,9 @@
 	machineId = cli/1c4df18a86bb4e90969635f85fe9d064
 [credential "https://github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !/home/major/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !/home/major/bin/gh auth git-credential
 [bugzilla]
 	user = mhayden@redhat.com
