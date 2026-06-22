@@ -67,7 +67,29 @@ bash scripts/gates.sh run fmt        # then:
 bash scripts/gates.sh run lint
 ```
 
-**Codecov/patch coverage gate:** when the repo has `codecov.yml` or Codecov CI,
+### Umbrella gate
+
+Some projects define a single composite target (e.g. `make check`) that runs
+lint, tests, doc-coverage, and security checks in one shot. The plan output
+includes an `umbrella` line when one is detected (`Makefile` `.DEFAULT_GOAL` or a
+`check` target). When the umbrella resolves to something other than `unknown`:
+
+1. **Read `AGENTS.md`** (or `CONTRIBUTING.md`) to understand what the umbrella
+   includes — it may cover gates beyond the standard four (doc-coverage,
+   supply-chain audits, MSRV checks, etc.).
+2. **Prefer the umbrella** over running individual gates when it composes all of
+   them. Run it once instead of running `test`, `lint`, `fmt`, and `coverage`
+   separately.
+3. If the umbrella does **not** cover a standard gate (e.g. it skips coverage),
+   run the missing gate individually after the umbrella.
+
+```bash
+bash scripts/gates.sh run umbrella   # preferred when available
+```
+
+### Codecov/patch coverage gate
+
+When the repo has `codecov.yml` or Codecov CI,
 run the local Codecov-style patch check before PR creation:
 
 ```bash
@@ -81,7 +103,7 @@ surprise Codecov comments even when the numeric patch target would technically
 pass. If the generator cannot run locally, report that explicitly; otherwise a
 failing patch coverage gate blocks the PR.
 
-Judgment that stays with you:
+### Judgment that stays with you
 
 - **All tests must pass.** A flaky/env-dependent test must be named explicitly,
   never blanket-skipped.
@@ -89,6 +111,10 @@ Judgment that stays with you:
   and any separate doc/public-API coverage gate (e.g. fez also requires 100%
   public **doc** coverage via `make docs-coverage`). If a gate resolves to
   `unknown` (no tooling), say so and continue — do not invent one.
+- **Extra quality gates:** projects may define gates beyond test/lint/fmt/coverage
+  (doc-coverage, supply-chain audits, MSRV verification, etc.). Read `AGENTS.md`
+  or `CONTRIBUTING.md` to discover them. An umbrella target often composes these
+  automatically; when it doesn't, run them individually.
 - **Format before lint** so the commit is clean. Apply formatter fixes, then
   lint at the repo's strictness.
 - **Toolchain pins:** if a resolved command fails only because a pinned

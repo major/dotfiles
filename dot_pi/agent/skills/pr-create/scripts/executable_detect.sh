@@ -111,6 +111,18 @@ say "PROJECT_FILES=${hints:-none}"
 if [ -f Makefile ]; then
   targets="$(grep -oE '^[a-zA-Z0-9_-]+:' Makefile | sed 's/:.*//' | tr '\n' ' ')"
   say "MAKE_TARGETS=${targets:-none}"
+
+  # Umbrella gate: a single make target that composes the individual quality
+  # gates. Prefer the target named by .DEFAULT_GOAL if it has phony deps;
+  # fall back to 'check' if it exists as a target.
+  umbrella="none"
+  default_goal="$(grep -oP '^\.DEFAULT_GOAL\s*:=\s*\K\S+' Makefile 2>/dev/null || echo '')"
+  if [ -n "$default_goal" ] && printf '%s\n' "$targets" | grep -qw "$default_goal"; then
+    umbrella="make $default_goal"
+  elif printf '%s\n' "$targets" | grep -qw check; then
+    umbrella="make check"
+  fi
+  say "UMBRELLA_GATE=$umbrella"
 fi
 if [ -f package.json ] && command -v node >/dev/null 2>&1; then
   scripts="$(node -e 'try{const s=require("./package.json").scripts||{};console.log(Object.keys(s).join(" "))}catch(e){console.log("")}' 2>/dev/null)"

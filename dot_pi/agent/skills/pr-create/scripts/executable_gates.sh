@@ -23,6 +23,22 @@ npm_has() {
 resolve() {
   gate="$1"
   case "$gate" in
+    umbrella)
+      # A composite target that runs all quality gates in one shot (e.g.
+      # `make check` that depends on lint + test + docs-coverage + security).
+      # Prefer .DEFAULT_GOAL, then 'check', else unknown.
+      if [ -f Makefile ]; then
+        default_goal="$(grep -oP '^\.DEFAULT_GOAL\s*:=\s*\K\S+' Makefile 2>/dev/null || echo '')"
+        if [ -n "$default_goal" ] && has_target "$default_goal"; then
+          echo "make $default_goal"
+        elif has_target check; then
+          echo "make check"
+        else
+          echo "unknown"
+        fi
+      else
+        echo "unknown"
+      fi ;;
     test)
       if   has_target test;  then echo "make test"
       elif has_target check; then echo "make check"
@@ -62,7 +78,7 @@ resolve() {
 mode="${1:-plan}"
 case "$mode" in
   plan)
-    for g in test coverage lint fmt; do printf '%s=%s\n' "$g" "$(resolve "$g")"; done ;;
+    for g in umbrella test coverage lint fmt; do printf '%s=%s\n' "$g" "$(resolve "$g")"; done ;;
   cmd)
     resolve "${2:?gate required}" ;;
   run)
