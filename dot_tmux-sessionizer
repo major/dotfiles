@@ -1,5 +1,5 @@
-# Global tmux-sessionizer hydration: opencode left, nvim right
+# Global tmux-sessionizer hydration: pi left, nvim right
 tmux split-window -h
-tmux send-keys -t '{left}' 'opencode' Enter
+tmux send-keys -t '{left}' 'pi' Enter
 tmux send-keys -t '{right}' 'nvim' Enter
 tmux select-pane -t '{left}'
