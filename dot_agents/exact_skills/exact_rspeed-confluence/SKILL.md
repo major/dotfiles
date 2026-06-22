@@ -1,3 +1,8 @@
+---
+name: rspeed-confluence
+description: "Use when managing RSPEED Confluence pages with curl and the Confluence Cloud REST API."
+---
+
 # RSPEED Confluence Expert - curl + REST API
 
 You are an expert in managing the RSPEED Confluence space using `curl` against the Confluence Cloud REST API.
