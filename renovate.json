@@ -18,20 +18,14 @@
       "platformAutomerge": false
     },
     {
-      "description": "Require review for opencode and opencode plugin updates",
+      "description": "Require review for opencode plugin updates",
       "matchManagers": ["custom.regex"],
-      "matchFileNames": [
-        ".chezmoiexternal.toml",
-        "dot_config/opencode/private_opencode.jsonc"
-      ],
+      "matchFileNames": ["dot_config/opencode/private_opencode.jsonc"],
       "matchPackageNames": [
-        "anomalyco/opencode",
         "opencode-codebase-index",
         "openrtk",
         "context-mode",
-        "opencode-lcm",
-        "obra/superpowers",
-        "DietrichGebert/ponytail"
+        "opencode-lcm"
       ],
       "automerge": false,
       "platformAutomerge": false

@@ -123,94 +123,11 @@
     executable = true
     refreshPeriod = "168h"
 
-[".opencode/bin/opencode"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=anomalyco/opencode
-    url = "https://github.com/anomalyco/opencode/releases/download/v1.17.11/opencode-linux-x64.tar.gz"
-    path = "opencode"
-    executable = true
-    refreshPeriod = "168h"
-
-[".local/share/opencode/plugins/superpowers"]
-    type = "archive"
-    # renovate: datasource=github-tags depName=obra/superpowers
-    url = "https://github.com/obra/superpowers/archive/refs/tags/v6.0.3.tar.gz"
-    stripComponents = 1
-    refreshPeriod = "168h"
-
-[".local/share/opencode/plugins/ponytail"]
-    type = "archive"
-    # renovate: datasource=github-tags depName=DietrichGebert/ponytail
-    url = "https://github.com/DietrichGebert/ponytail/archive/refs/tags/v4.8.4.tar.gz"
-    stripComponents = 1
-    refreshPeriod = "168h"
-
 ["bin/oc"]
     type = "archive-file"
     # No versioned URLs available - chezmoi refreshPeriod handles updates
     url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux-amd64-rhel9.tar.gz"
     path = "oc"
-    executable = true
-    refreshPeriod = "168h"
-
-["bin/marketsurge-agent"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=major/marketsurge-rs
-    url = "https://github.com/major/marketsurge-rs/releases/download/v0.5.1/rusty-marketsurge-x86_64-unknown-linux-gnu.tar.xz"
-    stripComponents = 1
-    path = "marketsurge-agent"
-    executable = true
-    refreshPeriod = "168h"
-
-["bin/volumeleaders-agent"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=major/volumeleaders-rs
-    url = "https://github.com/major/volumeleaders-rs/releases/download/v0.8.0/rusty-volumeleaders-x86_64-unknown-linux-gnu.tar.xz"
-    path = "volumeleaders-agent"
-    stripComponents = 1
-    executable = true
-    refreshPeriod = "168h"
-
-# fmp-agent: secrets-injection split.
-# Why: FMP_API_KEY used to be a plaintext export in ~/.zshrc.local (exposed in
-# every shell). We moved it to 1Password (op://Private/FMP API Key/credential).
-# The real release binary is downloaded here into ~/.local/libexec (NOT on PATH),
-# and a chezmoi-managed wrapper at bin/executable_fmp-agent shadows it on PATH at
-# ~/bin/fmp-agent, running this binary via `op run` so the key is injected only
-# into that process tree. Do not move this back to bin/ or the wrapper and binary
-# will collide. Same pattern is the model for schwab-agent if it needs a key too.
-[".local/libexec/fmp-agent"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=major/fmp-rs
-    url = "https://github.com/major/fmp-rs/releases/download/v0.5.3/rusty-fmp-x86_64-unknown-linux-gnu.tar.xz"
-    path = "fmp-agent"
-    stripComponents = 1
-    executable = true
-    refreshPeriod = "168h"
-
-["bin/schwab-agent"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=major/schwab-rs
-    url = "https://github.com/major/schwab-rs/releases/download/v0.6.0/schwab-x86_64-unknown-linux-gnu.tar.xz"
-    path = "schwab-agent"
-    stripComponents = 1
-    executable = true
-    refreshPeriod = "168h"
-
-["bin/goreleaser"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=goreleaser/goreleaser
-    url = "https://github.com/goreleaser/goreleaser/releases/download/v2.16.0/goreleaser_Linux_x86_64.tar.gz"
-    path = "goreleaser"
-    executable = true
-    refreshPeriod = "168h"
-
-["bin/golangci-lint"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=golangci/golangci-lint
-    url = "https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz"
-    path = "golangci-lint"
-    stripComponents = 1
     executable = true
     refreshPeriod = "168h"
 
