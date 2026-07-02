@@ -25,6 +25,10 @@
         "custom/arrow-r1-bat",
         "battery",
         "custom/arrow-r2",
+{{- else if eq .chezmoi.hostname "amdbox" }}
+        "custom/arrow-r1-bat",
+        "custom/headphones-battery",
+        "custom/arrow-r2",
 {{- else }}
         "custom/arrow-r1-nobat",
 {{- end }}
@@ -54,6 +58,12 @@
         "return-type": "json",
         "format": "{}",
         "interval": 900
+    },
+    "custom/headphones-battery": {
+        "exec": "~/bin/headphones-battery",
+        "return-type": "json",
+        "format": "{}",
+        "interval": 60
     },
     "custom/uname": {
         "exec": "uname -r | sed 's/\\.fc.*//'",
@@ -123,8 +133,8 @@
         "format-muted": "\uf6a9",
         "format-icons": {
             "headphone": "\uf025",
-            "hands-free": "\uf590",
-            "headset": "\uf590",
+            "hands-free": "\uf025",
+            "headset": "\uf025",
             "phone": "\uf095",
             "portable": "\uf095",
             "car": "\uf1b9",
