@@ -19,7 +19,6 @@
 [core]
     autocrlf = input
     pager = less -FRSX
-    editor = vim
 [alias]
     ci = commit
     co = checkout
@@ -55,6 +54,7 @@
 
 [core]
     pager = delta
+	editor = true
 [interactive]
     diffFilter = delta --color-only
 [delta]
