@@ -1,0 +1,58 @@
+/* Tokyo Night theme for wofi */
+
+window {
+    margin: 0px;
+    border: 2px solid #7aa2f7;
+    border-radius: 8px;
+    background-color: #1a1b26;
+    font-family: "Hack Nerd Font", monospace;
+    font-size: 14px;
+}
+
+#input {
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    color: #c0caf5;
+    background-color: #24283b;
+}
+
+#inner-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#outer-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 0px;
+    border: none;
+}
+
+#text {
+    margin: 5px;
+    border: none;
+    color: #c0caf5;
+}
+
+#entry {
+    border: none;
+    border-radius: 4px;
+}
+
+#img {
+    margin: 3px;
+}
+
+#entry:selected {
+    background-color: #283457;
+}
+
+#text:selected {
+    color: #c0caf5;
+}
