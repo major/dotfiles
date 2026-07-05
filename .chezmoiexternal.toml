@@ -159,7 +159,7 @@
 [".local/lib/nvim"]
     type = "archive"
     # renovate: datasource=github-releases depName=neovim/neovim
-    url = "https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-x86_64.tar.gz"
+    url = "https://github.com/neovim/neovim/releases/download/v0.12.4/nvim-linux-x86_64.tar.gz"
     stripComponents = 1
     refreshPeriod = "168h"
 
