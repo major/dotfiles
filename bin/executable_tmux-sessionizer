@@ -242,7 +242,9 @@ find_dirs() {
             path="$entry"
         fi
 
-        [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print
+        [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" \
+            \( -path '*/.git' -o -path "$HOME/git/worktrees" -o -path "$HOME/git/worktrees/*" \) -prune -o \
+            -type d -print
     done
 }
 
