@@ -178,3 +178,26 @@
     path = "terraform"
     executable = true
     refreshPeriod = "168h"
+
+["bin/sops"]
+    type = "file"
+    # renovate: datasource=github-releases depName=getsops/sops
+    url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.amd64"
+    executable = true
+    refreshPeriod = "168h"
+
+["bin/age"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=FiloSottile/age
+    url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz"
+    path = "age/age"
+    executable = true
+    refreshPeriod = "168h"
+
+["bin/age-keygen"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=FiloSottile/age
+    url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz"
+    path = "age/age-keygen"
+    executable = true
+    refreshPeriod = "168h"
