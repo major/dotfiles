@@ -179,6 +179,23 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/goreleaser"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=goreleaser/goreleaser
+    url = "https://github.com/goreleaser/goreleaser/releases/download/v2.16.0/goreleaser_Linux_x86_64.tar.gz"
+    path = "goreleaser"
+    executable = true
+    refreshPeriod = "168h"
+
+["bin/golangci-lint"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=golangci/golangci-lint
+    url = "https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz"
+    path = "golangci-lint"
+    stripComponents = 1
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/sops"]
     type = "file"
     # renovate: datasource=github-releases depName=getsops/sops
