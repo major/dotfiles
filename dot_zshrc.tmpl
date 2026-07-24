@@ -122,6 +122,8 @@ bindkey -s "^[Oo" "/"
 # Source machine-local secrets/config (not tracked in dotfiles)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
+export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
+
 # kubeswitch (per-terminal kube context switching)
 # Set default KUBECONFIG so switcher doesn't choke on an empty value.
 export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
