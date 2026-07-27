@@ -208,7 +208,7 @@
 ["bin/sops"]
     type = "file"
     # renovate: datasource=github-releases depName=getsops/sops
-    url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.amd64"
+    url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.amd64"
     executable = true
     refreshPeriod = "168h"
 
