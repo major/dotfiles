@@ -57,14 +57,17 @@ $emojipicker = rofimoji --action copy --selector wofi --clipboarder wl-copy --ty
 # exec-once = $terminal
 # exec-once = nm-applet &
 # exec-once = waybar & hyprpaper & firefox
-exec-once = nm-applet &
-exec-once = waybar & hyprpaper & waypaper --restore
-exec-once = hypridle
+exec-once = uwsm app -- nm-applet
+exec-once = uwsm app -- waybar
+exec-once = uwsm app -- hyprpaper
+exec-once = uwsm app -- waypaper --restore
+# hypridle: handled by hypridle.service (enabled via systemctl --user), not exec-once
 #exec-once = systemctl start --user plasma-polkit-agent.service 
-exec-once = /usr/libexec/polkit-gnome-authentication-agent-1
-exec-once = dbus-update-activation-environment --all
-exec-once = gnome-keyring-daemon --start --components=secrets
-exec-once = swaync
+exec-once = uwsm app -s b -- /usr/libexec/polkit-gnome-authentication-agent-1
+# dbus-update-activation-environment: redundant, uwsm finalize already handles env propagation
+# gnome-keyring-daemon: redundant, already dbus-activated via org.gnome.keyring service file
+#   (manual exec-once was racing the dbus-activated instance and crashed it 2026-07-30 08:51)
+# swaync: handled by swaync.service (enabled via systemctl --user), not exec-once
 
 #############################
 ### ENVIRONMENT VARIABLES ###
