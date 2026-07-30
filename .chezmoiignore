@@ -3,3 +3,4 @@ renovate.json
 .config/opencode/package-lock.json
 .config/opencode/bun.lock
 .config/opencode/node_modules
+.config/nvim/lazy-lock.json
