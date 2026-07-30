@@ -119,7 +119,7 @@
 ["bin/coderabbit"]
     type = "archive-file"
     # renovate: datasource=custom.coderabbit-cli depName=coderabbit-cli
-    url = "https://cli.coderabbit.ai/releases/0.7.0/coderabbit-linux-x64.zip"
+    url = "https://cli.coderabbit.ai/releases/0.7.1/coderabbit-linux-x64.zip"
     path = "coderabbit"
     executable = true
     refreshPeriod = "168h"
