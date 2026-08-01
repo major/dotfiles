@@ -143,7 +143,7 @@
 ["bin/gh"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=cli/cli
-    url = "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_linux_amd64.tar.gz"
+    url = "https://github.com/cli/cli/releases/download/v2.97.0/gh_2.97.0_linux_amd64.tar.gz"
     path = "bin/gh"
     stripComponents = 1
     executable = true
