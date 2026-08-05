@@ -11,6 +11,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(
         # Core functionality
         colored-man-pages
+        direnv
         docker
         fzf
         gh
@@ -122,8 +123,6 @@ bindkey -s "^[Oo" "/"
 # Source machine-local secrets/config (not tracked in dotfiles)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
-export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
-
 # kubeswitch (per-terminal kube context switching)
 # Set default KUBECONFIG so switcher doesn't choke on an empty value.
 export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
@@ -147,5 +146,43 @@ export PATH="$HOME/go/bin:/usr/local/go/bin:$PATH"
 # Quick alias to launch tmux-sessionizer from the shell
 alias dev='tmux-sessionizer'
 
-# Ctrl-f to launch tmux-sessionizer (same as Prefix-f inside tmux)
-bindkey -s ^f "tmux-sessionizer\n"
+# Ctrl-f to launch zellij-sessionizer
+bindkey -s ^f "zellij-sessionizer\n"
+
+# >>> oh-my-opencode-slim background subagents >>>
+export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
+# <<< oh-my-opencode-slim background subagents <<<
+
+# >>> oh-my-opencode-slim zellij multiplexer >>>
+# Launches opencode with an explicit loopback port so the Zellij multiplexer
+# panes can attach (port 0 has no attachable TCP listener since 1.17.18).
+omos() {
+  local port arg
+
+  for arg in "$@"; do
+    if [[ "$arg" == --port=* ]]; then
+      port="${arg#--port=}"
+      break
+    fi
+  done
+
+  if [[ -z "$port" ]]; then
+    local -a args=("$@")
+    local -i index
+    for ((index = 1; index <= ${#args}; index++)); do
+      if [[ "${args[index]}" == --port ]]; then
+        port="${args[index + 1]}"
+        break
+      fi
+    done
+  fi
+
+  if [[ -n "$port" ]]; then
+    OPENCODE_PORT="$port" command opencode "$@"
+    return
+  fi
+
+  port=$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.close()') || return
+  OPENCODE_PORT="$port" command opencode --port "$port" "$@"
+}
+# <<< oh-my-opencode-slim zellij multiplexer <<<
