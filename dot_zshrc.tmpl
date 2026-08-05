@@ -154,11 +154,20 @@ if [ -f '/home/major/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/major
 export GOROOT=/usr/local/go
 export PATH="$HOME/go/bin:/usr/local/go/bin:$PATH"
 
-# Quick alias to launch tmux-sessionizer from the shell
-alias dev='tmux-sessionizer'
-
-# Ctrl-f to launch zellij-sessionizer
-bindkey -s ^f "zellij-sessionizer\n"
+# Ctrl-f: pick a project directory under ~/git and cd into it (no sessionizer)
+fzf-cd-widget() {
+  local dir
+  dir=$(fd --type d --max-depth 2 --hidden --no-ignore --exclude .git . "$HOME/git" 2>/dev/null \
+        | fzf --prompt='cd> ') || { zle reset-prompt; return 0; }
+  [[ -z "$dir" ]] && { zle reset-prompt; return 0; }
+  BUFFER="cd -- ${(q)dir}"
+  zle accept-line
+  zle reset-prompt
+}
+zle -N fzf-cd-widget
+bindkey -M emacs '^F' fzf-cd-widget
+bindkey -M viins '^F' fzf-cd-widget
+bindkey -M vicmd '^F' fzf-cd-widget
 
 # >>> oh-my-opencode-slim background subagents >>>
 export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
