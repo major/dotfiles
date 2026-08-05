@@ -1,0 +1,19 @@
+{
+  "theme": {
+    "name": "opencode"
+  },
+  "plugins": [
+    "@streetturtle/opencode-context-progress",
+    "oc-tps@latest",
+    "oh-my-opencode-slim"
+  ],
+  "diffs": {
+    "wrap": "word"
+  },
+  "session": {
+    "sidebar": "auto",
+    "scrollbar": false,
+    "thinking": "show"
+  },
+  "animations": true
+}

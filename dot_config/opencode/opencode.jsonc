@@ -1,0 +1,43 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
+  "small_model": "openai/gpt-5.4-mini",
+  "agent": {
+    "general": {
+      "model": "openai/gpt-5.6-terra",
+      "variant": "medium",
+      "disable": true
+    },
+    "explore": {
+      "model": "openai/gpt-5.6-luna",
+      "variant": "medium",
+      "disable": true
+    }
+  },
+  "permission": {
+    "read": {
+      "*": "allow",
+      "~/.zshrc.local": "deny"
+    },
+    "external_directory": {
+      "*": "ask",
+      "/tmp/opencode/**": "allow",
+      "~/git/worktrees/**": "allow",
+      "~/go/pkg/mod/**": "allow"
+    }
+  },
+  "mcp": {
+    "1password": {
+      "type": "local",
+      "command": [
+        "/bin/bash",
+        "-c",
+        "(1password-mcp)"
+      ],
+      "enabled": false
+    }
+  },
+  "plugin": [
+    "oh-my-opencode-slim"
+  ]
+}
