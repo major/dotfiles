@@ -30,6 +30,17 @@ plugins=(
 )
 source $ZSH/oh-my-zsh.sh
 
+# Silence direnv's stderr to keep p10k's instant prompt clean. The oh-my-zsh
+# direnv plugin registers _direnv_hook on precmd_functions, which fires on
+# the first prompt (during init) and prints "loading <dir>/.envrc" to stderr.
+# That output triggers p10k's instant prompt warning. Override the hook to
+# redirect its stderr to /dev/null.
+if (( $+functions[_direnv_hook] )); then
+  _direnv_hook() {
+    eval "$(direnv export zsh 2>/dev/null)"
+  }
+fi
+
 export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$PATH
 
 # favorite editor
