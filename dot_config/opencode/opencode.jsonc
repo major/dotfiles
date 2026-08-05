@@ -38,6 +38,7 @@
     }
   },
   "plugin": [
-    "oh-my-opencode-slim"
+    "oh-my-opencode-slim",
+    "~/.config/opencode/plugins/zellij-tabula.ts"
   ]
 }
