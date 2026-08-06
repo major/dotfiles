@@ -260,14 +260,6 @@ keybinds clear-defaults=true {
         bind "," { SwitchToMode "renametab"; }
         bind "[" { SwitchToMode "scroll"; }
         bind "Ctrl b" { Write 2; SwitchToMode "normal"; }
-        bind "K" {
-            Run "sh" "-lc" "choice=$(zjsh list -i 2>/dev/null | fzf --prompt='zjsh> ' --height=40% --reverse); [ -n \"$choice\" ] && exec zjsh connect -- \"$choice\"" {
-                name "zjsh"
-                floating true
-                close_on_exit true
-            }
-            SwitchToMode "Locked"
-        }
         bind "c" { NewTab; SwitchToMode "normal"; }
         bind "h" { MoveFocus "left"; SwitchToMode "normal"; }
         bind "j" { MoveFocus "down"; SwitchToMode "normal"; }
