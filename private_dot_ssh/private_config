@@ -3,3 +3,11 @@ Host *
 
 Host *.redhat.com
         User mhayden
+
+Host amdbox amdbox-new 100.64.125.128
+        HostName 100.64.125.128
+        ForwardAgent yes
+
+Host devbox-dallas 100.124.45.43
+        HostName 100.124.45.43
+        ForwardAgent yes
