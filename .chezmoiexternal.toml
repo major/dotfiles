@@ -24,7 +24,7 @@
 ["bin/flux"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=fluxcd/flux2
-    url = "https://github.com/fluxcd/flux2/releases/download/v2.9.3/flux_2.9.3_linux_amd64.tar.gz"
+    url = "https://github.com/fluxcd/flux2/releases/download/v2.9.4/flux_2.9.4_linux_amd64.tar.gz"
     path = "flux"
     executable = true
     refreshPeriod = "168h"
