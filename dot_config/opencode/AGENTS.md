@@ -9,3 +9,7 @@
 - Make architectural decisions for the long term. Do not accept a stopgap that only works for now and is meant to be replaced later.
 - Study how established products solve the problem before designing a solution. Adopt their proven patterns and conventions rather than inventing an approach from scratch.
 - After using a skill, tool, or agent, reflect on the experience and suggest improvements that improve token efficiency or reduce confusion.
+- Write one sentence per line when writing markdown so that it's easier for a human to read. Markdown ignores these newlines anyway.
+- Never run `find` against my entire filesystem. Only search specific directories as required.
+
+- You are running in opencode v2: https://opencode.ai/v2/docs

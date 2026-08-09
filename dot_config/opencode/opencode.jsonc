@@ -1,44 +1,55 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "lsp": true,
-  "small_model": "openai/gpt-5.4-mini",
-  "agent": {
+  "agents": {
+    "title": {
+      "model": "openai/gpt-5.4-mini"
+    },
     "general": {
-      "model": "openai/gpt-5.6-terra",
-      "variant": "medium",
-      "disable": true
+      "model": "openai/gpt-5.6-terra#medium",
+      "disabled": true
     },
     "explore": {
-      "model": "openai/gpt-5.6-luna",
-      "variant": "medium",
-      "disable": true
+      "model": "openai/gpt-5.6-luna#medium",
+      "disabled": true
     }
   },
-  "permission": {
-    "read": {
-      "*": "allow",
-      "~/.zshrc.local": "deny"
+  "permissions": [
+    {
+      "action": "read",
+      "resource": "*",
+      "effect": "allow"
     },
-    "external_directory": {
-      "*": "ask",
-      "/tmp/opencode/**": "allow",
-      "~/git/worktrees/**": "allow",
-      "~/go/pkg/mod/**": "allow"
+    {
+      "action": "read",
+      "resource": "~/.zshrc.local",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "external_directory",
+      "resource": "~/go/pkg/mod/**",
+      "effect": "allow"
     }
-  },
+  ],
   "mcp": {
-    "1password": {
-      "type": "local",
-      "command": [
-        "/bin/bash",
-        "-c",
-        "(1password-mcp)"
-      ],
-      "enabled": false
+    "servers": {
+      "1password": {
+        "type": "local",
+        "command": [
+          "/bin/bash",
+          "-c",
+          "(1password-mcp)"
+        ],
+        "disabled": true
+      }
     }
   },
-  "plugin": [
-    "oh-my-opencode-slim",
+  "plugins": [
     "~/.config/opencode/plugins/zellij-tabula.ts"
   ]
 }

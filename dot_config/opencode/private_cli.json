@@ -4,8 +4,10 @@
   },
   "plugins": [
     "@streetturtle/opencode-context-progress",
-    "oc-tps@latest",
-    "oh-my-opencode-slim"
+    "@streetturtle/opencode-open-in",
+    "@streetturtle/opencode-recap",
+    "@streetturtle/opencode-session-tokens",
+    "oc-tps@latest"
   ],
   "diffs": {
     "wrap": "word"
