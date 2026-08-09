@@ -1,6 +1,6 @@
 ---
 name: python-development
-description: Use whenever writing, editing, reviewing, or generating Python code. Covers .py files, pyproject.toml, requirements.txt, tests, scripts, and notebooks. Applies to API/tool design, typing discipline, defensive parsing, docstring contracts, error handling, async, packaging, and Python code review.
+description: Use whenever writing, editing, reviewing, or generating Python code. Covers .py files, pyproject.toml, requirements.txt, tests, scripts, and notebooks. Applies to API/tool design, typing discipline, defensive parsing, docstring contracts, error handling, async, security, performance, modern tooling (uv/Ruff/ty), packaging, and Python code review.
 ---
 
 # Python Development
@@ -11,6 +11,9 @@ A working checklist distilled from real refactors, not a style-guide reprint. Ap
 
 These rules are additive to the repo's `AGENTS.md` standing principles: simplest implementation that meets the requirement, no speculative abstraction, functional style over imperative loops, no comments unless they name a non-obvious constraint, prefer `const`-style immutability.
 
+Sections 1-9 are hard-won review patterns.
+Sections 10-14 cover security, performance, and modern tooling, each with a `references/` file for depth — read the reference file when you need canonical detail beyond the summary here, don't rely on memorized specifics that go stale.
+
 ## When to Use
 
 - Writing, editing, generating, or reviewing any Python (`.py`), including tests, scripts, command-line tools, and notebooks
@@ -20,6 +23,30 @@ These rules are additive to the repo's `AGENTS.md` standing principles: simplest
 - Parsing JSON/API responses from an external system you don't control
 - Reviewing docstrings that double as API contracts (type hints, `Annotated[...]` descriptions, OpenAPI/MCP schemas)
 - Writing tests for code that enriches, prunes, or mutates dict/list payloads
+- Reviewing code that touches secrets, subprocess/SQL/deserialization, or dependency/lockfile changes
+- Choosing or configuring a linter, type checker, test runner, or packaging tool
+
+## Canonical References
+
+Fetch these on demand for authoritative, current detail.
+Don't answer a specific packaging, typing, or security question from memory alone when the canonical source is one fetch away — these move fast (Python 3.14, PEP 751, the Astral toolchain) and stale advice reads as confidently wrong.
+
+| Topic | Source |
+| --- | --- |
+| Language/stdlib reference, release notes | <https://docs.python.org/3/>, <https://docs.python.org/3/whatsnew/3.14.html> |
+| PEPs (typing, packaging, free-threading) | <https://peps.python.org> |
+| Packaging (`pyproject.toml`, `pylock.toml`) | <https://packaging.python.org> |
+| Typing spec | <https://typing.python.org> |
+| uv (envs, deps, lockfiles) | <https://docs.astral.sh/uv/> |
+| Ruff (linter/formatter + rule catalog) | <https://docs.astral.sh/ruff/>, <https://docs.astral.sh/ruff/rules/> |
+| ty (Astral's type checker, beta) | <https://docs.astral.sh/ty/> |
+| mypy / Pyright (type checkers) | <https://mypy.readthedocs.io>, <https://microsoft.github.io/pyright> |
+| pytest / Hypothesis (testing) | <https://docs.pytest.org>, <https://hypothesis.readthedocs.io> |
+| OWASP Cheat Sheet Series | <https://cheatsheetseries.owasp.org> |
+| OWASP Top 10:2025 | <https://owasp.org/Top10/2025/> |
+| Architecture Patterns with Python (free) | <https://www.cosmicpython.com/> |
+
+Deeper reference files in this skill: `references/security.md`, `references/performance.md`, `references/tooling.md`.
 
 ## 1. API Surface Design
 
@@ -145,13 +172,37 @@ Ask during design/review: "if this sub-call fails, should the whole call fail to
 - **Handle cancellation transparently.** If you catch `CancelledError` to clean up, re-raise it; don't swallow it. Long-running tasks should propagate cancellation.
 - **Don't mix sync and async worlds casually** — no bare `await` outside `async def`, no fire-and-forget coroutines (create a task and await/track it).
 
-## 10. Packaging & Dependencies
+## 10. Security
 
-- **`pyproject.toml` is the modern norm.** Prefer it over `setup.py`/`setup.cfg`. Use a build backend already adopted by the repo (hatchling, setuptools, flit); match neighbors.
-- **Pin versions for reproducibility and loosen them only deliberately.** Exact pins for apps; compatible ranges (`~=x.y`) for libraries. Don't pin a transitive dependency your own `pyproject.toml` doesn't directly use.
+Treat every external input as hostile until validated: HTTP bodies, CLI args, file paths, environment variables, config files, and third-party API responses.
+
+- **Never string-interpolate untrusted input into a shell command, SQL query, or file path.** Use parameterized queries (`cursor.execute(query, params)`), `subprocess.run(args_list, shell=False)` with `args` as a list, and validate file paths against an allow-list before joining with `pathlib.Path`.
+- **Never call `eval`, `exec`, `pickle.load`/`pickle.loads`, or `yaml.load` without `SafeLoader` on untrusted input.** Use `ast.literal_eval`, `json`, or `yaml.safe_load` instead.
+- **Never hardcode secrets, tokens, or credentials in source.** Read them from environment variables or a secrets manager; run `detect-secrets`/`gitleaks` before pushing if the repo doesn't already gate this in CI.
+- **Pin dependencies in a hashed lockfile** (`uv.lock`, or PEP 751 `pylock.toml`) rather than an unpinned `requirements.txt`, and run `pip-audit` (or the repo's equivalent) in CI to catch known-vulnerable dependencies before they ship.
+- **Log security-relevant events without logging the secret itself.** Auth failures and permission denials are worth logging; the token, password, or full request body that may carry PII is not.
+
+See `references/security.md` for the full OWASP-mapped checklist (injection, auth, crypto, deserialization, supply chain) and canonical source links.
+
+## 11. Performance
+
+- **Profile before optimizing.** `cProfile`/`py-spy` for CPU, `memray`/`tracemalloc` for memory, `Scalene` when you need both plus GPU/native-vs-Python attribution. Guessing the hot path costs more time than a five-minute profile.
+- **Use `decimal.Decimal` for money** and any value where binary-float rounding error is unacceptable; never compare floats with `==`.
+- **Vectorize bulk numeric/tabular work** with NumPy/pandas/Polars instead of a Python-level loop; a `for` loop over a DataFrame is almost always the bug, not the fix.
+- **Free-threading (PEP 703/779, the `python3.14t` build) is opt-in, not default** — don't assume the GIL is gone. A C extension that hasn't declared thread-safety silently re-enables the GIL for the whole process, and per the CPython release notes, free-threaded single-thread performance still carries roughly a 5-10% penalty. Adopt it only when profiling shows a real multi-core CPU-bound bottleneck that `multiprocessing` doesn't already solve — not speculatively.
+
+See `references/performance.md` for the full profiling workflow, CPython version-by-version performance notes, and library links.
+
+## 12. Tooling & Packaging
+
+- **`pyproject.toml` is the modern norm** (PEP 517/518/621). Prefer it over `setup.py`/`setup.cfg`. Use a build backend already adopted by the repo (hatchling, setuptools, flit); match neighbors.
+- **Default toolchain unless the repo already standardizes on something else:** `uv` for envs/dependencies/Python versions, `ruff` for lint+format, `ty` or `mypy`/`pyright` for types, `pytest` (+ `hypothesis` for property-based tests where correctness matters). `uv` and `ruff` are safe defaults for new work; `ty` is beta (stable 1.0 targeted for 2026) — pair it with `mypy` or `pyright` as the CI gate until it reaches parity on the typing conformance suite.
+- **Pin versions for reproducibility and loosen them only deliberately.** Exact pins for apps; compatible ranges (`~=x.y`) for libraries. Don't pin a transitive dependency your own `pyproject.toml` doesn't directly use. Generate a hashed lockfile (`uv lock`, or `uv export --format pylock.toml` for PEP 751 portability) rather than an unpinned `requirements.txt`.
 - **External tools the project already uses go in tool-specific config** (ruff: `[tool.ruff]`, mypy: `[tool.mypy]`); don't invent a parallel lint config. Check `AGENTS.md` and the repo for the canonical lint command and run it after changes.
 
-## 11. Cyclomatic Complexity Gate
+See `references/tooling.md` for exact commands, the type-checker decision matrix, and canonical doc links (uv, Ruff rules catalog, ty, mypy, Pyright, pytest).
+
+## 13. Cyclomatic Complexity Gate
 
 Every function and method must rate **grade A or B** under `radon`/`xenon` cyclomatic complexity. No C+ (C, D, E, F) allowed — a function that complex has too many independent paths to test or reason about.
 
@@ -174,7 +225,7 @@ xenon --max-absolute B --max-modules A --max-average A <pkg>/
 
 Generated/templated code excluded from the normal edit loop can be marked via `# pragma: no cc` (radon respects `# noqa: C901`-style suppressions only when the caller explicitly opts in); prefer real refactors and reserve suppression for code the reviewer genuinely can't shape.
 
-## 12. Test Isolation Patterns
+## 14. Test Isolation Patterns
 
 - **Monkeypatch your own internal helpers**, not just the outermost client, when a function composes fetch → enrich → prune. Patching an inner helper lets a test assert one concern without fabricating a realistic payload for the others.
 - **Always add the no-match / malformed / empty case** alongside the happy path — these are exactly what defensive `isinstance` guards exist for, and the first to silently regress.
@@ -200,7 +251,9 @@ Run through after writing or before approving a Python change:
 - [ ] `pathlib`, `with`, `logging` instead of `os.path`, manual cleanup, `print`?
 - [ ] `from __future__ import annotations`, no unnecessary `Any`, no unjustified `type: ignore`?
 - [ ] No blocking I/O in async; no `eval`/`exec`/`pickle` for untrusted input; `subprocess` uses `shell=False`?
-- [ ] Packaging in `pyproject.toml`; pins deliberate; reuse existing tool config (ruff/mypy)?
-- [ ] `pyright`/`mypy` clean; repo lint command run?
+- [ ] No untrusted input reaches `subprocess`/SQL/`eval`/`pickle`/`yaml.load` without parameterization or a safe loader? No hardcoded secrets?
+- [ ] Hot path profiled (not guessed) before optimizing; `Decimal` used for money; bulk numeric work vectorized instead of looped?
+- [ ] Packaging in `pyproject.toml`; pins deliberate in a hashed lockfile; reuse existing tool config (ruff/mypy/ty)?
+- [ ] `pyright`/`mypy`/`ty` clean; repo lint command run; dependencies scanned (`pip-audit` or equivalent)?
 - [ ] Cyclomatic complexity: `xenon --max-absolute B` passes for every function/method (no C+); over-complex functions refactored to guard clauses, dispatch tables, or extracted helpers — not suppressed?
 - [ ] Tests cover no-match/malformed/empty, not just happy path; union-return subscripts narrowed with `isinstance`; old buggy tests updated rather than shadowed?
