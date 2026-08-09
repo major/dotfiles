@@ -20,12 +20,12 @@ These can be two separate clones of the same remote that silently diverge.
 
 ```bash
 chezmoi source-path                 # canonical source dir
-git -C "$(chezmoi source-path)" remote -v
+chezmoi git -- remote -v            # Git command in the canonical source dir
 ```
 
 - Prefer editing inside `chezmoi source-path`.
 - If a second clone exists at `~/git/<user>/dotfiles` (or similar), keep them in sync:
-  - Edited the second clone? Fetch+ff into source-path first or `chezmoi apply` won't see your change: `git -C "$(chezmoi source-path)" fetch && git -C "$(chezmoi source-path)" merge --ff-only origin/main`
+  - Edited the second clone? Fetch+ff into source-path first or `chezmoi apply` won't see your change: `chezmoi git -- fetch && chezmoi git -- merge --ff-only origin/main`
   - Pushed from source-path? Fast-forward the other clone: `git -C ~/git/<user>/dotfiles merge --ff-only origin/main`
 
 ## Drift, diff, and apply
@@ -36,7 +36,7 @@ The most common reason to load this skill: "what's drifted?" or "what did I forg
 
 ```bash
 chezmoi status                                       # what drifted on disk
-git -C "$(chezmoi source-path)" status --short       # any uncommitted source edits
+chezmoi git -- status --short                        # any uncommitted source edits
 chezmoi diff ~/path/to/file                          # per-file detail (scoped)
 ```
 
@@ -54,7 +54,7 @@ The two-letter codes are NOT git-style — see the table below.
 | `D `  | No change                             | Apply will delete (source dropped it, disk still has it) |
 
 **First column = deployed-file drift. Second column = what `chezmoi apply` will change.**
-`chezmoi status` does NOT report uncommitted *source* changes — for that, run `git -C "$(chezmoi source-path)" status --short`.
+`chezmoi status` does NOT report uncommitted *source* changes — for that, run `chezmoi git -- status --short`.
 
 ### Scope diff/apply — avoid TTY hang and noise
 
@@ -131,12 +131,14 @@ Detect a second clone first so the post-push fast-forward isn't a surprise:
 
 ```bash
 ls -d ~/git/*/dotfiles           # detect second clones upfront
-git -C "$(chezmoi source-path)" add <paths>
-git -C "$(chezmoi source-path)" commit -S -s -m "type(scope): summary"
-git -C "$(chezmoi source-path)" push origin main
+chezmoi git -- add <paths>
+chezmoi git -- commit -S -s -m "type(scope): summary"
+chezmoi git -- push origin main
 # then fast-forward the other clone, if any (see Repo topology)
 chezmoi apply -v <scoped deployed path>   # verify deployed state matches
 ```
+
+`chezmoi git` runs Git in the canonical source directory, so prefer it over `git -C "$(chezmoi source-path)"`.
 
 ## Verification
 
