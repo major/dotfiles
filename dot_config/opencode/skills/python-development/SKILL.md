@@ -11,8 +11,8 @@ A working checklist distilled from real refactors, not a style-guide reprint. Ap
 
 These rules are additive to the repo's `AGENTS.md` standing principles: simplest implementation that meets the requirement, no speculative abstraction, functional style over imperative loops, no comments unless they name a non-obvious constraint, prefer `const`-style immutability.
 
-Sections 1-9 are hard-won review patterns.
-Sections 10-14 cover security, performance, and modern tooling, each with a `references/` file for depth — read the reference file when you need canonical detail beyond the summary here, don't rely on memorized specifics that go stale.
+Sections 1-10 are hard-won review patterns.
+Sections 11-15 cover security, performance, tooling, and review gates, with `references/` files behind the first three for depth — read the reference file when you need canonical detail beyond the summary here, don't rely on memorized specifics that go stale.
 
 ## When to Use
 
@@ -66,12 +66,20 @@ Deeper reference files in this skill: `references/security.md`, `references/perf
 
 **Row completeness, not just row non-emptiness.** When combining independently-computed series into one row, require all promised columns present, not just any. Two moving averages of different type but same window can produce values at different offsets; `dropna(how="all")` yields rows with only one field populated. Use `dropna(how="any")` or an explicit per-row check, and give the combined series intentionally mismatched warmup lengths in a test — a same-shape fixture won't expose the bug.
 
+**Let verbs be functions.** An operation with no natural home in one object (allocate a line across many batches) is a plain function — `allocate(line, batches)` — not a `FooManager`/`BarBuilder` class.
+
+**Keyword-only arguments are API safety.** Put `*` before config/flag/optional params (`def f(a, b, *, timeout=30)`) so callers can't transpose positional order and the call site self-documents. Reserve positional slots for arguments whose order is genuinely natural.
+
 ## 2. Data Shape: dict vs dataclass vs pydantic
 
 Pick the lightest tool that removes the actual pain point:
 
-- **`dict[str, Any]` / `TypedDict`**: fine for data immediately serialized back out as JSON and never inspected field-by-field in multiple places.
+- **`dict[str, Any]` / `TypedDict`**: fine for data immediately serialized back out as JSON and never inspected field-by-field in multiple places. Use `TypedDict` when the shape must *stay* a dict (JSON wire format, external payload) but you still want per-key types checked.
+- **Custom mappings: subclass `collections.UserDict`, not `dict`.** `dict`'s C-optimized methods bypass Python-level overrides — inherited `d.get()`, `d.update()`, and `k in d` silently skip your overridden `__getitem__`/`__missing__`. And `__missing__` fires only on `d[k]`, never `.get()` or `in`, so fallback logic can silently never run. `UserDict` routes everything through your overrides.
 - **`@dataclass(frozen=True, slots=True)`**: use once you're doing repeated `.get("key")` lookups on the same shape in more than one place — typed attribute access catches typos `pyright` would otherwise miss, and it's free (stdlib, no new dependency). `frozen=True` for values that shouldn't change after construction; `slots=True` for memory and to catch accidental new attributes.
+- **No mutable default values** in dataclass fields or function args: `guests: list = []` (or `def f(x=[])`) shares one object across every instance/call — a bug that appears later as "why does my data persist?" Use `field(default_factory=list)` / `x=None`.
+- **Enums for bounded domain values.** Replace magic strings/ints in comparisons (`status == "ACTIVE"`, sides, order types) with `enum.Enum`/`IntEnum` members — typos become `AttributeError`s at definition time instead of silent `False` at runtime.
+- **Value objects vs entities.** A value object is defined by its data — two `OrderLine`s with the same fields are the same line — so `@dataclass(frozen=True)` gives correct field-based equality and hashing for free. An entity has long-lived identity (a `Batch` stays the same batch by `reference` as its state changes): implement `__eq__`/`__hash__` on the identity field only, keep both consistent, and make the identity field read-only — mutating a hashed field silently corrupts sets/dicts.
 - **`pydantic`**: only when you need validation/coercion at a real trust boundary (deserializing untrusted input, enforcing a schema across a network call) — not just to hold two fields together internally.
 
 **Before adding pydantic (or any new dependency), check whether it's already a *direct* dependency** (`pyproject.toml`/`requirements.txt`), not merely transitively pulled in by another package. Matching the codebase's existing convention beats introducing a second modeling paradigm for one helper. Grep for `@dataclass` / `import pydantic` in `src/` before deciding.
@@ -108,7 +116,11 @@ id_map = {
 
 This isn't paranoia — it's "one bad record gets skipped" vs. "the whole call throws." Write at least one malformed/empty-payload test per parsing helper, not just the happy path.
 
-**Beware in-place mutation of dicts you didn't originate**, especially shared test fixtures. A `{**base, ...}` shallow copy shares nested dict identity — mutating one result can leak into a later test reusing the same nested object. Either don't mutate in place, or don't rely on object identity across test cases that go through a mutating code path.
+**Normalize Unicode before string matching.** `'café'` ≠ `'cafe\u0301'` (composed vs decomposed accents), and `.lower()` won't match `'Straße'` to `'STRASSE'`. When comparing keys/labels against external payloads, compare `unicodedata.normalize('NFC', s).casefold()` on both sides — never raw `==` on user/API-supplied text.
+
+**Beware in-place mutation of dicts you didn't originate**, especially shared test fixtures. A `{**base, ...}` shallow copy shares nested dict identity — mutating one result can leak into a later test reusing the same nested object. Either don't mutate in place, or don't rely on object identity across test cases that go through a mutating code path. When storing or mutating an argument you don't own, copy first — `list(x)`/`x.copy()` shallow, `copy.deepcopy` when you mutate nested structure.
+
+**`[x] * n` aliases nested items.** `[[]] * n` or `[{}] * n` gives n references to one object — mutating one row mutates them all. `[0] * n` is fine (immutables). Build nested lists with a comprehension: `[[] for _ in range(n)]`.
 
 ## 4. Docstrings as Contract
 
@@ -122,6 +134,8 @@ For any function whose docstring/type-annotations feed a schema a caller relies 
 ## 5. Error Handling
 
 **Raise specific exceptions, catch specific exceptions.** Define a small exception hierarchy rooted at a module-level base (`class AppError(Exception)` with `AppInputError`, `AppAPIError`, etc.). Users should catch `AppError` to mean "expected and handled"; never catch bare `except:` or `except Exception: ` to swallow the unexpected — that hides bugs and breaks `Ctrl-C`.
+
+**Name exceptions in the business's language, not the code's** — `OutOfStock`, not `AllocationError` — and include the offending identifier in the message.
 
 ** Never let a secondary lookup miss destroy an already-known-good value.** If the caller supplied the identifier the lookup is trying to enrich, fall back to that input on a miss instead of overwriting with `None`:
 
@@ -153,26 +167,43 @@ Ask during design/review: "if this sub-call fails, should the whole call fail to
 
 - **`from __future__ import annotations`** at the top of modules so annotations are strings by default and forward refs cost nothing.
 - **Avoid `Any`.** Prefer `object` for "unknown anything" and narrow with `isinstance`; use a `Protocol` for structural typing over an import, an ABC only when you need a real inheritance contract.
-- **`Optional[X]` means `X | None`**, not "this argument is optional." An optional argument uses a default (`x: X | None = None`); a required argument that may legitimately be `None` is `Optional[X]` with no default.
+- **`Optional[X]` means `X | None`**, not "this argument is optional." An optional argument uses a default (`x: X | None = None`); a required argument that may legitimately be `None` is `Optional[X]` with no default. When `None` is itself a meaningful value, use a module-level sentinel (`_UNSET = object()`) as the default so "not passed" stays distinguishable from explicit `None`.
 - **Don't lie with `# type: ignore`.** If the type system fights you, fix the shapes before suppressing; if you must suppress, pin the code and add a reason per the repo's `AGENTS.md`.
+- **TypeVars: know bound vs constrained.** `TypeVar('T', bound=X)` accepts any subtype of `X` (used with a `Protocol` for structural generics); constrained `TypeVar('T', A, B)` admits only the listed types and makes inference pick the exact one.
+- **Prefer read-only types in parameter positions.** `Sequence[T]`/`Mapping[K, V]` are covariant — they accept subtypes; `list[T]`/`dict[K, V]` are invariant and reject them, which is where the temptation to reach for `cast()` comes from. If you only read, type the parameter as the covariant view.
 
 ## 8. Modern Python Habits
 
 - **`pathlib.Path` over `os.path` string concat.** `Path(base) / "sub" / f"{name}.json"` reads better than `os.path.join(base, "sub", f"{name}.json")` and yields an object, not a string.
+- **Decode bytes at the boundary, work in `str`.** Pass explicit `encoding="utf-8"` to `open()` and text-mode I/O instead of relying on the locale default (a classic mojibake source, especially on Windows); never concatenate `bytes` and `str`.
 - **`with` for every resource** (files, sockets, locks, subprocess handles). If a class owns a resource, make it a context manager (`__enter__`/`__exit__` or `@contextlib.contextmanager`).
 - **Logging, not print.** Use the `logging` module (or `structlog`/`loguru` if the project already does) for anything that runs in production; `print` is for scratch scripts only.
+- **`@functools.wraps` on every decorator.** Without it the wrapped function loses `__name__`/`__doc__` — silently breaking tool names and schemas when docstrings feed MCP/OpenAPI.
 - **Generators over materialized lists when the consumer iterates once.** Saves memory on large collections and signals streaming intent. But don't return a generator when the caller needs to subscript or iterate twice — materialize.
+- **Accumulate under keys with `setdefault`/`defaultdict(list)`.** `d[k] = d.get(k, []) + [v]` rebuilds the list every time (O(n²)); `d.setdefault(k, []).append(v)` or `defaultdict(list)` is linear.
+- **Composition over inheritance.** Keep hierarchies shallow; reserve mixins (no state, cooperative `super()`) for cross-cutting behavior — the rare case multiple inheritance is worth it.
 - **`subprocess.run(..., shell=False)` always.** Never `shell=True` with interpolated input. Pass `args` as a list and never interpolate caller-provided strings into a command.
 - **No `eval`/`exec`, no `pickle` for untrusted input.** Use `ast.literal_eval` for literal structures, or a real parser (`json`, `pydantic`) per section 3.
 
-## 9. Async Correctness
+## 9. Python Data Model
+
+**Implement protocols, not bespoke accessor APIs.** `__len__` + `__getitem__` buy `len()`, iteration, slicing, `in`, and `random.choice` for free; `__abs__`/`__add__`/`__mul__` make operators and built-ins work. If callers use custom methods where a dunder exists, you're leaking API surface the language already standardizes. For operator overloads, return `NotImplemented` (not `False`, not raise) for unsupported operand types so Python can try the reflected operation — otherwise `x + y` works but `y + x` silently doesn't, and equality becomes asymmetric.
+
+**`__repr__` is for debugging, `__str__` for humans.** Make `__repr__` unambiguous — ideally an expression that reconstructs the object (`Vector(2, 4)`), with `!r` on fields — because it lands in logs, tracebacks, and REPL output.
+
+**Truthiness falls back to `__len__`.** `bool(x)` calls `__bool__` if defined, else `len(x)`, so empty containers are falsy for free; define `__bool__` only when truthiness isn't "non-empty" (a zero `Vector` is falsy).
+
+**Docstring examples are executable specs.** For small pure helpers, `python3 -m doctest` turns docstring examples into tests — docs that can't drift from behavior, at zero test-file overhead.
+
+## 10. Async Correctness
 
 - **Never call blocking I/O inside an async function** without `run_in_executor` — a blocking `requests.get` inside `async def` stalls the whole event loop. Use an async client (`httpx.AsyncClient`, `aiohttp`) or offload.
+- **Every await on external I/O needs a timeout** (`asyncio.timeout`/`wait_for`) — an un-timed await hangs the whole task forever on a wedged peer.
 - **`asyncio.run` is the entry point of choice** for scripts; don't nest it. Don't call `loop.run_until_complete` yourself unless you're inside a framework that forbids `asyncio.run`.
 - **Handle cancellation transparently.** If you catch `CancelledError` to clean up, re-raise it; don't swallow it. Long-running tasks should propagate cancellation.
 - **Don't mix sync and async worlds casually** — no bare `await` outside `async def`, no fire-and-forget coroutines (create a task and await/track it).
 
-## 10. Security
+## 11. Security
 
 Treat every external input as hostile until validated: HTTP bodies, CLI args, file paths, environment variables, config files, and third-party API responses.
 
@@ -184,16 +215,18 @@ Treat every external input as hostile until validated: HTTP bodies, CLI args, fi
 
 See `references/security.md` for the full OWASP-mapped checklist (injection, auth, crypto, deserialization, supply chain) and canonical source links.
 
-## 11. Performance
+## 12. Performance
 
 - **Profile before optimizing.** `cProfile`/`py-spy` for CPU, `memray`/`tracemalloc` for memory, `Scalene` when you need both plus GPU/native-vs-Python attribution. Guessing the hot path costs more time than a five-minute profile.
-- **Use `decimal.Decimal` for money** and any value where binary-float rounding error is unacceptable; never compare floats with `==`.
+- **Memoize pure functions** with `@functools.cache`/`lru_cache` before reaching for heavier machinery — it's the cheap first win for repeated calls with repeated arguments.
+- **Use `decimal.Decimal` for money** and any value where binary-float rounding error is unacceptable; never compare floats with `==`. Repeated increments (`total += 0.1` in a loop) accumulate error even when each looks harmless — recompute from a base value (`n * step`) or use `Fraction`/`Decimal`.
 - **Vectorize bulk numeric/tabular work** with NumPy/pandas/Polars instead of a Python-level loop; a `for` loop over a DataFrame is almost always the bug, not the fix.
+- **Threads don't parallelize CPU-bound work** — under the GIL they help only I/O-bound tasks; CPU-bound parallelism needs processes (`multiprocessing`/`ProcessPoolExecutor`).
 - **Free-threading (PEP 703/779, the `python3.14t` build) is opt-in, not default** — don't assume the GIL is gone. A C extension that hasn't declared thread-safety silently re-enables the GIL for the whole process, and per the CPython release notes, free-threaded single-thread performance still carries roughly a 5-10% penalty. Adopt it only when profiling shows a real multi-core CPU-bound bottleneck that `multiprocessing` doesn't already solve — not speculatively.
 
 See `references/performance.md` for the full profiling workflow, CPython version-by-version performance notes, and library links.
 
-## 12. Tooling & Packaging
+## 13. Tooling & Packaging
 
 - **`pyproject.toml` is the modern norm** (PEP 517/518/621). Prefer it over `setup.py`/`setup.cfg`. Use a build backend already adopted by the repo (hatchling, setuptools, flit); match neighbors.
 - **Default toolchain unless the repo already standardizes on something else:** `uv` for envs/dependencies/Python versions, `ruff` for lint+format, `ty` or `mypy`/`pyright` for types, `pytest` (+ `hypothesis` for property-based tests where correctness matters). `uv` and `ruff` are safe defaults for new work; `ty` is beta (stable 1.0 targeted for 2026) — pair it with `mypy` or `pyright` as the CI gate until it reaches parity on the typing conformance suite.
@@ -202,7 +235,7 @@ See `references/performance.md` for the full profiling workflow, CPython version
 
 See `references/tooling.md` for exact commands, the type-checker decision matrix, and canonical doc links (uv, Ruff rules catalog, ty, mypy, Pyright, pytest).
 
-## 13. Cyclomatic Complexity Gate
+## 14. Cyclomatic Complexity Gate
 
 Every function and method must rate **grade A or B** under `radon`/`xenon` cyclomatic complexity. No C+ (C, D, E, F) allowed — a function that complex has too many independent paths to test or reason about.
 
@@ -225,7 +258,7 @@ xenon --max-absolute B --max-modules A --max-average A <pkg>/
 
 Generated/templated code excluded from the normal edit loop can be marked via `# pragma: no cc` (radon respects `# noqa: C901`-style suppressions only when the caller explicitly opts in); prefer real refactors and reserve suppression for code the reviewer genuinely can't shape.
 
-## 14. Test Isolation Patterns
+## 15. Test Isolation Patterns
 
 - **Monkeypatch your own internal helpers**, not just the outermost client, when a function composes fetch → enrich → prune. Patching an inner helper lets a test assert one concern without fabricating a realistic payload for the others.
 - **Always add the no-match / malformed / empty case** alongside the happy path — these are exactly what defensive `isinstance` guards exist for, and the first to silently regress.
@@ -249,6 +282,8 @@ Run through after writing or before approving a Python change:
 - [ ] Row completeness: merged series require *all* promised fields present, not just *any*?
 - [ ] Companion params rejected when primary absent, not silently no-op'd?
 - [ ] `pathlib`, `with`, `logging` instead of `os.path`, manual cleanup, `print`?
+- [ ] Objects implement the data model (`__len__`/`__getitem__`/`__repr__`) instead of bespoke accessors; `__repr__` reconstructs the object?
+- [ ] Value objects frozen with field equality; entity `__eq__`/`__hash__` consistent on a read-only identity field?
 - [ ] `from __future__ import annotations`, no unnecessary `Any`, no unjustified `type: ignore`?
 - [ ] No blocking I/O in async; no `eval`/`exec`/`pickle` for untrusted input; `subprocess` uses `shell=False`?
 - [ ] No untrusted input reaches `subprocess`/SQL/`eval`/`pickle`/`yaml.load` without parameterization or a safe loader? No hardcoded secrets?
