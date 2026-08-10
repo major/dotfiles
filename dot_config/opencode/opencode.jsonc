@@ -51,7 +51,8 @@
   },
   "plugins": [
     "~/.config/opencode/plugins/zellij-tabula.ts",
-    "opencode-chatgpt-websearch"
+    "opencode-chatgpt-websearch",
+    "/home/major/git/major/opencode-parser/src/index.ts"
   ],
   "websearch": {
     "provider": "chatgpt"
