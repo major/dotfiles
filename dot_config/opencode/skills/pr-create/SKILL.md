@@ -1,6 +1,6 @@
 ---
 name: pr-create
-description: Prepare and open a GitHub PR or GitLab MR end to end. Use when the user asks to create a PR/MR, open a pull/merge request, or "ship this change". Runs tests/lint/coverage, a manual over-engineering/scope pass, conditional one-time CodeRabbit, splits commits, writes a human-sounding description from project templates, and opens the PR/MR.
+description: Prepare and open a GitHub PR or GitLab MR end to end. Use when the user asks to create a PR/MR, open a pull/merge request, or "ship this change". Runs tests/lint/coverage, a manual over-engineering/scope pass, splits commits, writes a human-sounding description from project templates, and opens the PR/MR.
 ---
 
 # PR / MR Create
@@ -10,7 +10,7 @@ passes. Stop and ask the user only when a gate genuinely blocks (failing tests
 you can't fix, ambiguous template, no remote).
 
 **Scope**: the `scripts/*.sh` helpers below (`repo-preflight.sh`,
-`gh-checks-summary.sh`, `glab-checks-summary.sh`, `coderabbit-summary.sh`) exist to serve this skill.
+`gh-checks-summary.sh`, `glab-checks-summary.sh`) exist to serve this skill.
 Run them only while this skill is actively executing (or on an explicit user
 request to open/inspect a PR/MR). For ordinary test/lint/build runs, diff
 inspection, or CI checks outside of an active PR-creation flow, use `bash`
@@ -199,24 +199,12 @@ directly instead. All paths below are relative to this skill's directory.
 - Cut what it flags. Re-run Phase 1 checks if you changed code.
 - Gate: no unaddressed over-engineering findings.
 
-## Phase 6 — CodeRabbit (conditional, once)
+## Phase 6 — CodeRabbit
 
-- Run `bash scripts/coderabbit-summary.sh <baseRef> [configPath] [timeoutSeconds]`. It
-  auto-detects the config, runs exactly once, and prints a compact summary of
-  findings grouped by severity and file. Full NDJSON output is saved to a log.
-- The helper defaults to a short timeout that fits normal bash-tool limits. If
-  you pass a longer `timeoutSeconds`, match the bash tool timeout too, just like
-  the CI polling helpers. If CodeRabbit times out after emitting findings, treat
-  the printed partial summary as the one allowed CodeRabbit run: review/fix the
-  findings and do not rerun CodeRabbit.
-- Fall back to loading the `coderabbit` skill if the repo needs a review
-  invocation this script doesn't cover.
-- Run CodeRabbit exactly once when the repo has a CodeRabbit config, unless the
-  user explicitly told you to skip it or the quota reset wait is over 10 minutes.
-- If CodeRabbit findings are fixed, do not rerun CodeRabbit; run focused tests
-  and `make check` only.
-- Record whether CodeRabbit was completed or skipped for the final report.
-- Gate: CodeRabbit completed, skipped by policy, or actionable findings resolved.
+- Load the `coderabbit` skill and follow it. It decides whether to run, runs
+  exactly once, and tells you what to do with the findings.
+- Gate: per the `coderabbit` skill — review completed, skipped by its rules, or
+  actionable findings resolved.
 
 ## Phase 7 — Write description
 
@@ -312,7 +300,7 @@ Keep the final report tight:
 - PR URL
 - Local gates summary with pass/fail and log paths
 - Remote checks summary (from `gh-checks-summary.sh` or `glab-checks-summary.sh`)
-- CodeRabbit status (from `coderabbit-summary.sh`)
+- CodeRabbit status (per the `coderabbit` skill)
 - Any skipped gates and reason
 - Anything learned (flaky tests, template quirks, style rules)
 - A short bulleted list of concrete improvements to **this skill** based on
@@ -321,7 +309,7 @@ Keep the final report tight:
 ## Hard rules
 
 - **Scope the PR-workflow scripts**: `scripts/repo-preflight.sh`,
-  `scripts/gh-checks-summary.sh`, `scripts/glab-checks-summary.sh`, and `scripts/coderabbit-summary.sh` exist to
+  `scripts/gh-checks-summary.sh`, `scripts/glab-checks-summary.sh` exist to
   serve this skill. Do not reach for them during routine implementation,
   debugging, or status checks outside of an active PR-creation flow — use
   `bash` directly for that.
@@ -340,7 +328,7 @@ Keep the final report tight:
   not dump whole diffs unless the diff is tiny (under ~50 lines).
 - **Script-first for multi-step/parsing logic**: use
   `scripts/repo-preflight.sh`, `scripts/gh-checks-summary.sh`,
-  `scripts/glab-checks-summary.sh`, and `scripts/coderabbit-summary.sh` — they
+  `scripts/glab-checks-summary.sh` — they
   consolidate multi-command sequences or output parsing that's error-prone to
   redo inline each run. For simple gates (tests, lint, coverage, diffs), use
   the documented `bash` patterns above directly.
