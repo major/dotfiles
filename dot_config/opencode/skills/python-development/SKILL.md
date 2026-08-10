@@ -46,7 +46,7 @@ Don't answer a specific packaging, typing, or security question from memory alon
 | OWASP Top 10:2025 | <https://owasp.org/Top10/2025/> |
 | Architecture Patterns with Python (free) | <https://www.cosmicpython.com/> |
 
-Deeper reference files in this skill: `references/security.md`, `references/performance.md`, `references/tooling.md`.
+Deeper reference files in this skill: `references/security.md`, `references/performance.md`, `references/tooling.md`, and a chapter-by-chapter audit of *Effective Python* 3rd edition in `references/effective-python-audit.md`.
 
 ## 1. API Surface Design
 
@@ -68,7 +68,9 @@ Deeper reference files in this skill: `references/security.md`, `references/perf
 
 **Let verbs be functions.** An operation with no natural home in one object (allocate a line across many batches) is a plain function — `allocate(line, batches)` — not a `FooManager`/`BarBuilder` class.
 
-**Keyword-only arguments are API safety.** Put `*` before config/flag/optional params (`def f(a, b, *, timeout=30)`) so callers can't transpose positional order and the call site self-documents. Reserve positional slots for arguments whose order is genuinely natural.
+**Keyword-only arguments are API safety.** Put `*` before config/flag/optional params (`def f(a, b, *, timeout=30)`) so callers can't transpose positional order and the call site self-documents. Reserve positional slots for arguments whose order is genuinely natural. Use `/` (3.8+) to mark parameters as positional-only when their names are implementation details the caller should never rely on (`def normalize(x, y, /, *, eps=1e-9)`).
+
+**Prefer a state class over `generator.throw()` for state-machine flows.** `generator.throw()` looks elegant for "reset timer"-style flows, but the surrounding `try`/`except StopIteration` boilerplate and nested `while` make it unreadable. A small class with `tick()`/`reset()` methods and a `__bool__` that reflects liveness is simpler and easier to test. Reach for `throw` only when the generator's caller genuinely needs to inject events from outside the coroutine.
 
 ## 2. Data Shape: dict vs dataclass vs pydantic
 
@@ -83,6 +85,17 @@ Pick the lightest tool that removes the actual pain point:
 - **`pydantic`**: only when you need validation/coercion at a real trust boundary (deserializing untrusted input, enforcing a schema across a network call) — not just to hold two fields together internally.
 
 **Before adding pydantic (or any new dependency), check whether it's already a *direct* dependency** (`pyproject.toml`/`requirements.txt`), not merely transitively pulled in by another package. Matching the codebase's existing convention beats introducing a second modeling paradigm for one helper. Grep for `@dataclass` / `import pydantic` in `src/` before deciding.
+
+**Use `__missing__` when the default value depends on the key.** `defaultdict`'s factory takes no arguments, so it can't construct a value that needs the key (opening a file by path, building a record from an id). `setdefault` always evaluates the default — expensive or exception-raising defaults are a footgun. Subclass `dict` (or `UserDict` to keep overrides consistent across `.get`/`in`) and define `__missing__(self, key)` to run key-aware default construction once per missing key, then cache the result in `self[key] = value` and return it. (`__missing__` fires only on `d[k]`, never `.get()`/`in` — wrap in `UserDict` if your override must apply everywhere.)
+
+**Reach for `__init_subclass__` and `__set_name__` before reaching for metaclasses (both 3.6+).** Three patterns that look like metaclass work don't need one:
+- `__init_subclass__(cls)` runs at subclass definition time. Use it to validate that subclasses set required attributes (`if cls.sides < 3: raise ValueError(...)`) — the error fires at import, not at first instantiation. Always call `super().__init_subclass__()` so cooperative validation works across diamond inheritance.
+- `__init_subclass__` is also the cleanest way to register classes: append `cls` to a module-level dict for reverse lookups by name/identifier, instead of hand-rolled `abc.ABCMeta` registries.
+- `__set_name__(self, owner, name)` is called on every descriptor instance when its owning class is defined. Use it so a descriptor (`Field`, `Column`, `Setting`) can discover its attribute name without the user passing the string twice.
+
+Reach for a real metaclass only when none of the above suffice.
+
+**Advanced: walk `cls.__dict__` in `__init_subclass__` for declarative ordering.** Class bodies preserve attribute definition order in `cls.__dict__`. A `__init_subclass__` hook can iterate it to discover fields/methods in the order they were declared — useful for declarative frameworks (CSV row mappers keyed on column position, plugin registries, workflow step ordering). Pair with a descriptor or `Ellipsis` placeholder convention so the class body remains the single source of truth.
 
 **Prefer comprehensions over imperative append-loops when the body is filter+transform.** A `{k: v for ... if ...}` names intent up front; a `for` loop with `.append`/`[k] = v` forces the reader to trace state. Reserve explicit loops for genuinely stateful logic.
 
@@ -133,7 +146,7 @@ For any function whose docstring/type-annotations feed a schema a caller relies 
 
 ## 5. Error Handling
 
-**Raise specific exceptions, catch specific exceptions.** Define a small exception hierarchy rooted at a module-level base (`class AppError(Exception)` with `AppInputError`, `AppAPIError`, etc.). Users should catch `AppError` to mean "expected and handled"; never catch bare `except:` or `except Exception: ` to swallow the unexpected — that hides bugs and breaks `Ctrl-C`.
+**Raise specific exceptions, catch specific exceptions.** Define a small exception hierarchy rooted at a module-level base (`class AppError(Exception)` with `AppInputError`, `AppAPIError`, etc.). Users should catch `AppError` to mean "expected and handled"; never catch bare `except:` or `except Exception: ` to swallow the unexpected — that hides bugs and breaks `Ctrl-C`. Catch `Exception`, not `BaseException` — `BaseException` is also the parent of `KeyboardInterrupt`, `SystemExit`, and `GeneratorExit` (control flow, not errors), and a bare `except BaseException:` silently swallows `Ctrl-C` and `sys.exit()`.
 
 **Name exceptions in the business's language, not the code's** — `OutOfStock`, not `AllocationError` — and include the offending identifier in the message.
 
@@ -146,6 +159,10 @@ out["recordId"] = identity.record_id if identity else None
 # Good: fall back to what we already know
 out["recordId"] = identity.record_id if identity else fallback_id
 ```
+
+**`except Foo as e` scopes `e` to the `except` block only.** It is not visible in `else` or `finally` — referencing it there raises `NameError`. To use the caught exception in `finally` (logging, cleanup that needs the cause), assign to an outer-scope variable first: `caught: Exception | None = None; try: ...; except Foo as e: caught = e; finally: log.error(caught)`.
+
+**Use `warnings.warn(..., stacklevel=N)` to deprecate without breaking.** For API evolution, raise a `DeprecationWarning` from a helper that points at the *caller's* line, not your own: `warnings.warn("`arg` required soon", DeprecationWarning, stacklevel=3)`. In tests, run with `-W error::DeprecationWarning` (or `PYTHONWARNINGS=error::DeprecationWarning`) so a newly-introduced deprecation fails the build instead of printing a warning. In production, call `logging.captureWarnings(True)` once at startup so the `py.warnings` logger routes through your existing log pipeline. `warnings.warn` is for human-to-human communication about upcoming breakage — exceptions are for machine-handled error paths.
 
 ## 6. Best-Effort Enrichment vs. Primary Data
 
@@ -163,6 +180,8 @@ async def _get_label_map(ctx) -> dict[str, str]:
 
 Ask during design/review: "if this sub-call fails, should the whole call fail too?" If enrichment is additive/optional, the answer is almost always no — catch the *specific* expected exception type and return an empty/default result.
 
+**In concurrent servers, capture the traceback explicitly for structured logging.** The default traceback only prints when an exception propagates to the program entry point. In a request handler, an exception that you catch and discard leaves nothing in the logs beyond `repr(e)` — no file, no line, no stack. Use `traceback.extract_tb(e.__traceback__)` to get the frames and log them as structured fields (`[f.name, f.lineno, f.filename]` per frame) so the incident is debuggable after the fact. `traceback.format_exception` gives the same content as the interpreter's default printer if you want plain text.
+
 ## 7. Typing Discipline
 
 - **`from __future__ import annotations`** at the top of modules so annotations are strings by default and forward refs cost nothing.
@@ -171,11 +190,13 @@ Ask during design/review: "if this sub-call fails, should the whole call fail to
 - **Don't lie with `# type: ignore`.** If the type system fights you, fix the shapes before suppressing; if you must suppress, pin the code and add a reason per the repo's `AGENTS.md`.
 - **TypeVars: know bound vs constrained.** `TypeVar('T', bound=X)` accepts any subtype of `X` (used with a `Protocol` for structural generics); constrained `TypeVar('T', A, B)` admits only the listed types and makes inference pick the exact one.
 - **Prefer read-only types in parameter positions.** `Sequence[T]`/`Mapping[K, V]` are covariant — they accept subtypes; `list[T]`/`dict[K, V]` are invariant and reject them, which is where the temptation to reach for `cast()` comes from. If you only read, type the parameter as the covariant view.
+- **Consider `functools.singledispatch` for many data types × many independent behaviors.** When you have N simple data classes (e.g. AST nodes) and M operations over them (evaluate, pretty-print, type-check, codegen) that share little code, OOP forces you to scatter each operation across N subclasses — touching every class to add a new behavior. `@functools.singledispatch` keeps each operation in one place: define `@singledispatch` then `@func.register(Foo)` for each type. Data classes stay tiny (just attribute holders); operations stay co-located. The catch: adding a new *type* still requires touching every registered operation. Use OOP hierarchies when behaviors share state; use `singledispatch` when behaviors are independent systems over the same data.
 
 ## 8. Modern Python Habits
 
 - **`pathlib.Path` over `os.path` string concat.** `Path(base) / "sub" / f"{name}.json"` reads better than `os.path.join(base, "sub", f"{name}.json")` and yields an object, not a string.
 - **Decode bytes at the boundary, work in `str`.** Pass explicit `encoding="utf-8"` to `open()` and text-mode I/O instead of relying on the locale default (a classic mojibake source, especially on Windows); never concatenate `bytes` and `str`.
+- **F-strings for interpolation, t-strings for untrusted templates.** `f"hello {name}"` beats both `%` and `.format()` for readability and speed. For templates that interpolate user input — shell commands, SQL fragments, file paths, log messages with caller data — use **PEP 750 t-strings** (`t"..."`) which return a structured `Template` you can audit before composing, not a finished string. (See `references/security.md` for the t-string recipe against injection.)
 - **`with` for every resource** (files, sockets, locks, subprocess handles). If a class owns a resource, make it a context manager (`__enter__`/`__exit__` or `@contextlib.contextmanager`).
 - **Logging, not print.** Use the `logging` module (or `structlog`/`loguru` if the project already does) for anything that runs in production; `print` is for scratch scripts only.
 - **`@functools.wraps` on every decorator.** Without it the wrapped function loses `__name__`/`__doc__` — silently breaking tool names and schemas when docstrings feed MCP/OpenAPI.
@@ -184,8 +205,41 @@ Ask during design/review: "if this sub-call fails, should the whole call fail to
 - **Composition over inheritance.** Keep hierarchies shallow; reserve mixins (no state, cooperative `super()`) for cross-cutting behavior — the rare case multiple inheritance is worth it.
 - **`subprocess.run(..., shell=False)` always.** Never `shell=True` with interpolated input. Pass `args` as a list and never interpolate caller-provided strings into a command.
 - **No `eval`/`exec`, no `pickle` for untrusted input.** Use `ast.literal_eval` for literal structures, or a real parser (`json`, `pydantic`) per section 3.
+- **Use `datetime` with explicit `timezone` for any real time work.** The `time` module returns platform-dependent local time and has no concept of time zones; reach for it only when you genuinely mean "seconds since the epoch" (`time.time()`, `time.monotonic()`). For wall-clock timestamps, parse with `datetime.fromisoformat` (3.11+) and always attach a `tzinfo` (`datetime.now(tz=timezone.utc)`) — naive datetimes are a comparison-time landmine.
 
-## 9. Python Data Model
+## 9. Pythonic Style & Idioms
+
+The default style: lean on the language's existing tools and standard idioms rather than reinventing them. Prefer the readable form over the clever one; the obvious-looking code is usually correct.
+
+**Target a current Python in `requires-python`.** Pin the minimum supported version in `pyproject.toml` and use a matching interpreter — features vary across 3.10–3.14 (match/case, parenthesized context managers, exception groups, `tomllib`, `Self`, `StrEnum`, t-strings, free-threading). New code targets the lowest version you must support, not whatever happened to be installed five years ago.
+
+**PEP 8, enforced by Ruff.** `E`/`W` rule sets encode PEP 8; `ruff format` is Black-compatible. Don't maintain a hand-written style guide that disagrees with the tool.
+
+**`enumerate` over `range(len(...))`.** `for i, v in enumerate(xs)` not `for i in range(len(xs)): v = xs[i]`. Pass `start=1` to make the counter one-based.
+
+**`zip` for parallel iteration.** `for k, v in zip(keys, values)` is the standard. For different-length inputs use `itertools.zip_longest(fillvalue=...)`. Pass `strict=True` (3.10+) when lengths *must* match — fail loud rather than silently truncating the longer iterable.
+
+**Multiple-assignment unpacking over indexing.** `key, val = pair` not `pair[0], pair[1]`. For head/middle/tail, `head, *mid, tail = seq` not `head = seq[0]; mid = seq[1:-1]; tail = seq[-1]`.
+
+**Helper function over complex expression.** When a boolean or comprehension is long enough that the reader has to pause and parse, extract to a named function. The name documents the intent; the call site reads as English.
+
+**Assignment expressions (`:=`) for the loop-and-a-half pattern.** Use when you've computed a value inside a `while`/comprehension and want to test-then-reuse it, avoiding a second call or a duplicate expression. Don't reach for `:=` to compress a perfectly readable two-line statement — there are usually two obvious ways to write the line, and that's a readability tax.
+
+**Avoid `else` on `for`/`while` loops.** The `else` clause runs only when the loop completes *without* a `break` — easy to misread as "always run after the loop." Use a flag variable, a helper function, or restructure as `any(...)` / explicit accumulation; the explicit form is easier to reason about than the implicit `else`.
+
+**Default to `itertools` for nontrivial iteration.** Before writing a manual loop with index juggling, check `itertools` first. The standard toolkit:
+- `chain(a, b)` / `chain.from_iterable(list_of_iterables)` — flatten multiple iterators without copying
+- `islice(it, stop)` / `islice(it, start, stop[, step])` — slice an iterator lazily (no copy)
+- `batched(it, n)` (3.12+) — fixed-size non-overlapping groups
+- `pairwise(it)` (3.10+) — overlapping `(prev, curr)` pairs
+- `accumulate(it, func=...)` — running fold (cumulative sum, modulo arithmetic, etc.)
+- `takewhile` / `dropwhile` / `filterfalse` — predicate-bound slicing and complement filtering
+- `product` / `permutations` / `combinations` / `combinations_with_replacement` — Cartesian product and combinatorics
+- `groupby(it, key=...)` — note: requires input sorted by `key` for grouped output; each new key starts a new group
+
+A named `itertools` call almost always beats a hand-rolled `for` with a counter and an `if`.
+
+## 10. Python Data Model
 
 **Implement protocols, not bespoke accessor APIs.** `__len__` + `__getitem__` buy `len()`, iteration, slicing, `in`, and `random.choice` for free; `__abs__`/`__add__`/`__mul__` make operators and built-ins work. If callers use custom methods where a dunder exists, you're leaking API surface the language already standardizes. For operator overloads, return `NotImplemented` (not `False`, not raise) for unsupported operand types so Python can try the reflected operation — otherwise `x + y` works but `y + x` silently doesn't, and equality becomes asymmetric.
 
@@ -195,47 +249,56 @@ Ask during design/review: "if this sub-call fails, should the whole call fail to
 
 **Docstring examples are executable specs.** For small pure helpers, `python3 -m doctest` turns docstring examples into tests — docs that can't drift from behavior, at zero test-file overhead.
 
-## 10. Async Correctness
+**For nontrivial container types, inherit from `collections.abc.Sequence` / `Mapping` / `MutableMapping`, not from `list` / `dict` directly.** `__len__` + `__getitem__` alone aren't enough — Python expects `index`/`count`/`__contains__`/`__iter__`/etc. The `collections.abc` ABCs mark each missing method abstract, so the type fails at instantiation rather than at first use, and they supply the unimplemented pieces for free. Subclass `list`/`dict` only when you genuinely want full built-in semantics plus one or two extras.
+
+## 11. Async Correctness
 
 - **Never call blocking I/O inside an async function** without `run_in_executor` — a blocking `requests.get` inside `async def` stalls the whole event loop. Use an async client (`httpx.AsyncClient`, `aiohttp`) or offload.
 - **Every await on external I/O needs a timeout** (`asyncio.timeout`/`wait_for`) — an un-timed await hangs the whole task forever on a wedged peer.
 - **`asyncio.run` is the entry point of choice** for scripts; don't nest it. Don't call `loop.run_until_complete` yourself unless you're inside a framework that forbids `asyncio.run`.
 - **Handle cancellation transparently.** If you catch `CancelledError` to clean up, re-raise it; don't swallow it. Long-running tasks should propagate cancellation.
 - **Don't mix sync and async worlds casually** — no bare `await` outside `async def`, no fire-and-forget coroutines (create a task and await/track it).
+- **Wrap every blocking system call inside a coroutine in `loop.run_in_executor`.** `async def` makes the *function* a coroutine, but `open()`/`read()`/`write()`/`subprocess.run()` still block the event loop thread while they wait for the kernel. Offload: `await loop.run_in_executor(None, blocking_fn, *args)`. The `await` then yields the event loop normally. Detect offenders with `asyncio.run(coro(), debug=True)` — it logs any coroutine that holds the loop for >100ms with file and line. Common pattern: define a small `async def write_async(data): await loop.run_in_executor(None, output.write, data)` wrapper and call that instead of the blocking function directly.
 
-## 11. Security
+## 12. Security
 
 Treat every external input as hostile until validated: HTTP bodies, CLI args, file paths, environment variables, config files, and third-party API responses.
 
 - **Never string-interpolate untrusted input into a shell command, SQL query, or file path.** Use parameterized queries (`cursor.execute(query, params)`), `subprocess.run(args_list, shell=False)` with `args` as a list, and validate file paths against an allow-list before joining with `pathlib.Path`.
 - **Never call `eval`, `exec`, `pickle.load`/`pickle.loads`, or `yaml.load` without `SafeLoader` on untrusted input.** Use `ast.literal_eval`, `json`, or `yaml.safe_load` instead.
+- **`pickle` is for internal serialization only — and use `copyreg` to keep it maintainable.** `pickle.load` on untrusted bytes is arbitrary code execution (the serialized form *is* a program that reconstructs the object). Inside a trust boundary — game state saves, `multiprocessing` IPC, internal caches — `pickle` is fine, but old saved state breaks the moment you add or remove a field. Use the `copyreg` module to register a stable `(reduce_func, constructor)` for your class: `copyreg.pickle(YourClass, your_reducer)`. The reducer returns `(callable, args)` that pickle uses to reconstruct, so you can evolve the class while the constructor signature stays stable. Never `pickle.load` bytes from a network, file upload, or any other untrusted source — that's `json` / `pydantic` territory.
 - **Never hardcode secrets, tokens, or credentials in source.** Read them from environment variables or a secrets manager; run `detect-secrets`/`gitleaks` before pushing if the repo doesn't already gate this in CI.
+- **Treat `DeprecationWarning` as an error in CI.** Run tests with `python -W error::DeprecationWarning` (or `PYTHONWARNINGS=error::DeprecationWarning`) so a newly-introduced deprecation from a dependency upgrades from a printed warning to a test failure. Catch the regression in your own suite, not in production — by then it's a breaking change for downstream users.
 - **Pin dependencies in a hashed lockfile** (`uv.lock`, or PEP 751 `pylock.toml`) rather than an unpinned `requirements.txt`, and run `pip-audit` (or the repo's equivalent) in CI to catch known-vulnerable dependencies before they ship.
 - **Log security-relevant events without logging the secret itself.** Auth failures and permission denials are worth logging; the token, password, or full request body that may carry PII is not.
 
 See `references/security.md` for the full OWASP-mapped checklist (injection, auth, crypto, deserialization, supply chain) and canonical source links.
 
-## 12. Performance
+## 13. Performance
 
-- **Profile before optimizing.** `cProfile`/`py-spy` for CPU, `memray`/`tracemalloc` for memory, `Scalene` when you need both plus GPU/native-vs-Python attribution. Guessing the hot path costs more time than a five-minute profile.
+- **Profile before optimizing.** `cProfile`/`py-spy` for CPU, `memray`/`tracemalloc` for memory, `Scalene` when you need both plus GPU/native-vs-Python attribution. Guessing the hot path costs more time than a five-minute profile. For "the process keeps growing but I don't know where": `tracemalloc.start(25)` at startup, take `tracemalloc.take_snapshot()` before and after the suspect operation, then `after.compare_to(before, "lineno")[:5]` to see the top 5 allocation sites by `size=` and `count=`. For deeper stack traces, use `compare_to(..., "traceback")` on the top offender; for larger programs, `memray` gives flame graphs and a live REPL once `tracemalloc` isn't enough.
 - **Memoize pure functions** with `@functools.cache`/`lru_cache` before reaching for heavier machinery — it's the cheap first win for repeated calls with repeated arguments.
 - **Use `decimal.Decimal` for money** and any value where binary-float rounding error is unacceptable; never compare floats with `==`. Repeated increments (`total += 0.1` in a loop) accumulate error even when each looks harmless — recompute from a base value (`n * step`) or use `Fraction`/`Decimal`.
 - **Vectorize bulk numeric/tabular work** with NumPy/pandas/Polars instead of a Python-level loop; a `for` loop over a DataFrame is almost always the bug, not the fix.
 - **Threads don't parallelize CPU-bound work** — under the GIL they help only I/O-bound tasks; CPU-bound parallelism needs processes (`multiprocessing`/`ProcessPoolExecutor`).
 - **Free-threading (PEP 703/779, the `python3.14t` build) is opt-in, not default** — don't assume the GIL is gone. A C extension that hasn't declared thread-safety silently re-enables the GIL for the whole process, and per the CPython release notes, free-threaded single-thread performance still carries roughly a 5-10% penalty. Adopt it only when profiling shows a real multi-core CPU-bound bottleneck that `multiprocessing` doesn't already solve — not speculatively.
 
+- **Use `breakpoint()` for interactive debugging; remove it before committing.** Drop a `breakpoint()` (3.7+) call at the suspicious line — it opens pdb at the call site, no `import pdb; pdb.set_trace()` boilerplate, and honors `PYTHONBREAKPOINT` (set to an empty string in production to disable). Useful pdb commands: `where` (current call stack), `up`/`down` (move between frames), `p <expr>` (print), `interact` (drop into a full REPL with program state). For an already-crashed script: `python -m pdb -c continue <script>` runs under pdb and enters postmortem on uncaught exception; in a REPL, `import pdb; pdb.pm()` enters postmortem at the last traceback. Never commit a `breakpoint()` call — a debugger attached in production is a debugging session you didn't ask for.
+
 See `references/performance.md` for the full profiling workflow, CPython version-by-version performance notes, and library links.
 
-## 13. Tooling & Packaging
+## 14. Tooling & Packaging
 
 - **`pyproject.toml` is the modern norm** (PEP 517/518/621). Prefer it over `setup.py`/`setup.cfg`. Use a build backend already adopted by the repo (hatchling, setuptools, flit); match neighbors.
 - **Default toolchain unless the repo already standardizes on something else:** `uv` for envs/dependencies/Python versions, `ruff` for lint+format, `ty` or `mypy`/`pyright` for types, `pytest` (+ `hypothesis` for property-based tests where correctness matters). `uv` and `ruff` are safe defaults for new work; `ty` is beta (stable 1.0 targeted for 2026) — pair it with `mypy` or `pyright` as the CI gate until it reaches parity on the typing conformance suite.
 - **Pin versions for reproducibility and loosen them only deliberately.** Exact pins for apps; compatible ranges (`~=x.y`) for libraries. Don't pin a transitive dependency your own `pyproject.toml` doesn't directly use. Generate a hashed lockfile (`uv lock`, or `uv export --format pylock.toml` for PEP 751 portability) rather than an unpinned `requirements.txt`.
 - **External tools the project already uses go in tool-specific config** (ruff: `[tool.ruff]`, mypy: `[tool.mypy]`); don't invent a parallel lint config. Check `AGENTS.md` and the repo for the canonical lint command and run it after changes.
 
+- **Break circular imports with `import, configure, run`.** When module A and module B both need each other at top-level, naive `import a` from inside `b` raises `AttributeError: partially initialized module 'a'`. The fix that scales: at module scope define only functions, classes, and constants; defer any cross-module access (`b.configure()` that needs `a.prefs`) to an explicit `configure()` function. The entry point does `import a; import b; a.configure(); b.configure(); b.run()`. All cross-module references resolve after the import graph is fully built. Don't reorder imports to dodge the error — the resulting code is brittle and the cycle will come back.
+
 See `references/tooling.md` for exact commands, the type-checker decision matrix, and canonical doc links (uv, Ruff rules catalog, ty, mypy, Pyright, pytest).
 
-## 14. Cyclomatic Complexity Gate
+## 15. Cyclomatic Complexity Gate
 
 Every function and method must rate **grade A or B** under `radon`/`xenon` cyclomatic complexity. No C+ (C, D, E, F) allowed — a function that complex has too many independent paths to test or reason about.
 
@@ -258,7 +321,7 @@ xenon --max-absolute B --max-modules A --max-average A <pkg>/
 
 Generated/templated code excluded from the normal edit loop can be marked via `# pragma: no cc` (radon respects `# noqa: C901`-style suppressions only when the caller explicitly opts in); prefer real refactors and reserve suppression for code the reviewer genuinely can't shape.
 
-## 15. Test Isolation Patterns
+## 16. Test Isolation Patterns
 
 - **Monkeypatch your own internal helpers**, not just the outermost client, when a function composes fetch → enrich → prune. Patching an inner helper lets a test assert one concern without fabricating a realistic payload for the others.
 - **Always add the no-match / malformed / empty case** alongside the happy path — these are exactly what defensive `isinstance` guards exist for, and the first to silently regress.
@@ -282,12 +345,18 @@ Run through after writing or before approving a Python change:
 - [ ] Row completeness: merged series require *all* promised fields present, not just *any*?
 - [ ] Companion params rejected when primary absent, not silently no-op'd?
 - [ ] `pathlib`, `with`, `logging` instead of `os.path`, manual cleanup, `print`?
+- [ ] F-strings used; t-strings used for user-supplied templates (not finished-string interpolation of untrusted input)? `enumerate`/`zip` used over `range(len(...))`/indexed parallel iteration?
 - [ ] Objects implement the data model (`__len__`/`__getitem__`/`__repr__`) instead of bespoke accessors; `__repr__` reconstructs the object?
 - [ ] Value objects frozen with field equality; entity `__eq__`/`__hash__` consistent on a read-only identity field?
 - [ ] `from __future__ import annotations`, no unnecessary `Any`, no unjustified `type: ignore`?
 - [ ] No blocking I/O in async; no `eval`/`exec`/`pickle` for untrusted input; `subprocess` uses `shell=False`?
 - [ ] No untrusted input reaches `subprocess`/SQL/`eval`/`pickle`/`yaml.load` without parameterization or a safe loader? No hardcoded secrets?
-- [ ] Hot path profiled (not guessed) before optimizing; `Decimal` used for money; bulk numeric work vectorized instead of looped?
+- [ ] Hot path profiled (not guessed) before optimizing; `Decimal` used for money; bulk numeric work vectorized instead of looped; `tracemalloc` snapshot diff used to find memory leaks?
+- [ ] State class used instead of `generator.throw()` for state-machine flows; `itertools` used for nontrivial iteration (chain/islice/batched/accumulate/pairwise)?
+- [ ] Nontrivial container types inherit from `collections.abc`; `__init_subclass__`/`__set_name__` used instead of metaclasses; `functools.singledispatch` considered for many-types-many-behaviors?
+- [ ] `except Foo as e` value preserved into `finally` by reassignment; `Exception` caught (not `BaseException`); `warnings.warn(..., stacklevel=N)` used for deprecations with `-W error` in CI?
+- [ ] Coroutines don't block the event loop on system calls (use `run_in_executor`); `asyncio.run(..., debug=True)` run during development to catch stalls?
+- [ ] `datetime` with explicit `tzinfo` used for wall-clock work; `pickle` confined to trust boundaries and stabilized with `copyreg`; `breakpoint()` removed before commit?
 - [ ] Packaging in `pyproject.toml`; pins deliberate in a hashed lockfile; reuse existing tool config (ruff/mypy/ty)?
 - [ ] `pyright`/`mypy`/`ty` clean; repo lint command run; dependencies scanned (`pip-audit` or equivalent)?
 - [ ] Cyclomatic complexity: `xenon --max-absolute B` passes for every function/method (no C+); over-complex functions refactored to guard clauses, dispatch tables, or extracted helpers — not suppressed?
