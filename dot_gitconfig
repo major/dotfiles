@@ -55,6 +55,7 @@
 [core]
     pager = delta
 	editor = true
+	excludesFile = /home/major/.config/git/ignore
 [interactive]
     diffFilter = delta --color-only
 [delta]
