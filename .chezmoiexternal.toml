@@ -220,3 +220,18 @@
     url = "https://github.com/herdrdev/herdr/releases/download/v0.8.0/herdr-linux-x86_64"
     executable = true
     refreshPeriod = "168h"
+
+["bin/lazygit"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=jesseduffield/lazygit
+    url = "https://github.com/jesseduffield/lazygit/releases/download/v0.64.0/lazygit_0.64.0_linux_x86_64.tar.gz"
+    path = "lazygit"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/lib/nvim"]
+    type = "archive"
+    # renovate: datasource=github-releases depName=neovim/neovim
+    url = "https://github.com/neovim/neovim/releases/download/v0.12.4/nvim-linux-x86_64.tar.gz"
+    stripComponents = 1
+    refreshPeriod = "168h"
