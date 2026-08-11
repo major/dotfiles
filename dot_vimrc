@@ -6,8 +6,7 @@ Plug 'tribela/vim-transparent'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim', { 'on': ['File', 'GFiles', 'Buffers', 'Lines', 'BLines'] }
 
-Plug 'dense-analysis/ale'
-"Plug 'davidhalter/jedi-vim'
+Plug 'yegappan/lsp'
 
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-endwise'
@@ -23,6 +22,10 @@ Plug 'preservim/vim-markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown'] }
 
 call plug#end()
+
+" Register pyright as the LSP server for Python
+let g:lsp_servers = [{'name': 'pyright', 'filetype': ['python'], 'path': '/home/major/.local/bin/pyright-langserver', 'args': ['--stdio']}]
+autocmd User LspSetup call LspAddServer(g:lsp_servers)
 
 colorscheme monokai
 
