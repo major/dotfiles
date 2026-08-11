@@ -1,6 +1,7 @@
 call plug#begin('~/.vim/plugged')
 Plug 'vim-airline/vim-airline', { 'on': 'VimEnter' }
 Plug 'sickill/vim-monokai'
+Plug 'ghifarit53/tokyonight-vim'
 Plug 'tribela/vim-transparent'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -27,7 +28,8 @@ call plug#end()
 let g:lsp_servers = [{'name': 'pyright', 'filetype': ['python'], 'path': '/home/major/.local/bin/pyright-langserver', 'args': ['--stdio']}]
 autocmd User LspSetup call LspAddServer(g:lsp_servers)
 
-colorscheme monokai
+set t_Co=256
+colorscheme tokyonight
 
 " Use hybrid numbering in the active window
 " Use regular numbering in the inactive windows
