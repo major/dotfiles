@@ -234,3 +234,10 @@
     path = "codebase-memory-mcp"
     executable = true
     refreshPeriod = "168h"
+
+["bin/herdr"]
+    type = "file"
+    # renovate: datasource=github-releases depName=herdrdev/herdr
+    url = "https://github.com/herdrdev/herdr/releases/download/v0.8.0/herdr-linux-x86_64"
+    executable = true
+    refreshPeriod = "168h"
