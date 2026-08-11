@@ -1,9 +1,3 @@
-[".vim/autoload/plug.vim"]
-    type = "file"
-    # renovate: datasource=github-tags depName=junegunn/vim-plug
-    url = "https://raw.githubusercontent.com/junegunn/vim-plug/0.14.0/plug.vim"
-    refreshPeriod = "168h"
-
 ["bin/restic"]
     type = "file"
     # renovate: datasource=github-releases depName=restic/restic
