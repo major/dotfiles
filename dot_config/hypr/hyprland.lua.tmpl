@@ -33,7 +33,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("uwsm app -- waybar")
     hl.exec_cmd("uwsm app -- hyprpaper")
     hl.exec_cmd("uwsm app -- waypaper --restore")
-    hl.exec_cmd("uwsm app -- hypridle")
     hl.exec_cmd("uwsm app -s b -- /usr/libexec/polkit-gnome-authentication-agent-1")
 end)
 
@@ -241,7 +240,7 @@ hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
-hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("hyprctl dispatch dpms off && sleep 1 && hyprctl dispatch dpms on"), { locked = true })
+hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("hyprctl dispatch 'hl.dsp.dpms({ action = \"off\" })' && sleep 1 && hyprctl dispatch 'hl.dsp.dpms({ action = \"on\" })'"), { locked = true })
 
 hl.bind("CTRL + ALT + " .. mainMod .. " + SHIFT + left", hl.dsp.workspace.move({ monitor = "l" }))
 hl.bind("CTRL + ALT + " .. mainMod .. " + SHIFT + right", hl.dsp.workspace.move({ monitor = "r" }))
