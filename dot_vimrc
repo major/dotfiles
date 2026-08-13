@@ -15,6 +15,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
+Plug 'preservim/nerdtree'
 
 " Markdown / blog post writing efficiency
 Plug 'junegunn/limelight.vim'
@@ -23,6 +24,9 @@ Plug 'preservim/vim-markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown'] }
 
 call plug#end()
+
+nnoremap <silent> <leader>e :NERDTreeToggle<CR>
+autocmd VimEnter * ++nested NERDTree
 
 " Register pyright as the LSP server for Python
 let g:lsp_servers = [{'name': 'pyright', 'filetype': ['python'], 'path': '/home/major/.local/bin/pyright-langserver', 'args': ['--stdio']}]
@@ -39,6 +43,15 @@ colorscheme tokyonight
 :  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
 :  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
 :augroup END
+
+" Detect files changed outside Vim while idle or returning to Vim
+set autoread
+set updatetime=1000
+set mouse=a
+augroup external_file_changes
+  autocmd!
+  autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * checktime
+augroup END
 
 " Spaces instead of tabs
 set tabstop=4
