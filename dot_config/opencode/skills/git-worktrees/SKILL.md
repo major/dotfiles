@@ -46,7 +46,11 @@ Always pass explicit arguments in non-interactive/agent contexts (`wt co <branch
 
 ### Creation workflow
 
-When a task involves creating a worktree, create it and then move this session into the new worktree in the same shell invocation:
+When a task involves creating a worktree, create it and then move this session into the new worktree in the same shell invocation.
+
+Before creating, check the base branch for uncommitted changes (`git status --short`).
+A worktree is based on the branch's HEAD, not its working tree, so uncommitted changes stay behind in the base checkout.
+If the base is dirty, commit or stash first — otherwise the new worktree starts from a stale commit and drifts from the base as those changes land later.
 
 ```bash
 wt_path="$(wt create feat/my-feature --format json | jq -r '.data.path')"
@@ -123,3 +127,7 @@ Use `wt rm <branch>` (or `git worktree remove <path>`) for confirmed candidates,
 `wt cleanup --stale` detects worktrees whose remote branch was deleted or whose commits are inactive; review its output before removing.
 Never remove a worktree with uncommitted changes, untracked files, an unmerged branch, or uncertain ownership.
 Report safe candidates and offer to remove them; do not remove them without the user's confirmation.
+
+If the current session is inside the worktree being removed, move it back to the main worktree first (`opencode2 api post /api/session/<session-id>/move --data '{"directory":"<main-path>"}'`), otherwise later commands run in a deleted directory.
+
+`wt rm` removes the worktree but leaves its branch; once a branch is merged, delete it with `git branch -d <branch>`.
