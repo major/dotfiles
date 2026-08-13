@@ -7,10 +7,5 @@
     "sound_pack": "opencode.default"
   },
   "plugin": [
-    "oc-tps@latest",
-    "/home/major/git/major/opencode-better-sidebar/plugins/open-in",
-    "/home/major/git/major/opencode-better-sidebar/plugins/context-progress",
-    "/home/major/git/major/opencode-better-sidebar/plugins/recap",
-    "/home/major/git/major/opencode-better-sidebar/plugins/session-tokens"
   ]
 }

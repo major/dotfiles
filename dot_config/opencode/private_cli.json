@@ -1,21 +1,37 @@
 {
   "theme": {
-    "name": "opencode"
+    "name": "opencode",
+    "mode": "system"
   },
   "plugins": [
-    "@streetturtle/opencode-context-progress",
-    "@streetturtle/opencode-open-in",
-    "@streetturtle/opencode-recap",
-    "@streetturtle/opencode-session-tokens",
-    "oc-tps@latest"
   ],
   "diffs": {
-    "wrap": "word"
+    "wrap": "word",
+    "view": "auto",
+    "single": false,
+    "tree": true
   },
   "session": {
     "sidebar": "hide",
     "scrollbar": false,
-    "thinking": "show"
+    "thinking": "hide",
+    "image_preview": false
   },
-  "animations": true
+  "animations": true,
+  "tabs": {
+    "enabled": true,
+    "layout": "vertical",
+    "scope": "cwd"
+  },
+  "attention": {
+    "enabled": true
+  },
+  "debug": {
+    "turn_tokens": false,
+    "devtools": false
+  },
+  "prompt": {
+    "image_preview": false,
+    "paste": "compact"
+  }
 }
