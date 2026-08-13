@@ -49,11 +49,12 @@ Always pass explicit arguments in non-interactive/agent contexts (`wt co <branch
 When a task involves creating a worktree, create it and then move this session into the new worktree in the same shell invocation:
 
 ```bash
-path="$(wt create feat/my-feature --format json | jq -r '.data.path')"
-opencode2 api post /api/session/<session-id>/move --data "{\"directory\":\"$path\"}"
+wt_path="$(wt create feat/my-feature --format json | jq -r '.data.path')"
+opencode2 api post /api/session/<session-id>/move --data "{\"directory\":\"$wt_path\"}"
 ```
 
 The JSON output carries the exact path in `.data.path`; read it manually if `jq` is unavailable.
+Do not name the shell variable `path` — in zsh it is the array tied to `$PATH`, and assigning it clobbers `$PATH` so the next command is no longer found.
 Use the current session ID from your environment context for `<session-id>`.
 `wt --format json` disables shell auto-navigation, which is what we want here.
 
