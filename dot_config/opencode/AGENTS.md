@@ -14,3 +14,5 @@
 - Never run `find` against my entire filesystem. Only search specific directories as required.
 - You are running in opencode v2: https://opencode.ai/v2/docs
 - My primary shell is zsh. Run bash explicitly if you need it.
+
+- Whenever a task involves creating a git worktree, load and follow the git-worktrees skill fully, including moving this session into the new worktree.
