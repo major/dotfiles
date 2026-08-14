@@ -46,6 +46,10 @@
           "(1password-mcp)"
         ],
         "disabled": true
+      },
+      "gitlab": {
+        "type": "remote",
+        "url": "https://gitlab.cee.redhat.com/api/v4/mcp"
       }
     }
   },
