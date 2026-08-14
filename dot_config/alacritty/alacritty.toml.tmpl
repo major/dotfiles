@@ -5,22 +5,22 @@
 shell = "/usr/bin/zsh"
 
 [font]
-size = 9.0
+size = {{ if eq .chezmoi.hostname "zorro" }}11.0{{ else }}10.0{{ end }}
 
 [font.normal]
-family = "Hack Nerd Font"
+family = "JetBrains Mono"
 style = "Regular"
 
 [font.bold]
-family = "Hack Nerd Font"
+family = "JetBrains Mono"
 style = "Bold"
 
 [font.italic]
-family = "Hack Nerd Font"
+family = "JetBrains Mono"
 style = "Italic"
 
 [font.bold_italic]
-family = "Hack Nerd Font"
+family = "JetBrains Mono"
 style = "Bold Italic"
 
 # Numpad Enter sends literal newline (LF) instead of CR
