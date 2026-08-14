@@ -48,8 +48,16 @@
         "disabled": true
       },
       "gitlab": {
-        "type": "remote",
-        "url": "https://gitlab.cee.redhat.com/api/v4/mcp"
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@structured-world/gitlab-mcp"
+        ],
+        "environment": {
+          "GITLAB_TOKEN": "{env:GITLAB_TOKEN}",
+          "GITLAB_API_URL": "https://gitlab.cee.redhat.com"
+        }
       }
     }
   },
