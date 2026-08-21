@@ -221,14 +221,6 @@
     executable = true
     refreshPeriod = "168h"
 
-["bin/wt"]
-    type = "archive-file"
-    # renovate: datasource=github-releases depName=timvw/wt
-    url = "https://github.com/timvw/wt/releases/download/v0.1.33/wt_0.1.33_linux_amd64.tar.gz"
-    path = "wt"
-    executable = true
-    refreshPeriod = "168h"
-
 [".local/lib/nvim"]
     type = "archive"
     # renovate: datasource=github-releases depName=neovim/neovim
