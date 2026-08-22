@@ -26,7 +26,7 @@
 ["bin/kubectl"]
     type = "file"
     # renovate: datasource=github-releases depName=kubernetes/kubernetes
-    url = "https://dl.k8s.io/release/v1.36.3/bin/linux/amd64/kubectl"
+    url = "https://dl.k8s.io/release/v1.36.4/bin/linux/amd64/kubectl"
     executable = true
     refreshPeriod = "168h"
 
