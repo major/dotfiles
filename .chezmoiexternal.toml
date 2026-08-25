@@ -227,3 +227,9 @@
     url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
     stripComponents = 1
     refreshPeriod = "168h"
+
+[".local/share/fonts/NotoColorEmoji.ttf"]
+    type = "file"
+    # renovate: datasource=github-releases depName=googlefonts/noto-emoji
+    url = "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf"
+    refreshPeriod = "168h"

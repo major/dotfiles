@@ -1,0 +1,113 @@
+#!/usr/bin/env zsh
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+font_family=${FONT_FAMILY:-JetBrains Mono}
+data_url=https://unicode.org/Public/emoji/latest/emoji-test.txt
+cache_dir=${XDG_CACHE_HOME:-${HOME}/.cache}/emoji-test
+data_file=${cache_dir}/emoji-test.txt
+
+print_alignment_test() {
+  print 'Alignment test: every right-hand | should line up'
+  print '| A  | ASCII'
+  print '| 😎 | basic emoji'
+  print '| ☢️  | text symbol plus emoji selector'
+  print '| 🏳️  | flag plus emoji selector'
+  print '| 🇺🇸 | regional-indicator flag'
+  print '| 1️⃣  | keycap sequence'
+  print '| 👍🏽 | skin-tone sequence'
+  print '| 👩🏽‍💻 | wide ZWJ sequence'
+  print '| 👨‍👩‍👧‍👦 | family ZWJ sequence'
+  print '| 🏴󠁧󠁢󠁳󠁣󠁴󠁿 | tag-sequence flag'
+}
+
+print_resolution_test() {
+  print
+  print "Fontconfig resolution for ${font_family}:"
+
+  while IFS=':' read -r label codepoint; do
+    printf '  %-14s ' "$label"
+    fc-match --format='%{family} | color=%{color}\n' "${font_family}:charset=${codepoint}"
+  done <<'EOF'
+mini-icon:f0320
+sunglasses:1f60e
+no-entry:1f6ab
+white-flag:1f3f3
+radioactive:2622
+shark:1f988
+party:1f389
+heart:1f496
+EOF
+}
+
+download_emoji_data() {
+  mkdir -p "$cache_dir"
+  local temporary_file=${data_file}.new
+
+  if curl --fail --silent --show-error --location "$data_url" --output "$temporary_file"; then
+    mv "$temporary_file" "$data_file"
+  elif [[ ! -s "$data_file" ]]; then
+    return 1
+  fi
+}
+
+print_all_emoji() {
+  download_emoji_data
+
+  awk '
+    /^# Version:/ {
+      version = $0
+      sub(/^# /, "", version)
+      print version
+      print "Each emoji should occupy two cells between the vertical rules."
+      next
+    }
+    /^# group:/ {
+      heading = $0
+      sub(/^# group: /, "", heading)
+      print "\n== " heading " =="
+      next
+    }
+    /^# subgroup:/ {
+      heading = $0
+      sub(/^# subgroup: /, "", heading)
+      print "\n-- " heading " --"
+      next
+    }
+    /; fully-qualified/ || /; component/ {
+      split($0, comment, "# ")
+      split(comment[2], fields, " ")
+      emoji = fields[1]
+      name = comment[2]
+      sub(/^[^ ]+ E[0-9.]+ /, "", name)
+      codepoints = $0
+      sub(/[[:space:]]*;.*/, "", codepoints)
+      gsub(/[[:space:]]+/, " ", codepoints)
+      sub(/^ /, "", codepoints)
+      print "| " emoji " | " name " [" codepoints "]"
+    }
+  ' "$data_file"
+}
+
+case ${1:-} in
+  --all)
+    print_all_emoji
+    ;;
+  --help|-h)
+    print 'Usage: emoji-test [--all]'
+    print 'Without --all, print alignment and Fontconfig checks.'
+    print 'With --all, print the complete Unicode RGI emoji test set.'
+    ;;
+  '')
+    print "Emoji test for ${font_family}"
+    print
+    print_alignment_test
+    print_resolution_test
+    ;;
+  *)
+    print -u2 "Unknown option: $1"
+    return 2
+    ;;
+esac

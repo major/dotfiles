@@ -1,0 +1,40 @@
+# Fonts
+font_family      family="JetBrains Mono" wght=350
+bold_font        family="JetBrains Mono" style=Bold
+italic_font      family="JetBrains Mono" variable_name=JetBrainsMonoItalic wght=350
+bold_italic_font family="JetBrains Mono" style="Bold Italic"
+font_size {{ if eq .chezmoi.hostname "zorro" }}11.0{{ else }}10.0{{ end }}
+
+# Keep terminal icons monospaced and separate from emoji fallback.
+symbol_map U+E000-U+F8FF,U+F0000-U+FFFFD,U+100000-U+10FFFD Symbols Nerd Font Mono
+
+shell /usr/bin/zsh
+
+# Send literal LF for multiline terminal input.
+map shift+enter send_text all \x0a
+map kp_enter send_text all \x0a
+
+# Tokyo Night
+background #1a1b26
+foreground #c0caf5
+selection_background #283457
+selection_foreground #c0caf5
+cursor #c0caf5
+cursor_text_color #1a1b26
+
+color0  #15161e
+color1  #f7768e
+color2  #9ece6a
+color3  #e0af68
+color4  #7aa2f7
+color5  #bb9af7
+color6  #7dcfff
+color7  #a9b1d6
+color8  #414868
+color9  #ff899d
+color10 #9fe044
+color11 #faba4a
+color12 #8db0ff
+color13 #c7a9ff
+color14 #a4daff
+color15 #c0caf5
