@@ -1,10 +1,13 @@
 {
+  "keybinds": {
+    "input.newline": "shift+return,ctrl+return,ctrl+j",
+    "prompt.queue": "alt+return"
+  },
   "theme": {
     "name": "opencode",
     "mode": "system"
   },
-  "plugins": [
-  ],
+  "plugins": [],
   "diffs": {
     "wrap": "word",
     "view": "auto",
@@ -12,9 +15,9 @@
     "tree": true
   },
   "session": {
-    "sidebar": "hide",
+    "sidebar": "auto",
     "scrollbar": false,
-    "thinking": "hide",
+    "thinking": "show",
     "image_preview": false
   },
   "animations": true,

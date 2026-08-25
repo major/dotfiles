@@ -6,6 +6,5 @@
     "volume": 0.4,
     "sound_pack": "opencode.default"
   },
-  "plugin": [
-  ]
+  "plugins": []
 }
