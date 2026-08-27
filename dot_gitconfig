@@ -68,7 +68,6 @@
 [diff]
     colorMoved = default
 
-# Sign commits with 1password ssh key
 [user]
   signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyoH6gU4lgEiSiwihyD0Rxk/o5xYIfA3stVDgOGM9N0
 [gpg]

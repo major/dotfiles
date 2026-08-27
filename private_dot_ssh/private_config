@@ -4,11 +4,6 @@ Host *
 Host *.redhat.com
         User mhayden
 
-Host gitlab.cee.redhat.com
-        ControlMaster auto
-        ControlPath ~/.ssh/control-%C
-        ControlPersist 10m
-
 Host devbox devbox-dallas 100.124.45.43
         HostName 100.124.45.43
         ForwardAgent yes

@@ -14,13 +14,18 @@
 - Delegate independent multi-step research to `general`; run independent subagents concurrently when possible and keep implementation and final decisions in the parent session.
 - After a non-trivial workflow, mention one concrete process improvement only when it would materially reduce future work; otherwise omit retrospectives.
 - Write one sentence per line when writing markdown so that it's easier for a human to read. Markdown ignores these newlines anyway.
+- Add test docstrings when names alone do not explain the behavior, boundary, regression, or invariant.
+- Add brief comments for non-obvious careful-data constraints, such as ownership, validation, normalization, preservation, ordering, precision, or intentional loss, explaining why rather than narrating obvious code.
 
 - Never run `find` against my entire filesystem. Only search specific directories as required.
 - You are running in opencode v2: <https://opencode.ai/v2/docs>
+- Use the Exa MCP server for web research and fetching current external documentation.
 - My primary shell is zsh. Run bash explicitly if you need it.
 - Include lots (at least 2) of relevant emojis in every conversational response, including technical updates, unless they would reduce clarity.
 - I love seeing emojis in our conversations when it adds humor or levity, increases information density, or just seems like a good idea.
 - Avoid using emdashes when adding content to any project.
 - Never use the jira/jira-cli command line tool. Use the connected MCP server with a fallback to curl for actions that the MCP server does not support.
+- For Git SSH signing, fetch, or push failures, or when forwarded SSH credentials are explicitly required, use the `ssh-forwarded-git` skill before modifying or killing ssh-agent or 1Password.
 - Whenever a task involves creating a git worktree, load and follow the git-worktrees skill fully, including moving this session into the new worktree.
 - When editing python, your edits must keep cyclomatic complexity (via `radon cc`) at the same number or reduce it. Never increase cyclomatic complexity.
+- gitlab.cee.redhat.com is flaky at times, so you might need to retry operations for them to succeed.

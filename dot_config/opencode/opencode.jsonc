@@ -32,6 +32,11 @@
       "action": "external_directory",
       "resource": "~/go/pkg/mod/**",
       "effect": "allow"
+    },
+    {
+      "action": "websearch",
+      "resource": "*",
+      "effect": "allow"
     }
   ],
   "mcp": {
@@ -47,7 +52,7 @@
       },
       "jira": {
         "type": "local",
-        "command": ["uv", "run", "mcp-atlassian"],
+        "command": ["/home/major/.local/bin/uv", "run", "mcp-atlassian"],
         "cwd": "/home/major/git/major/mcp-atlassian",
         "environment": {
           "JIRA_URL": "https://redhat.atlassian.net",
@@ -55,15 +60,19 @@
           "JIRA_API_TOKEN": "{env:JIRA_API_TOKEN}",
           "TOOLSETS": "default,jira_links,jira_attachments,jira_users"
         }
+      },
+      "exa": {
+        "type": "remote",
+        "url": "https://mcp.exa.ai/mcp",
+        "headers": {
+          "x-api-key": "{env:EXA_API_KEY}"
+        }
       }
     }
   },
   "plugins": [
-    "opencode-chatgpt-websearch",
+    "oh-my-opencode-slim@2.2.17",
   ],
-  "websearch": {
-    "provider": "chatgpt"
-  },
   "references": {
     "opencode": {
       "repository": "anomalyco/opencode",

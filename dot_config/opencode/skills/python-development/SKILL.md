@@ -9,7 +9,7 @@ description: Use whenever writing, editing, reviewing, or generating Python code
 
 A working checklist distilled from real refactors, not a style-guide reprint. Apply it when designing or reviewing Python APIs, internal helpers, and their tests — and any time you write or change Python in this repo.
 
-These rules are additive to the repo's `AGENTS.md` standing principles: simplest implementation that meets the requirement, no speculative abstraction, functional style over imperative loops, no comments unless they name a non-obvious constraint, prefer `const`-style immutability.
+These rules are additive to the repo's `AGENTS.md` standing principles: simplest implementation that meets the requirement, no speculative abstraction, functional style over imperative loops, test docstrings when names alone do not explain intent, brief comments for non-obvious careful-data constraints, prefer `const`-style immutability.
 
 Sections 1-10 are hard-won review patterns.
 Sections 11-15 cover security, performance, tooling, and review gates, with `references/` files behind the first three for depth — read the reference file when you need canonical detail beyond the summary here, don't rely on memorized specifics that go stale.
@@ -329,6 +329,13 @@ Generated/templated code excluded from the normal edit loop can be marked via `#
 - **`assert isinstance(result, dict)` before subscripting a union-typed return** — helpers returning `JSONType`-style unions fail `pyright` on `result["key"]` without a narrowing assert. Required for `pyright` in basic mode; match this in every new test that subscripts such a return.
 - **When a bug is fixed, update the test that encoded the old behavior — don't add a second one alongside.** A test named `test_no_match_yields_null` whose fix means it *shouldn't* yield null anymore needs its assertion and often its name changed; leaving it unchanged gives a green suite that asserts the bug still "works as intended."
 
+## 17. Test Documentation and Data-Handling Comments
+
+- **Add one-sentence docstrings for non-obvious test intent**, especially regression, malformed-input, boundary, or invariant cases.
+- **Do not add boilerplate docstrings that restate test names.**
+- **Add short comments before careful data transformations** that protect non-obvious ownership, schema, ordering, precision, normalization, redaction, or intentional data-loss properties.
+- **State the constraint or reason, not a narration of the line.**
+
 ## Quick Checklist
 
 Run through after writing or before approving a Python change:
@@ -361,3 +368,4 @@ Run through after writing or before approving a Python change:
 - [ ] `pyright`/`mypy`/`ty` clean; repo lint command run; dependencies scanned (`pip-audit` or equivalent)?
 - [ ] Cyclomatic complexity: `xenon --max-absolute B` passes for every function/method (no C+); over-complex functions refactored to guard clauses, dispatch tables, or extracted helpers — not suppressed?
 - [ ] Tests cover no-match/malformed/empty, not just happy path; union-return subscripts narrowed with `isinstance`; old buggy tests updated rather than shadowed?
+- [ ] Non-obvious test intent has a one-sentence docstring, and careful data transformations have brief comments that explain their constraint or reason?
