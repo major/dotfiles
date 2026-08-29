@@ -185,7 +185,7 @@
 ["bin/age"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=FiloSottile/age
-    url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz"
+    url = "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-linux-amd64.tar.gz"
     path = "age/age"
     executable = true
     refreshPeriod = "168h"
@@ -193,7 +193,7 @@
 ["bin/age-keygen"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=FiloSottile/age
-    url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-linux-amd64.tar.gz"
+    url = "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-linux-amd64.tar.gz"
     path = "age/age-keygen"
     executable = true
     refreshPeriod = "168h"
