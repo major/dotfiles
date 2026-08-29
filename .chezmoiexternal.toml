@@ -201,7 +201,7 @@
 ["bin/oras"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=oras-project/oras
-    url = "https://github.com/oras-project/oras/releases/download/v1.3.3/oras_1.3.3_linux_amd64.tar.gz"
+    url = "https://github.com/oras-project/oras/releases/download/v1.3.4/oras_1.3.4_linux_amd64.tar.gz"
     path = "oras"
     executable = true
     refreshPeriod = "168h"
