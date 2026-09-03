@@ -221,6 +221,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/jira"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=ankitpokhrel/jira-cli
+    url = "https://github.com/ankitpokhrel/jira-cli/releases/download/v1.7.0/jira_1.7.0_linux_x86_64.tar.gz"
+    path = "jira_1.7.0_linux_x86_64/bin/jira"
+    executable = true
+    refreshPeriod = "168h"
+
 [".local/lib/nvim"]
     type = "archive"
     # renovate: datasource=github-releases depName=neovim/neovim
