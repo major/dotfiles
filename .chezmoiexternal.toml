@@ -229,10 +229,17 @@
     executable = true
     refreshPeriod = "168h"
 
-[".local/lib/nvim"]
+[".local/lib/helix"]
     type = "archive"
-    # renovate: datasource=github-releases depName=neovim/neovim
-    url = "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz"
+    # renovate: datasource=github-releases depName=helix-editor/helix
+    url = "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-linux.tar.xz"
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".local/lib/yazi"]
+    type = "archive"
+    # renovate: datasource=github-releases depName=sxyazi/yazi
+    url = "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-x86_64-unknown-linux-gnu.zip"
     stripComponents = 1
     refreshPeriod = "168h"
 
