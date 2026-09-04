@@ -239,7 +239,7 @@
 [".local/lib/yazi"]
     type = "archive"
     # renovate: datasource=github-releases depName=sxyazi/yazi
-    url = "https://github.com/sxyazi/yazi/releases/download/v26.8.15/yazi-x86_64-unknown-linux-gnu.zip"
+    url = "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-unknown-linux-gnu.zip"
     stripComponents = 1
     refreshPeriod = "168h"
 
