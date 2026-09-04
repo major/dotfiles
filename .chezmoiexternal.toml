@@ -153,7 +153,7 @@
 ["bin/terraform"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=hashicorp/terraform
-    url = "https://releases.hashicorp.com/terraform/1.16.0/terraform_1.16.0_linux_amd64.zip"
+    url = "https://releases.hashicorp.com/terraform/1.16.1/terraform_1.16.1_linux_amd64.zip"
     path = "terraform"
     executable = true
     refreshPeriod = "168h"
