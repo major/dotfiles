@@ -1,0 +1,37 @@
+# Effective Java Glossary
+
+- **API (exported API)**: Publicly supported classes, interfaces, constructors, members, and serialized forms through which clients use a component. Treat every exported element as a long-term commitment.
+- **AutoCloseable**: Contract for resources that can be closed, normally consumed with try-with-resources.
+- **Bounded wildcard**: Generic wildcard constrained with `extends` or `super`; `? extends T` is producer-oriented and `? super T` consumer-oriented.
+- **Builder**: Object used to accumulate construction parameters and then create an instance, especially useful for many optional parameters.
+- **Checked exception**: Exception a method must declare or handle; best for conditions a caller can reasonably recover from.
+- **Composition**: Building behavior by containing and delegating to another object rather than subclassing it.
+- **Defensive copy**: Independent copy made at an ownership boundary so callers cannot mutate internal state.
+- **Dependency injection**: Supplying a dependency through a constructor, factory, or method instead of hardwiring it.
+- **EnumSet / EnumMap**: Specialized, type-safe, compact `Set`/`Map` implementations for enum keys or values.
+- **Failure atomicity**: A failed operation leaves the object in the state it had before the call.
+- **Flyweight / instance-controlled class**: A class that controls which instances exist and may reuse equal immutable instances.
+- **Functional interface**: Interface with one abstract method, usable as a lambda or method reference.
+- **Generic method/type**: Method or class parameterized by types, allowing compile-time checking without casts.
+- **Heterogeneous container**: Container whose keys, often `Class<T>` tokens, determine the type of each value.
+- **Immutable object**: Object whose observable state cannot change after construction; naturally thread-safe when properly built.
+- **Inheritance**: Subclassing in this book; an implementation dependency that can expose superclass behavior and invariants.
+- **Marker interface**: Interface with no methods that identifies a type for framework or API purposes.
+- **Method reference**: Compact lambda form naming an existing method, such as `String::trim`; use only when clearer.
+- **Optional**: A possibly-present value used primarily as a return type where absence is normal; not a universal null replacement.
+- **Overload**: Same method name with different parameter lists; resolution is compile-time and can surprise with lambdas, method references, or boxed types.
+- **Primitive vs boxed primitive**: `int`/`Integer`-style pairs; wrappers permit null and generics but add identity, allocation, and unboxing hazards.
+- **Raw type**: Generic type used without type arguments, such as `List`; loses type safety and should not be used in new code.
+- **Serialization proxy**: Private nested representation used to serialize an immutable object and reconstruct it safely through `readResolve`.
+- **Service provider framework**: Service interface plus provider registration and access APIs, optionally a provider factory; `ServiceLoader` supplies a standard mechanism.
+- **Side-effect-free function**: Function whose result depends only on inputs and which does not mutate shared state; the preferred stream style.
+- **Static factory**: Named static method returning an instance, possibly cached, subtype-backed, or instance-controlled; distinct from the GoF Factory Method pattern.
+- **Stream**: Lazy pipeline of elements with intermediate operations and a terminal operation; not automatically a collection or a safe parallel computation.
+- **Subclassing hazard**: A superclass method can invoke overridable methods during construction or operation, allowing subclass state to violate assumptions.
+- **Tagged class**: Class carrying a discriminator field and multiple unrelated modes; usually clearer as a class hierarchy.
+- **Telescoping constructors**: Series of constructors adding optional parameters; readable only at small scale and error-prone as parameters grow.
+- **Try-with-resources**: `try` construct that closes `AutoCloseable` resources in reverse acquisition order and preserves suppressed exceptions.
+- **Unchecked warning**: Compiler warning about a type-safety guarantee Java cannot verify; eliminate it or isolate a narrowly justified, documented suppression.
+- **Varargs**: Variable-arity parameter represented as an array; convenient, but can allocate and interact unsafely with generic arrays.
+- **View**: Object such as `keySet()` or an unmodifiable wrapper that exposes another collection rather than owning independent data.
+- **Weakly consistent iteration**: Concurrent collection iteration that may reflect some concurrent updates without throwing `ConcurrentModificationException`.
