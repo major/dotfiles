@@ -29,11 +29,6 @@
       "effect": "ask"
     },
     {
-      "action": "external_directory",
-      "resource": "~/go/pkg/mod/**",
-      "effect": "allow"
-    },
-    {
       "action": "websearch",
       "resource": "*",
       "effect": "allow"

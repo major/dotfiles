@@ -20,7 +20,12 @@ to mutate.
 
 ## 1. Establish scope
 
-- Extract and validate every `ses_...` ID from the request.
+- Extract every `ses_...` ID from the request and validate its exact spelling before further inspection.
+- If a session lookup returns `SessionNotFoundError`, list recent sessions and compare the supplied ID character-for-character before treating it as unavailable:
+
+```sh
+opencode2 api get '/api/session?limit=100'
+```
 - Identify the current OpenCode checkout and version before comparing code.
 - Use OpenCode V2 behavior, commands, API routes, and documentation throughout.
 - Do not assume the referenced session belongs to the current working directory
@@ -44,6 +49,12 @@ Read the session metadata first, then inspect active context and pending inbox
 items.
 The context usually gives the shortest useful transcript without dumping the
 whole session.
+
+If the session completed successfully and the reported failure concerns an
+external service, inspect the context and referenced message records before
+reading the event stream or product source.
+This distinguishes external task failures from OpenCode lifecycle failures and
+avoids treating a terminal `log.synced` event as diagnostic evidence.
 
 Read the durable event stream when the failure involves execution state,
 retries, tools, permissions, compaction, interruption, or a missing event:
@@ -154,6 +165,9 @@ request the smallest additional artifact needed, such as a redacted event
 stream or log excerpt.
 
 ## 7. Improve the workflow
+
+Always finish a diagnosis with a brief self-reflection and suggest actionable
+workflow improvements when the evidence supports one.
 
 After each diagnosis, briefly reflect on the workflow before finishing:
 

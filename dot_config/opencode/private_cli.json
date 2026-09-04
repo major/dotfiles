@@ -4,10 +4,13 @@
     "prompt.queue": "alt+return"
   },
   "theme": {
-    "name": "opencode",
+    "name": "tokyonight",
     "mode": "dark"
   },
-  "plugins": [],
+  "plugins": [
+    "oh-my-opencode-slim@2.2.17",
+    "-oc-go-usage"
+  ],
   "diffs": {
     "wrap": "word",
     "view": "auto",
@@ -17,8 +20,10 @@
   "session": {
     "sidebar": "auto",
     "scrollbar": false,
-    "thinking": "show",
-    "image_preview": false
+    "thinking": "hide",
+    "image_preview": false,
+    "markdown": "rendered",
+    "new_location": "launch"
   },
   "animations": true,
   "tabs": {
@@ -35,6 +40,6 @@
   },
   "prompt": {
     "image_preview": false,
-    "paste": "compact"
+    "paste": "full"
   }
 }
