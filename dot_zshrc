@@ -58,8 +58,10 @@ export HISTTIMEFORMAT="[%F %T] "
 export HISTFILESIZE=1000000000
 export HISTSIZE=1000000000
 
-# use the ssh-agent started by systemd.
-export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.1password/agent.sock}"
+# Use 1Password only for local shells, never for SSH sessions.
+if [[ -z "${SSH_CONNECTION:-}" && -S "$HOME/.1password/agent.sock" ]]; then
+  export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+fi
 
 # ensure gpg works properly in each terminal.
 export GPG_TTY="$(tty)"
