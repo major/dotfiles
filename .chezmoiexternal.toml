@@ -229,6 +229,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/lane"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=lukeed/lane
+    url = "https://github.com/lukeed/lane/releases/download/v0.1.0/lane-x86_64-unknown-linux-musl.tar.gz"
+    path = "lane"
+    executable = true
+    refreshPeriod = "168h"
+
 [".local/lib/helix"]
     type = "archive"
     # renovate: datasource=github-releases depName=helix-editor/helix
