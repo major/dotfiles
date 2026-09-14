@@ -1,0 +1,100 @@
+set nocompatible
+
+" Core Vim behavior
+" Enable filetype detection, indentation plugins, and syntax highlighting.
+filetype plugin indent on
+syntax enable
+" Search case-insensitively unless the query contains uppercase characters.
+set ignorecase smartcase incsearch hlsearch
+" Keep modified buffers open and make splits, scrolling, signs, and mappings responsive.
+set hidden
+set autoread
+" Receive mouse wheel events forwarded by tmux.
+set mouse=a
+set splitbelow splitright
+set scrolloff=5
+set signcolumn=yes
+set updatetime=300
+set timeoutlen=500
+
+augroup external_file_changes
+  autocmd!
+  autocmd FocusGained,BufEnter,CursorHold * checktime
+augroup END
+" Improve command-line completion and preserve undo history between sessions.
+set wildmenu
+set wildmode=longest:full,full
+set undofile
+set undodir=~/.vim/undo//
+
+" Default indentation
+" Use four-space indentation unless a filetype override below applies.
+set expandtab
+set shiftwidth=4
+set softtabstop=4
+set tabstop=4
+
+augroup filetype_indentation
+  autocmd!
+  " Use two spaces for common data and web formats; Makefiles require literal tabs.
+  autocmd FileType yaml,json,jsonc,toml,html,css setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=2
+  autocmd FileType make setlocal noexpandtab shiftwidth=8 softtabstop=0 tabstop=8
+augroup END
+
+" Plugin management
+" vim-plug installs plugins into this directory.
+call plug#begin('~/.vim/plugged')
+Plug 'tpope/vim-sensible'
+Plug 'dvhar/tokyonight'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-sleuth'
+Plug 'vim-airline/vim-airline'
+" Add project formatting, gutter diagnostics, linting, and test commands.
+Plug 'editorconfig/editorconfig-vim'
+Plug 'airblade/vim-gitgutter'
+Plug 'dense-analysis/ale'
+Plug 'vim-test/vim-test'
+" Install fzf's binary through its vim-plug post-install hook.
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Add Vim commands and mappings for the fzf binary.
+Plug 'junegunn/fzf.vim'
+call plug#end()
+
+" Fuzzy finder shortcuts
+nnoremap <leader>f :Files<CR>
+nnoremap <leader>b :Buffers<CR>
+
+" Open a live ripgrep picker and refresh results as the query changes.
+function! LiveRg() abort
+  call fzf#vim#grep2(
+        \ 'rg --column --line-number --no-heading --color=always --smart-case -- ',
+        \ '',
+        \ fzf#vim#with_preview(),
+        \ 0)
+endfunction
+nnoremap <silent> <leader>g :<C-U>call LiveRg()<CR>
+
+" Editing behavior
+set number relativenumber
+
+" ALE Python tooling
+" Use Ruff and Pyright for diagnostics, and format Python files with Ruff on save.
+let g:ale_linters = {'python': ['ruff', 'pyright']}
+let g:ale_fixers = {'python': ['ruff_format']}
+let g:ale_fix_on_save = 1
+
+" Color theme
+if exists('+termguicolors')
+  set termguicolors
+endif
+let g:tokyonight_style = 'night'
+if filereadable(expand('~/.vim/plugged/tokyonight/colors/tokyonight.vim'))
+  colorscheme tokyonight
+endif
