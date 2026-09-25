@@ -183,6 +183,18 @@ glab mr note resolve <iid> <note-id>           # integer note ID also works
 glab mr note reopen  <iid> <discussion-id>
 ```
 
+When approving and merging a reviewed MR, guard both actions against new
+commits and confirm the merge afterward:
+
+```shell
+glab mr approve <iid> --sha <reviewed-sha>
+glab mr merge <iid> --sha <reviewed-sha> --auto-merge=false --yes
+glab api projects/:id/merge_requests/<iid> | jq '{state,merge_commit_sha}'
+```
+
+For merged-results pipelines, the pipeline SHA is a merge-commit SHA, not
+the source-branch HEAD SHA. Do not compare them as though they must match.
+
 ### Threaded replies on issues, incidents, and work items
 
 The CLI does not wrap threaded replies for these, so you fall back to
