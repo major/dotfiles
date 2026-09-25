@@ -87,3 +87,7 @@
 	helper = !/home/major/bin/gh auth git-credential
 [bugzilla]
 	user = mhayden@redhat.com
+[credential]
+	helper = cache --timeout=28800
+[url "ssh://git@gitlab.cee.redhat.com/"]
+	insteadOf = https://gitlab.cee.redhat.com/
