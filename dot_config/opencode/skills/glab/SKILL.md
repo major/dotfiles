@@ -184,13 +184,25 @@ glab mr note reopen  <iid> <discussion-id>
 ```
 
 When approving and merging a reviewed MR, guard both actions against new
-commits and confirm the merge afterward:
+commits. Prefer the merge train whenever the project enables it:
 
 ```shell
 glab mr approve <iid> --sha <reviewed-sha>
-glab mr merge <iid> --sha <reviewed-sha> --auto-merge=false --yes
-glab api projects/:id/merge_requests/<iid> | jq '{state,merge_commit_sha}'
+glab api projects/:id | jq '{merge_trains_enabled}'
 ```
+
+If `merge_trains_enabled` is `true`, add or schedule the MR on the train
+with the reviewed SHA. Do not use `--auto-merge=false`:
+
+```shell
+glab api -X POST projects/:id/merge_trains/merge_requests/<iid> \
+  -f auto_merge=true -f sha=<reviewed-sha>
+```
+
+If merge trains are unavailable, use
+`glab mr merge <iid> --sha <reviewed-sha> --auto-merge --yes`.
+Confirm that the MR is queued or merged; joining a train does not mean it
+has merged.
 
 For merged-results pipelines, the pipeline SHA is a merge-commit SHA, not
 the source-branch HEAD SHA. Do not compare them as though they must match.
