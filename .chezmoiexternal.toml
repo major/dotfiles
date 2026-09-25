@@ -26,7 +26,7 @@
 ["bin/kubectl"]
     type = "file"
     # renovate: datasource=github-releases depName=kubernetes/kubernetes
-    url = "https://dl.k8s.io/release/v1.37.0/bin/linux/amd64/kubectl"
+    url = "https://dl.k8s.io/release/v1.37.1/bin/linux/amd64/kubectl"
     executable = true
     refreshPeriod = "168h"
 
@@ -49,7 +49,7 @@
 ["bin/helm"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=helm/helm
-    url = "https://get.helm.sh/helm-v4.2.1-linux-amd64.tar.gz"
+    url = "https://get.helm.sh/helm-v4.3.0-linux-amd64.tar.gz"
     path = "linux-amd64/helm"
     executable = true
     refreshPeriod = "168h"
@@ -89,7 +89,7 @@
 ["bin/glab"]
     type = "archive-file"
     # renovate: datasource=gitlab-releases depName=gitlab-org/cli
-    url = "https://gitlab.com/gitlab-org/cli/-/releases/v1.118.0/downloads/glab_1.118.0_linux_amd64.tar.gz"
+    url = "https://gitlab.com/gitlab-org/cli/-/releases/v1.119.0/downloads/glab_1.119.0_linux_amd64.tar.gz"
     path = "bin/glab"
     executable = true
     refreshPeriod = "168h"
@@ -104,7 +104,7 @@
 ["bin/coderabbit"]
     type = "archive-file"
     # renovate: datasource=custom.coderabbit-cli depName=coderabbit-cli
-    url = "https://cli.coderabbit.ai/releases/0.7.8/coderabbit-linux-x64.zip"
+    url = "https://cli.coderabbit.ai/releases/0.8.1/coderabbit-linux-x64.zip"
     path = "coderabbit"
     executable = true
     refreshPeriod = "168h"
@@ -145,7 +145,7 @@
 ["bin/terraform"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=hashicorp/terraform
-    url = "https://releases.hashicorp.com/terraform/1.16.3/terraform_1.16.3_linux_amd64.zip"
+    url = "https://releases.hashicorp.com/terraform/1.16.4/terraform_1.16.4_linux_amd64.zip"
     path = "terraform"
     executable = true
     refreshPeriod = "168h"
@@ -161,7 +161,7 @@
 ["bin/golangci-lint"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=golangci/golangci-lint
-    url = "https://github.com/golangci/golangci-lint/releases/download/v2.13.2/golangci-lint-2.13.2-linux-amd64.tar.gz"
+    url = "https://github.com/golangci/golangci-lint/releases/download/v2.14.0/golangci-lint-2.14.0-linux-amd64.tar.gz"
     path = "golangci-lint"
     stripComponents = 1
     executable = true

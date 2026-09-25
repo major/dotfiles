@@ -42,7 +42,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/\\.chezmoiexternal\\.toml$/"],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?[-/]v?(?<currentValue>\\d+(?:\\.\\d+)*(?:[-+][A-Za-z0-9.-]+)?)[^\"]*\""
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?[-/]v?(?<currentValue>\\d+(?:\\.\\d+)*)[^\"]*\""
       ],
       "versioningTemplate": "semver"
     },
