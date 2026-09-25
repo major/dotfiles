@@ -33,7 +33,7 @@
 ["bin/kubeseal"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=bitnami-labs/sealed-secrets
-    url = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.39.1/kubeseal-0.39.1-linux-amd64.tar.gz"
+    url = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.40.0/kubeseal-0.40.0-linux-amd64.tar.gz"
     path = "kubeseal"
     executable = true
     refreshPeriod = "168h"
@@ -65,7 +65,7 @@
 ["bin/hugo"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=gohugoio/hugo
-    url = "https://github.com/gohugoio/hugo/releases/download/v0.165.0/hugo_extended_0.165.0_linux-amd64.tar.gz"
+    url = "https://github.com/gohugoio/hugo/releases/download/v0.166.0/hugo_extended_0.166.0_linux-amd64.tar.gz"
     path = "hugo"
     executable = true
     refreshPeriod = "168h"
@@ -89,7 +89,7 @@
 ["bin/glab"]
     type = "archive-file"
     # renovate: datasource=gitlab-releases depName=gitlab-org/cli
-    url = "https://gitlab.com/gitlab-org/cli/-/releases/v1.116.0/downloads/glab_1.116.0_linux_amd64.tar.gz"
+    url = "https://gitlab.com/gitlab-org/cli/-/releases/v1.118.0/downloads/glab_1.118.0_linux_amd64.tar.gz"
     path = "bin/glab"
     executable = true
     refreshPeriod = "168h"
@@ -104,7 +104,7 @@
 ["bin/coderabbit"]
     type = "archive-file"
     # renovate: datasource=custom.coderabbit-cli depName=coderabbit-cli
-    url = "https://cli.coderabbit.ai/releases/0.7.6/coderabbit-linux-x64.zip"
+    url = "https://cli.coderabbit.ai/releases/0.7.8/coderabbit-linux-x64.zip"
     path = "coderabbit"
     executable = true
     refreshPeriod = "168h"
@@ -128,7 +128,7 @@
 ["bin/gh"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=cli/cli
-    url = "https://github.com/cli/cli/releases/download/v2.100.0/gh_2.100.0_linux_amd64.tar.gz"
+    url = "https://github.com/cli/cli/releases/download/v2.101.0/gh_2.101.0_linux_amd64.tar.gz"
     path = "bin/gh"
     stripComponents = 1
     executable = true
@@ -145,7 +145,7 @@
 ["bin/terraform"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=hashicorp/terraform
-    url = "https://releases.hashicorp.com/terraform/1.16.1/terraform_1.16.1_linux_amd64.zip"
+    url = "https://releases.hashicorp.com/terraform/1.16.3/terraform_1.16.3_linux_amd64.zip"
     path = "terraform"
     executable = true
     refreshPeriod = "168h"
@@ -153,7 +153,7 @@
 ["bin/goreleaser"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=goreleaser/goreleaser
-    url = "https://github.com/goreleaser/goreleaser/releases/download/v2.18.1/goreleaser_Linux_x86_64.tar.gz"
+    url = "https://github.com/goreleaser/goreleaser/releases/download/v2.18.2/goreleaser_Linux_x86_64.tar.gz"
     path = "goreleaser"
     executable = true
     refreshPeriod = "168h"
@@ -201,14 +201,14 @@
 ["bin/herdr"]
     type = "file"
     # renovate: datasource=github-releases depName=herdrdev/herdr
-    url = "https://github.com/herdrdev/herdr/releases/download/v0.8.2/herdr-linux-x86_64"
+    url = "https://github.com/herdrdev/herdr/releases/download/v0.9.1/herdr-linux-x86_64"
     executable = true
     refreshPeriod = "168h"
 
 ["bin/lazygit"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=jesseduffield/lazygit
-    url = "https://github.com/jesseduffield/lazygit/releases/download/v0.65.0/lazygit_0.65.0_linux_x86_64.tar.gz"
+    url = "https://github.com/jesseduffield/lazygit/releases/download/v0.65.1/lazygit_0.65.1_linux_x86_64.tar.gz"
     path = "lazygit"
     executable = true
     refreshPeriod = "168h"
@@ -224,7 +224,7 @@
 ["bin/lane"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=lukeed/lane
-    url = "https://github.com/lukeed/lane/releases/download/v0.1.0/lane-x86_64-unknown-linux-musl.tar.gz"
+    url = "https://github.com/lukeed/lane/releases/download/v0.2.0/lane-x86_64-unknown-linux-musl.tar.gz"
     path = "lane"
     executable = true
     refreshPeriod = "168h"
