@@ -161,7 +161,7 @@
 ["bin/golangci-lint"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=golangci/golangci-lint
-    url = "https://github.com/golangci/golangci-lint/releases/download/v2.13.2/golangci-lint-2.13.2-linux-amd64.tar.gz"
+    url = "https://github.com/golangci/golangci-lint/releases/download/v2.14.0/golangci-lint-2.14.0-linux-amd64.tar.gz"
     path = "golangci-lint"
     stripComponents = 1
     executable = true
