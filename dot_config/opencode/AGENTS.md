@@ -14,19 +14,64 @@
 - Delegate independent multi-step research to `general`; run independent subagents concurrently when possible and keep implementation and final decisions in the parent session.
 - After a non-trivial workflow, mention one concrete process improvement only when it would materially reduce future work; otherwise omit retrospectives.
 - Write one sentence per line when writing markdown so that it's easier for a human to read. Markdown ignores these newlines anyway.
-- Add test docstrings when names alone do not explain the behavior, boundary, regression, or invariant.
-- Add brief comments for non-obvious careful-data constraints, such as ownership, validation, normalization, preservation, ordering, precision, or intentional loss, explaining why rather than narrating obvious code.
-
-- Use test driven development (TDD) strategies whenever possible.
 - Never run `find` against my entire filesystem. Only search specific directories as required.
 - You are running in opencode v2: <https://opencode.ai/v2/docs>
 - Use the Exa MCP server for web research and fetching current external documentation.
-- My primary shell is zsh. Run bash explicitly if you need it.
-- Include lots (at least 2) of relevant emojis in every conversational response, including technical updates, unless they would reduce clarity.
-- I love seeing emojis in our conversations when it adds humor or levity, increases information density, or just seems like a good idea.
 - In Code Mode, use global `search(...)` to discover tools. Use `tools.<path>(input)` only to invoke a discovered tool. Never call `tools.search(...)`.
-- Avoid using emdashes when adding content to any project.
-- Whenever a task involves creating a git worktree, load and follow the git-worktrees skill fully, including moving this session into the new worktree.
-- When editing python, your edits must keep cyclomatic complexity (via `radon cc`) at the same number or reduce it. Never increase cyclomatic complexity.
-- gitlab.cee.redhat.com is flaky at times, so you might need to retry operations for them to succeed.
-- If pre-commit is available, use it rather than running pytest, ruff, mypy, pyright commands yourself.
+- Do not invoke a dotted tool path returned by `search()` as `tools[result.path](...)`. Split it into namespace and tool name, then call it as `tools["namespace"]["tool_name"](...)`. For example, use `tools["opencode"]["session_rename"](...)`, not `tools["opencode.session_rename"](...)`.
+- Never use emdashes when adding content to any project.
+- Write comments and PR/MR titles/descriptions using language that is easy to understand even for people who speak English as a second language.
+- Prefer spawning multiple @fixer subagents, each with small sets of tasks assigned, rather than having a single fixer subagent with large/complex tasks.
+
+## Skills
+- When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab" and "commit" skills.
+- Use the most narrow edits possible whenever editing a skill file.
+
+## Communication Style
+- When you talk to me in opencode sessions, use emojis REALLY OFTEN.
+- Use emojis to convey emotion, humor, or to highlight information.
+- Every response to me should have three emojis at a minimum.
+- I love getting responses in bulleted lists that are highly actionable and contain emojis.
+
+## Functional Programming Principles
+
+- **Pure functions:** Functions return the same output for the same input and cause no side effects (no I/O, no mutation of external state, no reliance on globals). Keep pure logic separate from impure code so it's easy to test and reason about.
+- **Immutability:** Don't mutate data after it's created; return new values instead. Prefer `tuple`, `frozenset`, `@dataclass(frozen=True)`, and `NamedTuple` over mutable containers.
+- **First-class and higher-order functions:** Treat functions as values that can be passed as arguments, returned, and stored. Use `map`, `filter`, `functools.reduce`, and callables as parameters to abstract behavior.
+- **Function composition:** Build complex behavior by chaining small, single-purpose functions. Favor pipelines of transformations over long procedural blocks.
+- **Declarative style:** Describe *what* to compute rather than *how* to step through it. Prefer comprehensions and generator expressions over manual loops with accumulators.
+- **Isolate side effects:** Push I/O, network calls, logging, and state changes to the edges of the system ("functional core, imperative shell"). The core logic should stay pure and deterministic.
+- **Referential transparency:** An expression can be replaced with its value without changing program behavior. This enables safe refactoring, memoization (`functools.cache`), and parallelization.
+- **Currying and partial application:** Create specialized functions by fixing some arguments of a general one. Use `functools.partial` rather than writing thin wrapper functions.
+- **Lazy evaluation:** Defer computation until results are needed. Use generators, `itertools`, and generator expressions to handle large or infinite sequences efficiently.
+- **Recursion over mutable iteration (with caution):** Express repetition through recursion or folds instead of loops with mutable counters. In Python, prefer `reduce` or iteration for deep workloads since there's no tail-call optimization and the default recursion limit is ~1000.
+- **Explicit, typed data flow:** Make inputs and outputs explicit via type hints; avoid hidden dependencies. Represent optional or failing results explicitly (e.g., `Optional[T]` or a result type) rather than relying on scattered exceptions.
+- **Avoid shared mutable state:** Never use mutable default arguments or module-level mutable globals. Pass state in and return new state out.
+
+## Python development
+- Always add full google pydocstyle docstrings to every function, method, class, and test function that we create or modify.
+- Run the python-code-simplifier agent when finishing any python development work.
+- When writing python functions or methods, ensure the `radon cc` output shows B or lower.
+- When modifying python functions or methods, never increase cyclomatic complexity as measured by `radon cc` unless it is completely unavoidable.
+- Prefer using models, such as dataclasses or pydantic models, for data contracts between functions.
+- Maintain all comments when moving or refactoring code. Comments should not be deleted or modified unless the existing functionality is modified.
+
+## Python test coverage
+- For Python code additions or behavior changes, add or update focused tests.
+- Before finishing Python changes, run the relevant tests with pytest-cov and check changed-line coverage: `pytest --cov=<package> --cov-report=xml && diff-cover coverage.xml --compare-branch=HEAD`.
+- Aim for 100% coverage of changed executable lines.
+- Do not add meaningless tests solely to satisfy coverage.
+- If 100% changed-line coverage is not practical, state the uncovered lines and the reason.
+
+## Worktrees
+- Create and use worktrees when take any actions inside any project with a git repository.
+- Worktrees should be created within the .worktrees directory inside the repo itself.
+- Always create a branch along with the worktree. Never make a worktree with a detached HEAD.
+- When reviewing merge requests or pull requests, put the MR/PR branch into a git worktree and review it there.
+- Always ask me about deleting a worktree/branch locally when we no longer need it.
+- Never convert a repository into a bare repo when cleaning up worktrees/branches!
+
+## openspec
+- Never commit any openspec files.
+- Initialize openspec for opencode using `openspec init --tools opencode`
+

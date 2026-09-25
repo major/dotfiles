@@ -49,6 +49,7 @@ Read the session metadata first, then inspect active context and pending inbox
 items.
 The context usually gives the shortest useful transcript without dumping the
 whole session.
+Session `cost` and `tokens` exclude child sessions; sum children by `parentID` for the true total.
 
 If the session completed successfully and the reported failure concerns an
 external service, inspect the context and referenced message records before
@@ -67,12 +68,45 @@ The endpoint is an SSE stream.
 Capture a bounded sample when necessary, and use `after=<SEQ>` to narrow a
 follow-up read.
 Do not use `follow=true` unless live reproduction is required.
+A stream containing only `log.synced` means no durable events are available; use context and child sessions instead.
 
 Use the session message endpoint for a specific message referenced by an event:
 
 ```sh
 opencode2 api get /api/session/<SESSION_ID>/message/<MESSAGE_ID>
 ```
+
+### Bulk transcript search (many sessions, or tool-call patterns)
+
+Run `opencode session list` from the project's directory; it is scoped to the current project and silently returns nothing elsewhere.
+Export with `opencode session export <SESSION_ID> > s.json` (not `opencode export`).
+Extract tool calls matching a pattern in one pass:
+
+```sh
+jq -r '.messages[]|select(.type=="assistant")|.content[]?|select(.type=="tool")
+  |select((.state.input.command // .state.input.code // "")|test("PATTERN"))
+  |"\(.name)\t\((.state.input.command // .state.input.code)[0:400])\t=> \(((.state.content // [])|map(.text? // "")|join(" "))[0:300])"' s.json
+```
+
+Then grep that output for `error|404|not found|usage` to find failures before reading full transcripts.
+
+### Slow or long-running sessions
+
+For "why did this take so long" questions, list child sessions with their lifetimes:
+
+```sh
+opencode2 api get '/api/session?limit=200' | jq -r '.data[] | select(.parentID=="<SESSION_ID>")
+  | "\(.time.created)\t\(((.time.updated-.time.created)/1000|floor))s\t\(.agent)\t\(.model.id)\t\(.cost)\t\(.title)"' | sort
+```
+
+Get the parent's tool-call timeline from the context, then compare the gaps between dispatches with child lifetimes to find serialized waits:
+
+```sh
+opencode2 api get /api/session/<SESSION_ID>/context | jq -r '.. | objects | select(.type=="tool")
+  | "\(.time.created)\t\(.time.completed)\t\(.name)\t\(.state.input.description // "")"'
+```
+
+A reused child's `time.updated` reflects its last reuse, not one continuous run.
 
 Do not start with raw database inspection.
 Do not edit or delete the database, service files, session data, or inbox items
