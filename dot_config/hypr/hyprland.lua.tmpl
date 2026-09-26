@@ -5,9 +5,15 @@
 
 {{- if eq .chezmoi.hostname "zorro" }}
 hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto-left", scale = "1" })
-{{- end }}
 hl.monitor({ output = "DP-1", mode = "preferred", position = "auto-left", scale = "1" })
 hl.monitor({ output = "DP-2", mode = "preferred", position = "auto-right", scale = "1" })
+{{- else if eq .chezmoi.hostname "amdbox" }}
+hl.monitor({ output = "desc:Dell Inc. DELL U2723QE 85P0F34", mode = "3840x2160@59.997", position = "-3840x0", scale = 1 })
+hl.monitor({ output = "desc:Dell Inc. DELL U2723QE 55P0F34", mode = "3840x2160@60", position = "0x0", scale = 1 })
+{{- else }}
+hl.monitor({ output = "DP-1", mode = "preferred", position = "auto-left", scale = "1" })
+hl.monitor({ output = "DP-2", mode = "preferred", position = "auto-right", scale = "1" })
+{{- end }}
 
 ---------------------
 ---- MY PROGRAMS ----

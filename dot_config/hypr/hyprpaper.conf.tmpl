@@ -1,0 +1,46 @@
+splash = false
+ipc = on
+
+{{- if eq .chezmoi.hostname "zorro" }}
+wallpaper {
+    monitor = eDP-1
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+
+wallpaper {
+    monitor = DP-1
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+
+wallpaper {
+    monitor = DP-2
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+{{- else if eq .chezmoi.hostname "amdbox" }}
+wallpaper {
+    monitor = DP-4
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+
+wallpaper {
+    monitor = HDMI-A-2
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+{{- else }}
+wallpaper {
+    monitor = DP-1
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+
+wallpaper {
+    monitor = DP-2
+    path = /home/major/Pictures/wallpaper/wallpaper.jpg
+    fit_mode = cover
+}
+{{- end }}
