@@ -190,6 +190,14 @@
     executable = true
     refreshPeriod = "168h"
 
+["bin/ant"]
+    type = "archive-file"
+    # renovate: datasource=github-releases depName=anthropics/anthropic-cli
+    url = "https://github.com/anthropics/anthropic-cli/releases/download/v1.36.0/ant_1.36.0_linux_amd64.tar.gz"
+    path = "ant"
+    executable = true
+    refreshPeriod = "168h"
+
 ["bin/oras"]
     type = "archive-file"
     # renovate: datasource=github-releases depName=oras-project/oras
