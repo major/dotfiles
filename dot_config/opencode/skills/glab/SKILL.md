@@ -104,6 +104,9 @@ For multiple inline findings, use this sequence:
 3. Collect the returned note IDs. Verify all their file and line positions
    with one discussions request. If the MR SHA changes or a post fails,
    stop and recheck the diff before continuing.
+   `glab mr note create` prints only the note URL, so take the ID from
+   its `#note_<id>` suffix (`ids+=("${url##*#note_}")`) and run the
+   verification request in the same shell invocation as the posts.
 4. Set the reviewer and assignee in the same shell call as the posts, using
    one request that prints only the result:
    `glab api -X PUT projects/:id/merge_requests/<iid> -f reviewer_ids=<id> -f assignee_id=<id> | jq -c '{reviewers:[.reviewers[].username],assignees:[.assignees[].username]}'`
