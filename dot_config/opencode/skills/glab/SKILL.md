@@ -92,6 +92,8 @@ For multiple inline findings, use this sequence:
    discussions, plus non-system general notes (summary reviews often list
    findings without a diff position). Compare each proposed finding with the local diff against
    the MR target branch. Print only the SHA and relevant discussion summaries.
+   If you already read `sha` from `glab mr view <iid> -F json` earlier, reuse it
+   instead of a separate request; post step 3 still catches a moved head.
    For long notes, print only heading and bold lines instead of whole bodies.
    If you will set reviewers or assignees afterward, get those user IDs in
    the same call (`glab api user`, `glab api "users?username=<name>"`).
@@ -107,6 +109,8 @@ For multiple inline findings, use this sequence:
    `glab mr note create` prints only the note URL, so take the ID from
    its `#note_<id>` suffix (`ids+=("${url##*#note_}")`) and run the
    verification request in the same shell invocation as the posts.
+   Filter with the collected array instead of typing IDs by hand:
+   `jq --argjson ids "[$(IFS=,; echo "${ids[*]}")]" '.[].notes[] | select(.id as $i | $ids | index($i))'`.
 4. Set the reviewer and assignee in the same shell call as the posts, using
    one request that prints only the result:
    `glab api -X PUT projects/:id/merge_requests/<iid> -f reviewer_ids=<id> -f assignee_id=<id> | jq -c '{reviewers:[.reviewers[].username],assignees:[.assignees[].username]}'`
