@@ -44,41 +44,17 @@
         ],
         "disabled": true
       },
-      "jira": {
-        "type": "local",
-        "command": [
-          "/home/major/.local/bin/uv",
-          "run",
-          "mcp-atlassian"
-        ],
-        "cwd": "/home/major/git/major/mcp-atlassian",
-        "environment": {
-          "JIRA_URL": "https://{env:JIRA_HOST}",
-          "JIRA_USERNAME": "{env:JIRA_EMAIL}",
-          "JIRA_API_TOKEN": "{env:JIRA_API_TOKEN}",
-          "TOOLSETS": "default,jira_links,jira_attachments,jira_users"
-        }
-      },
       "exa": {
         "type": "remote",
         "url": "https://mcp.exa.ai/mcp",
         "headers": {
           "x-api-key": "{env:EXA_API_KEY}"
         }
-      },
-      "ast-grep": {
-        "type": "local",
-        "command": [
-          "uvx",
-          "--from",
-          "git+https://github.com/ast-grep/ast-grep-mcp",
-          "ast-grep-server"
-        ]
       }
     }
   },
   "plugins": [
-    "oh-my-opencode-slim"
+    "oh-my-opencode-slim@3.0.2"
   ],
   "references": {
     "opencode": {

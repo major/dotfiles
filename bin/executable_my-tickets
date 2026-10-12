@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# my-tickets: print one compact TSV line per open LTWL/LWLP Jira ticket assigned
+# to me, with the state of every related GitLab MR and GitHub PR.
+#
+# MRs are found three ways: URLs in the ticket description or comments, Jira
+# remote links, and my recent lightwell MRs that name the ticket key. All of the
+# work happens here so an opencode command can inject the result with zero
+# tool calls.
+#
+# Needs: curl, jq, glab, gh, and JIRA_HOST, JIRA_EMAIL, JIRA_API_TOKEN.
+# Usage: my-tickets [JQL]   (defaults to my open LTWL/LWLP tickets)
+set -euo pipefail
+
+: "${JIRA_HOST:?}" "${JIRA_EMAIL:?}" "${JIRA_API_TOKEN:?}"
+jira="https://${JIRA_HOST#https://}"
+jql=${1:-'project in (LTWL,LWLP) AND assignee=currentUser() AND statusCategory!=Done ORDER BY key'}
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# jira_get PATH [CURL_ARGS...]: authenticated GET against the Jira REST API.
+jira_get() {
+	local path=$1
+	shift
+	curl -fsS -u "$JIRA_EMAIL:$JIRA_API_TOKEN" -G "$jira$path" "$@"
+}
+export -f jira_get
+export jira
+
+# mr_state REF: print "REF<TAB>state" for "project!iid" or a GitHub PR URL.
+mr_state() {
+	local ref=$1
+	if [[ $ref == https://github.com/* ]]; then
+		gh pr view "$ref" --json state,isDraft,reviewDecision 2>/dev/null |
+			jq -r --arg r "gh:${ref#https://github.com/}" \
+				'"\($r)\t\(.state|ascii_downcase)\(if .isDraft then "+draft" else "" end)/\(.reviewDecision // "none"|ascii_downcase)"'
+		return
+	fi
+	glab api "projects/lightwell%2F${ref%%!*}/merge_requests/${ref#*!}" 2>/dev/null |
+		jq -r --arg r "$ref" '"\($r)\t" + (
+			if .state == "opened" then
+				(.detailed_merge_status) + (if .draft then "+draft" else "" end)
+				+ "/ci:" + (.head_pipeline.status // "none")
+			else .state end)' || printf '%s\tunknown\n' "$ref"
+}
+export -f mr_state
+
+# 1. Tickets, with description and comments as plain text (API v2) for URL scraping.
+jira_get /rest/api/2/search/jql --data-urlencode "jql=$jql" \
+	--data-urlencode 'fields=summary,status,description,comment' --data-urlencode 'maxResults=100' \
+	>"$tmp/issues.json"
+jq -r '.issues[] | [.key, .fields.status.name, .fields.summary[:80]] | @tsv' "$tmp/issues.json" >"$tmp/tickets.tsv"
+
+# 2. MR/PR URLs mentioned in each ticket's description or comments.
+jq -r '.issues[] | .key as $k | tostring | gsub("\\\\+"; "")
+	| scan("https://(?:gitlab\\.cee\\.redhat\\.com/lightwell/[^\\s)\\]|\"]+?/-/merge_requests/[0-9]+|github\\.com/[^\\s)\\]|\"]+?/pull/[0-9]+)")
+	| [$k, .] | @tsv' "$tmp/issues.json" >"$tmp/links.tsv" 2>/dev/null || true
+
+# 3. Jira remote links (the GitLab integration adds MRs here).
+# shellcheck disable=SC2016  # $k is a jq variable, not a shell one.
+cut -f1 "$tmp/tickets.tsv" | xargs -r -P8 -I{} bash -c \
+	'jira_get /rest/api/2/issue/{}/remotelink | jq -r --arg k {} ".[].object.url | [\$k, .] | @tsv"' \
+	>>"$tmp/links.tsv" 2>/dev/null || true
+
+# 4. My recent lightwell MRs that name a ticket key. "~" marks a description-only mention.
+me=$(glab api user | jq -r .username)
+glab api --paginate "groups/lightwell/merge_requests?author_username=$me&updated_after=$(date -d '-90 days' +%F)&per_page=100" |
+	jq -r '.[] | [(.references.full|sub("^lightwell/";"")), "\(.title) \(.source_branch)", (.description // "")] | @tsv' \
+		>"$tmp/mine.tsv"
+while IFS=$'\t' read -r key _; do
+	awk -F'\t' -v k="$key" '
+		BEGIN { k = toupper(k) }
+		index(toupper($2), k) { print k "\t" $1; next }
+		index(toupper($3), k) { print k "\t~" $1 }' "$tmp/mine.tsv"
+done <"$tmp/tickets.tsv" >>"$tmp/links.tsv"
+
+# Normalize URLs to "project!iid"; keep GitHub PR URLs; drop non-MR links.
+sed -E 's#https://gitlab\.cee\.redhat\.com/lightwell/([^/]+)/-/merge_requests/([0-9]+)#\1!\2#' "$tmp/links.tsv" |
+	awk -F'\t' '$2 ~ /^~?[A-Za-z0-9._-]+![0-9]+$/ || $2 ~ /^https:\/\/github\.com\/.*\/pull\/[0-9]+$/' |
+	sort -u >"$tmp/pairs.tsv"
+
+# A direct link beats a description-only mention of the same MR.
+awk -F'\t' '{ r = $2; sub(/^~/, "", r); if ($2 !~ /^~/) d[$1 SUBSEP r] = 1; rows[NR] = $0 }
+	END { for (i = 1; i <= NR; i++) { split(rows[i], f, "\t"); r = f[2]; sub(/^~/, "", r)
+		if (f[2] !~ /^~/ || !d[f[1] SUBSEP r]) print rows[i] } }' "$tmp/pairs.tsv" >"$tmp/final.tsv"
+
+# 5. Look up each unique MR/PR once, in parallel.
+# shellcheck disable=SC2016  # $1 expands in the child bash, by design.
+cut -f2 "$tmp/final.tsv" | sed 's/^~//' | sort -u | xargs -r -P8 -I{} bash -c 'mr_state "$1"' _ {} >"$tmp/states.tsv"
+
+# 6. Output.
+printf '# mrs: ref:state  (opened = merge-status[+draft]/ci:pipeline; ~ = named only in MR description)\n'
+printf 'key\tjira\tmrs\tsummary\n'
+while IFS=$'\t' read -r key status summary; do
+	# Open MRs are always listed. Merged or closed MRs collapse into counts when
+	# there are more than three, so long cleanup series stay one short line.
+	mrs=$(awk -F'\t' -v k="$key" 'NR == FNR { s[$1] = $2; next }
+		$1 == k { r = $2; m = ""; if (sub(/^~/, "", r)) m = "~"
+			if (r ~ /^https:\/\/github\.com\//) { sub(/^https:\/\/github\.com\//, "", r); r = "gh:" r }
+			item = m r ":" s[r]
+			if (s[r] == "merged" || s[r] == "closed") { done[++nd] = item; cnt[s[r]]++ }
+			else open = open item " " }
+		END { out = open
+			if (nd <= 3) for (i = 1; i <= nd; i++) out = out done[i] " "
+			else for (st in cnt) out = out "+" cnt[st] "_" st " "
+			sub(/ $/, "", out); print out }' \
+		"$tmp/states.tsv" "$tmp/final.tsv")
+	printf '%s\t%s\t%s\t%s\n' "$key" "$status" "${mrs% }" "$summary"
+done <"$tmp/tickets.tsv"

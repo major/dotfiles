@@ -10,6 +10,8 @@ description: |
   "%pyproject_check_import", "ModuleNotFoundError in build", "sidetag",
   "bodhi update", "Bugzilla", "CLOSED RAWHIDE", "src.fedoraproject.org",
   "spec file", "BuildRequires".
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Fedora Packaging

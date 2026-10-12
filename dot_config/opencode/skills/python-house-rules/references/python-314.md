@@ -1,8 +1,3 @@
----
-name: python-314
-description: Guidance for writing, reviewing, and migrating code for Python 3.14. Use when the target interpreter is 3.14+, when code uses t-strings (t"..."), string.templatelib, annotationlib, unparenthesized except clauses, or when upgrading a codebase from 3.13 or earlier.
----
-
 # Python 3.14 Skill
 
 ## 0. Confirm the target version first

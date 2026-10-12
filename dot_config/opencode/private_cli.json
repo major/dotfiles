@@ -4,11 +4,10 @@
     "prompt.queue": "alt+return"
   },
   "theme": {
-    "name": "tokyonight",
+    "name": "opencode",
     "mode": "dark"
   },
   "plugins": [
-    "oh-my-opencode-slim@2.2.17",
     "-oc-go-usage"
   ],
   "diffs": {
@@ -23,16 +22,20 @@
     "thinking": "hide",
     "image_preview": false,
     "markdown": "rendered",
-    "new_location": "launch"
+    "new_location": "launch",
+    "verbosity": "high"
   },
   "animations": true,
   "tabs": {
     "enabled": true,
     "layout": "vertical",
-    "scope": "cwd"
+    "scope": "cwd",
+    "indicators": "status"
   },
   "attention": {
-    "enabled": true
+    "sound": true,
+    "volume": 0.30000000000000016,
+    "notifications": true
   },
   "debug": {
     "turn_tokens": false,
@@ -41,5 +44,8 @@
   "prompt": {
     "image_preview": false,
     "paste": "full"
+  },
+  "terminal": {
+    "copy": "select"
   }
 }

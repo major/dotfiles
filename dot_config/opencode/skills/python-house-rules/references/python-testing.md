@@ -1,10 +1,4 @@
----
-name: python-testing
-description: Python testing strategies using pytest, TDD methodology, fixtures, mocking, parametrization, and coverage requirements. Use when writing pytest tests — fixtures, mocks, parametrization, or coverage.
-metadata:
-  origin: ECC
-  website: https://github.com/affaan-m/ECC/blob/main/skills/python-testing/SKILL.md
----
+<!-- Origin: ECC, https://github.com/affaan-m/ECC/blob/main/skills/python-testing/SKILL.md -->
 
 # Python Testing Patterns
 

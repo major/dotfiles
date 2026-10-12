@@ -1,6 +1,8 @@
 ---
 name: python-distilled
 description: "Knowledge base from \"Python Distilled\" by David M. Beazley. Use when applying Python's object, protocol, function, generator, class, module, I/O, and standard-library frameworks, studying the book, or referencing its concepts."
+metadata:
+  opencode/autoinvoke: false
 ---
 
 <!-- argument-hint: [topic, framework name, or chapter number] -->

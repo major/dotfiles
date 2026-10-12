@@ -1,8 +1,3 @@
----
-name: python-311-syntax
-description: Use when writing, reviewing, or migrating Python code targeting 3.11+, or when deciding whether code is compatible with 3.10. Covers except*/ExceptionGroup, variadic generics (*Ts), starred for-targets, nested async comprehensions, and 3.11 typing/stdlib idioms (Self, LiteralString, NotRequired, TaskGroup, tomllib, StrEnum, add_note).
----
-
 # Python 3.11 Syntax & Idioms
 
 ## 1. Determine the target version first

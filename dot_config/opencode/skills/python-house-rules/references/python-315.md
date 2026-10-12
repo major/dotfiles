@@ -1,8 +1,3 @@
----
-name: python-315
-description: Use when writing, reviewing, upgrading, or debugging Python code that targets Python 3.15+, or when migrating a codebase from 3.14 or earlier. Covers new syntax (lazy imports, unpacking in comprehensions), new builtins (frozendict, sentinel), typing additions, behavior changes (UTF-8 default, GC revert), and the Tachyon sampling profiler.
----
-
 # Python 3.15
 
 ## Step 1: Determine the target version

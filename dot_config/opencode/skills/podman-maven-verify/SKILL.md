@@ -2,6 +2,8 @@
 name: podman-maven-verify
 description: >-
   Load BEFORE running any Podman or Maven command. Build, test, and run reproducers for a Maven Java project inside rootless Podman with a known-good command, fixed paths, and no flag guessing. Use when verifying, rebasing, or backporting a patch to a Maven library (for example httpcore/httpclient LTWL CVE fixes), running `mvn test` or `mvn package` in a container, building or testing a shipped JAR, counting test results, or running a JAR-based probe or reproducer. Triggers: "Podman Maven", "verify patch", "patch rebase", "shipped JAR", "reproducer", "probe", "test counts", "verification evidence".
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Podman Maven verification

@@ -11,12 +11,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(
         # Core functionality
         colored-man-pages
-        direnv
-        docker
         fzf
         gh
         git
-        podman
         sudo
         z
         zsh-autosuggestions
@@ -172,3 +169,5 @@ zle -N fzf-cd-widget
 bindkey -M emacs '^F' fzf-cd-widget
 bindkey -M viins '^F' fzf-cd-widget
 bindkey -M vicmd '^F' fzf-cd-widget
+
+[[ "$TERM" == "xterm-kitty" ]] && alias ssh="kitten ssh"

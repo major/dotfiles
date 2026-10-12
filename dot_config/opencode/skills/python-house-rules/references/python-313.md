@@ -1,8 +1,3 @@
----
-name: python-313-features
-description: Reference for Python 3.13 syntax and behavior changes relative to 3.12. Use when writing, reviewing, or migrating Python code that targets 3.13+, when using generics or type parameter syntax, when code touches locals()/frame.f_locals, or when imports may reference stdlib modules removed in 3.13.
----
-
 # Python 3.13 vs 3.12
 
 ## Before writing code

@@ -1,8 +1,3 @@
----
-name: python-312-syntax
-description: Apply Python 3.12 syntax (PEP 695 type params, `type` aliases, PEP 701 f-strings) correctly and safely. Use when writing, reviewing, refactoring, or modernizing Python code, adding type hints/generics, or when the project targets Python >= 3.12 or must stay compatible with 3.11.
----
-
 # Python 3.12 Syntax Skill
 
 ## Step 1: Determine the target Python version FIRST

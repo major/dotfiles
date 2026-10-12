@@ -1,6 +1,8 @@
 ---
 name: effective-typescript
 description: Apply Effective TypeScript's 62-item guidance to TypeScript implementation and review, with decision-oriented mental models and chapter references.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Effective TypeScript

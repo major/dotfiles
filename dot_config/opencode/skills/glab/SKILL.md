@@ -49,6 +49,29 @@ glab api projects/:id/jobs/<job-id>/trace | grep -a -E 'FAILED|Error' | cut -c30
 glab mr list --output json | jq '.[].title'
 ```
 
+### Stacked merge requests
+
+Create the parent MR against the default branch, then create each child MR against its parent's source branch.
+Run these from the appropriate local branch after committing its changes:
+
+```shell
+glab mr create --push --target-branch main --title "Parent change" --description "..."
+glab mr create --push --target-branch parent-branch --title "Child change" --description "..."
+glab mr view <iid> --output json  # Check source_branch and target_branch.
+```
+
+GitLab detects the stack from those branch targets; review and merge bottom-up, checking each MR's target and diff after the previous one merges.
+GitLab's stacked MRs do not require `glab stack` or its local metadata.
+When a parent merges and GitLab retargets its child, check the child's diff and required pipeline before scheduling its merge.
+Auto-merge does not create a passing pipeline after a target change.
+
+`glab stack` is a separate experimental CLI workflow for creating and maintaining local stacked diffs; do not use it by default or assume it can adopt existing MRs.
+For a new CLI-managed stack, use `glab stack create <name>`, make each logical change with `glab stack save`, then use `glab stack sync` to push branches and create chained MRs.
+Run it from a clean, interactive checkout: `stack infer` can require a TTY, and a failed infer can leave a selected but empty stack.
+Before any `stack sync`, inspect `glab stack list` and the branches and MRs it may change.
+Sync can rebase and push stack branches; `--skip-mr-creation` prevents new MRs, not those other effects.
+The selected stack is stored as `glab.currentstack` in repository-local Git config shared by worktrees, so switching stacks in one worktree can affect another.
+
 **Templates:** Check `.gitlab/merge_request_templates/` and
 `.gitlab/issue_templates/` for project-specific templates.
 
@@ -182,6 +205,30 @@ glab mr note resolve <iid> <discussion-id>
 glab mr note resolve <iid> <note-id>           # integer note ID also works
 glab mr note reopen  <iid> <discussion-id>
 ```
+
+When approving and merging a reviewed MR, guard both actions against new
+commits. Prefer the merge train whenever the project enables it:
+
+```shell
+glab mr approve <iid> --sha <reviewed-sha>
+glab api projects/:id | jq '{merge_trains_enabled}'
+```
+
+If `merge_trains_enabled` is `true`, add or schedule the MR on the train
+with the reviewed SHA. Do not use `--auto-merge=false`:
+
+```shell
+glab api -X POST projects/:id/merge_trains/merge_requests/<iid> \
+  -f auto_merge=true -f sha=<reviewed-sha>
+```
+
+If merge trains are unavailable, use
+`glab mr merge <iid> --sha <reviewed-sha> --auto-merge --yes`.
+Confirm that the MR is queued or merged; joining a train does not mean it
+has merged.
+
+For merged-results pipelines, the pipeline SHA is a merge-commit SHA, not
+the source-branch HEAD SHA. Do not compare them as though they must match.
 
 ### Threaded replies on issues, incidents, and work items
 

@@ -1,11 +1,6 @@
----
-name: coderabbit
-description: Run and interpret local CodeRabbit PR reviews. Use when the user asks for CodeRabbit, a local AI review, or before creating/updating a PR or MR to decide and run CodeRabbit when configured.
----
-
 # CodeRabbit Local Review
 
-Use this skill to run a local CodeRabbit review before creating or updating a PR/MR when the repo is configured for CodeRabbit, or whenever the user explicitly asks for CodeRabbit review feedback.
+Use this reference to run a local CodeRabbit review before creating or updating a PR/MR when the repo is configured for CodeRabbit, or whenever the user explicitly asks for CodeRabbit review feedback.
 
 ## Contract
 

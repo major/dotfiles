@@ -1,6 +1,8 @@
 ---
 name: slatkin-effective-python
 description: "Knowledge base from \"Effective Python: 125 Specific Ways to Write Better Python (3rd Edition)\" by Brett Slatkin. Use when applying Pythonic design patterns, writing clean and robust Python code, optimizing performance and concurrency, or referencing any of the 125 items."
+metadata:
+  opencode/autoinvoke: false
 ---
 
 <!-- argument-hint: [topic, framework name, item number, or chapter number] -->

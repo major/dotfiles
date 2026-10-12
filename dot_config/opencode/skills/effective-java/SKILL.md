@@ -1,6 +1,8 @@
 ---
 name: effective-java
 description: "Java writing and code-review guidance from Effective Java, Third Edition by Joshua Bloch, covering APIs, generics, concurrency, exceptions, streams, and serialization."
+metadata:
+  opencode/autoinvoke: false
 ---
 
 <!-- argument-hint: [topic, framework name, or chapter number] -->

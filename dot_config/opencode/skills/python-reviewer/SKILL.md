@@ -141,7 +141,7 @@ Fix: What to change
 
 ## Reference
 
-For detailed Python patterns, security examples, and code samples, see skill: `python-patterns`.
+For detailed Python patterns, security examples, and code samples, see `references/python-patterns.md` in the `python-house-rules` skill.
 
 ---
 
