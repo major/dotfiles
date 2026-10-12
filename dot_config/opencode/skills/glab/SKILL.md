@@ -39,6 +39,7 @@ glab ci list
 glab ci run -b main --variables "KEY:VALUE" --variables "K2:V2" | tail -1   # one flag per var, no commas in values
 glab mr diff <iid> -R group/project | grep -n -E 'term'                    # filter diffs, don't dump them
 # `glab mr diff` has no --stat flag; use git diff --stat in a local checkout.
+git merge-tree --write-tree --name-only origin/main HEAD   # list conflicting files; MR has_conflicts is only true/false
 glab ci get --merge-request <iid> --with-job-details
 glab ci get --pipeline-id <id> --output json
 glab ci retry <job-id>
@@ -88,8 +89,12 @@ group-level items (epics, group work items); full URLs expand everywhere.
 For multiple inline findings, use this sequence:
 
 1. In one shell invocation, get the current MR SHA and existing inline
-   discussions. Compare each proposed finding with the local diff against
+   discussions, plus non-system general notes (summary reviews often list
+   findings without a diff position). Compare each proposed finding with the local diff against
    the MR target branch. Print only the SHA and relevant discussion summaries.
+   For long notes, print only heading and bold lines instead of whole bodies.
+   If you will set reviewers or assignees afterward, get those user IDs in
+   the same call (`glab api user`, `glab api "users?username=<name>"`).
 2. Skip findings already covered by an equivalent discussion. Post the
    remaining distinct findings in one shell invocation using
    `glab mr note create <iid> --file <path> --line <new-line>` and a
@@ -99,6 +104,9 @@ For multiple inline findings, use this sequence:
 3. Collect the returned note IDs. Verify all their file and line positions
    with one discussions request. If the MR SHA changes or a post fails,
    stop and recheck the diff before continuing.
+4. Set the reviewer and assignee in the same shell call as the posts, using
+   one request that prints only the result:
+   `glab api -X PUT projects/:id/merge_requests/<iid> -f reviewer_ids=<id> -f assignee_id=<id> | jq -c '{reviewers:[.reviewers[].username],assignees:[.assignees[].username]}'`
 
 Keep each comment focused on the behavior, its impact, and a suggested fix.
 Do not dump the full diff or all discussion bodies into the agent context.
@@ -170,6 +178,11 @@ glab api "projects/:id/merge_requests/<iid>/discussions?per_page=100" --paginate
   | jq -r '.[] | .id as $discussion | .notes[] |
       select(.position.new_path != null) |
       "discussion=\($discussion) note=\(.id) \(.position.new_path):\(.position.new_line) \(.body | gsub("\\n"; " ") | .[0:240])"'
+# General (non-inline) review notes: show author and finding headings only
+glab api "projects/:id/merge_requests/<iid>/discussions?per_page=100" --paginate \
+  | jq -r '.[] | .notes[] | select(.system == false and .position == null) |
+      "note=\(.id) author=\(.author.username)",
+      (.body | split("\n")[] | select(test("^(#+ |\\*\\*)")) | "  \(.[0:160])")'
 ```
 
 For multi-line Markdown, prefer the quoted heredoc below over `-m` so the
