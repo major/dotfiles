@@ -97,20 +97,29 @@ For multiple inline findings, use this sequence:
    For long notes, print only heading and bold lines instead of whole bodies.
    If you will set reviewers or assignees afterward, get those user IDs in
    the same call (`glab api user`, `glab api "users?username=<name>"`).
+   The MR author's ID is already in the MR JSON, so you do not need a user lookup for it:
+   `glab mr view <iid> --output json | jq '{sha,draft,labels,author:.author.username,author_id:.author.id}'`
+   If the reviewer to set is the MR author, reuse `author_id` and skip `glab api user`.
 2. Skip findings already covered by an equivalent discussion. Post the
    remaining distinct findings in one shell invocation using
    `glab mr note create <iid> --file <path> --line <new-line>` and a
    quoted heredoc for each Markdown body.
+   If the bodies need user approval first, write each one to a file when you
+   propose it, then post with `< file` so the text is generated only once.
    If the faulty consumer is unchanged, anchor the note to the changed line
    that introduces its input or behavior, and name the consumer in the body.
 3. Collect the returned note IDs. Verify all their file and line positions
    with one discussions request. If the MR SHA changes or a post fails,
    stop and recheck the diff before continuing.
+   Guard the posts with the reviewed SHA:
+   `[ "$(glab mr view <iid> --output json | jq -r .sha)" = <reviewed-sha> ] || exit 1`
    `glab mr note create` prints only the note URL, so take the ID from
    its `#note_<id>` suffix (`ids+=("${url##*#note_}")`) and run the
    verification request in the same shell invocation as the posts.
    Filter with the collected array instead of typing IDs by hand:
    `jq --argjson ids "[$(IFS=,; echo "${ids[*]}")]" '.[].notes[] | select(.id as $i | $ids | index($i))'`.
+   For `--line A:B` ranges, `position.new_line` is the end line; the start is
+   `position.line_range.start.new_line`.
 4. Set the reviewer and assignee in the same shell call as the posts, using
    one request that prints only the result:
    `glab api -X PUT projects/:id/merge_requests/<iid> -f reviewer_ids=<id> -f assignee_id=<id> | jq -c '{reviewers:[.reviewers[].username],assignees:[.assignees[].username]}'`
