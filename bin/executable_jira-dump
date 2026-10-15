@@ -1,0 +1,266 @@
+#!/usr/bin/env python3
+"""jira-dump: save Jira issues from a project or any JQL query to one JSON file.
+
+Each issue includes its summary, description, status, type, priority,
+assignee, reporter, labels, components, dates, and every comment. Text
+fields come back as plain wiki markup (REST API v2).
+
+Needs JIRA_HOST, JIRA_EMAIL, and JIRA_API_TOKEN (or JIRA_TOKEN). Set
+JIRA_DUMP_PROJECT to choose the project used when no argument is given.
+Uses only the Python standard library.
+
+Usage:
+    jira-dump                     # $JIRA_DUMP_PROJECT -> <project>-open-issues.json
+    jira-dump PROJ                # open issues in project PROJ
+    jira-dump PROJ -t Bug         # only one issue type
+    jira-dump -o - | jq .count    # write to stdout
+    jira-dump 'assignee = currentUser() AND resolution = Unresolved'
+                                  # any JQL -> jira-results.json
+    jira-dump 'project = PROJ AND labels = foo' -o foo.json
+"""
+
+import argparse
+import base64
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+FIELDS = [
+    "summary",
+    "description",
+    "issuetype",
+    "status",
+    "priority",
+    "assignee",
+    "reporter",
+    "created",
+    "updated",
+    "labels",
+    "components",
+    "comment",
+]
+# A bare project key such as PROJ; anything else is treated as JQL.
+PROJECT_KEY = re.compile(r"[A-Za-z][A-Za-z0-9_]+")
+
+
+class Jira:
+    """Minimal authenticated Jira Cloud REST client."""
+
+    def __init__(self) -> None:
+        """Read the host and credentials from the environment."""
+        email = os.environ.get("JIRA_EMAIL")
+        token = os.environ.get("JIRA_API_TOKEN") or os.environ.get("JIRA_TOKEN")
+        if not email or not token:
+            sys.exit("jira-dump: set JIRA_EMAIL and JIRA_API_TOKEN (or JIRA_TOKEN)")
+        host = os.environ.get("JIRA_HOST", "").removeprefix("https://").rstrip("/")
+        if not host:
+            sys.exit("jira-dump: set JIRA_HOST, for example example.atlassian.net")
+        self.base = f"https://{host}"
+        auth = base64.b64encode(f"{email}:{token}".encode()).decode()
+        self.headers = {"Authorization": f"Basic {auth}", "Accept": "application/json"}
+
+    def get(self, path: str, params: dict) -> dict:
+        """GET a REST path and return JSON, retrying on 429 and 5xx.
+
+        Args:
+            path: API path starting with /rest/.
+            params: Query parameters.
+
+        Returns:
+            The decoded JSON body.
+        """
+        url = f"{self.base}{path}?{urllib.parse.urlencode(params)}"
+        for attempt in range(6):
+            try:
+                with urllib.request.urlopen(urllib.request.Request(url, headers=self.headers), timeout=60) as resp:
+                    return json.load(resp)
+            except urllib.error.HTTPError as err:
+                if (err.code != 429 and err.code < 500) or attempt == 5:
+                    detail = err.read().decode(errors="replace")[:300]
+                    sys.exit(f"jira-dump: HTTP {err.code} for {path}: {detail}")
+                time.sleep(int(err.headers.get("Retry-After") or 2**attempt))
+        raise AssertionError("unreachable")
+
+    def search(self, jql: str) -> list[dict]:
+        """Return every issue that matches the JQL, following all pages.
+
+        Args:
+            jql: JQL query.
+
+        Returns:
+            Raw issue dicts.
+        """
+        issues, token = [], None
+        while True:
+            params = {"jql": jql, "fields": ",".join(FIELDS), "maxResults": 100}
+            if token:
+                params["nextPageToken"] = token
+            page = self.get("/rest/api/2/search/jql", params)
+            issues.extend(page.get("issues", []))
+            print(f"jira-dump: fetched {len(issues)} issues", file=sys.stderr)
+            token = page.get("nextPageToken")
+            if page.get("isLast", True) or not token:
+                return issues
+
+    def comments(self, issue: dict) -> list[dict]:
+        """Return all comments on an issue, paging only when search cut them off.
+
+        Args:
+            issue: Raw issue dict from search.
+
+        Returns:
+            Raw comment dicts, oldest first.
+        """
+        embedded = issue["fields"].get("comment") or {}
+        found = embedded.get("comments", [])
+        if len(found) >= embedded.get("total", 0):
+            return found
+        found = []
+        while True:
+            page = self.get(
+                f"/rest/api/2/issue/{issue['key']}/comment",
+                {"startAt": len(found), "maxResults": 100, "orderBy": "created"},
+            )
+            found.extend(page["comments"])
+            if not page["comments"] or len(found) >= page["total"]:
+                return found
+
+
+def person(user: dict | None) -> dict | None:
+    """Reduce a Jira user to display name and account ID.
+
+    Args:
+        user: Raw user dict, or None when unset.
+
+    Returns:
+        A small dict, or None.
+    """
+    return {"name": user.get("displayName"), "account_id": user.get("accountId")} if user else None
+
+
+def name(obj: dict | None) -> str | None:
+    """Return the ``name`` of a Jira object such as a status, or None.
+
+    Args:
+        obj: Raw Jira object, or None.
+
+    Returns:
+        The name, or None.
+    """
+    return (obj or {}).get("name")
+
+
+def flatten(issue: dict, comments: list[dict], base: str) -> dict:
+    """Turn a raw issue into a flat record that is easy to analyze.
+
+    Args:
+        issue: Raw issue dict.
+        comments: Full comment list for the issue.
+        base: Jira base URL, used for the browse link.
+
+    Returns:
+        The flat record.
+    """
+    f = issue["fields"]
+    return {
+        "key": issue["key"],
+        "url": f"{base}/browse/{issue['key']}",
+        "type": name(f.get("issuetype")),
+        "summary": f.get("summary"),
+        "description": f.get("description"),
+        "status": name(f.get("status")),
+        "priority": name(f.get("priority")),
+        "assignee": person(f.get("assignee")),
+        "reporter": person(f.get("reporter")),
+        "created": f.get("created"),
+        "updated": f.get("updated"),
+        "labels": f.get("labels", []),
+        "components": [c.get("name") for c in f.get("components", [])],
+        "comments": [
+            {
+                "author": person(c.get("author")),
+                "created": c.get("created"),
+                "updated": c.get("updated"),
+                "body": c.get("body"),
+            }
+            for c in comments
+        ],
+    }
+
+
+def resolve(args: argparse.Namespace) -> tuple[str, str | None, str]:
+    """Work out the JQL, the project to validate, and the default output name.
+
+    The positional argument is a project key when it looks like one (for
+    example PROJ), otherwise it is treated as raw JQL.
+
+    Args:
+        args: Parsed command-line arguments.
+
+    Returns:
+        The JQL, the project key to check (None for raw JQL), and the
+        default output file name.
+    """
+    query = args.jql or args.query
+    if not query:
+        sys.exit("jira-dump: give a project key or JQL, or set JIRA_DUMP_PROJECT")
+    if query and not PROJECT_KEY.fullmatch(query):
+        if args.type:
+            sys.exit("jira-dump: --type only works with a project key; put the type in your JQL")
+        return query, None, "jira-results.json"
+    project = query.upper()
+    type_clause = f' AND issuetype = "{args.type}"' if args.type else ""
+    jql = f"project = {project}{type_clause} AND statusCategory != Done ORDER BY key ASC"
+    return jql, project, f"{project.lower()}-open-issues.json"
+
+
+def main() -> None:
+    """Parse arguments, download the issues, and write the JSON."""
+    parser = argparse.ArgumentParser(
+        description="Save Jira issues (with comments) to one JSON file.",
+        epilog="Needs JIRA_HOST, JIRA_EMAIL, and JIRA_API_TOKEN (or JIRA_TOKEN).",
+    )
+    parser.add_argument(
+        "query",
+        nargs="?",
+        default=os.environ.get("JIRA_DUMP_PROJECT"),
+        help="project key for its open issues (default: $JIRA_DUMP_PROJECT), or any JQL query",
+    )
+    parser.add_argument("-t", "--type", help='with a project key, only this issue type, for example "Bug"')
+    parser.add_argument("--jql", help="JQL query; same as passing JQL as the positional argument")
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="output file, or - for stdout (default: <project>-open-issues.json or jira-results.json for JQL)",
+    )
+    args = parser.parse_args()
+    jql, project, default_output = resolve(args)
+    output = args.output or default_output
+
+    jira = Jira()
+    # A bad token does not fail the search; Jira treats it as anonymous and
+    # returns zero issues. Check the login first so that never looks like success.
+    jira.get("/rest/api/2/myself", {})
+    if project:
+        # An unknown project key also returns zero issues instead of an error.
+        jira.get(f"/rest/api/2/project/{urllib.parse.quote(project)}", {})
+    print(f"jira-dump: {jql}", file=sys.stderr)
+    records = [flatten(i, jira.comments(i), jira.base) for i in jira.search(jql)]
+    data = {"jql": jql, "count": len(records), "issues": records}
+
+    if output == "-":
+        json.dump(data, sys.stdout, indent=2, ensure_ascii=False)
+        sys.stdout.write("\n")
+    else:
+        with open(output, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2, ensure_ascii=False)
+        print(f"jira-dump: wrote {len(records)} issues to {output}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
