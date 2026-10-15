@@ -119,7 +119,8 @@ For multiple inline findings, use this sequence:
    Filter with the collected array instead of typing IDs by hand:
    `jq --argjson ids "[$(IFS=,; echo "${ids[*]}")]" '.[].notes[] | select(.id as $i | $ids | index($i))'`.
    For `--line A:B` ranges, `position.new_line` is the end line; the start is
-   `position.line_range.start.new_line`.
+   `position.line_range.start.new_line`. Single-line notes have no
+   `line_range`, so use `(.position.line_range.start.new_line // .position.new_line)`.
 4. Set the reviewer and assignee in the same shell call as the posts, using
    one request that prints only the result:
    `glab api -X PUT projects/:id/merge_requests/<iid> -f reviewer_ids=<id> -f assignee_id=<id> | jq -c '{reviewers:[.reviewers[].username],assignees:[.assignees[].username]}'`
