@@ -256,3 +256,10 @@
     # renovate: datasource=github-releases depName=googlefonts/noto-emoji
     url = "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf"
     refreshPeriod = "168h"
+
+[".local/share/fonts/IosevkaTerm"]
+    type = "archive"
+    # renovate: datasource=github-releases depName=be5invis/Iosevka
+    url = "https://github.com/be5invis/Iosevka/releases/download/v34.9.0/PkgTTF-Unhinted-IosevkaTerm-34.9.0.zip"
+    include = ["*.ttf"]
+    refreshPeriod = "168h"
