@@ -1,12 +1,9 @@
 # Fonts
-font_family      family="Ioskeley Mono Term"
-bold_font        auto
-italic_font      auto
-bold_italic_font auto
-font_size {{ if eq .chezmoi.hostname "zorro" }}11.0{{ else }}10.0{{ end }}
-
-# Keep terminal icons monospaced and separate from emoji fallback.
-symbol_map U+E000-U+F8FF,U+F0000-U+FFFFD,U+100000-U+10FFFD Symbols Nerd Font Mono
+font_family      family="IoskeleyMonoTerm Nerd Font Mono" style="Light"
+bold_font        family="IoskeleyMonoTerm Nerd Font Mono" style="SemiBold"
+italic_font      family="IoskeleyMonoTerm Nerd Font Mono" style="Light Italic"
+bold_italic_font family="IoskeleyMonoTerm Nerd Font Mono" style="SemiBold Italic"
+font_size {{ if eq .chezmoi.hostname "zorro" }}11.0{{ else }}10.75{{ end }}
 
 shell /usr/bin/zsh
 
