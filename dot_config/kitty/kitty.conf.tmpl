@@ -5,9 +5,6 @@ italic_font      auto
 bold_italic_font auto
 font_size {{ if eq .chezmoi.hostname "zorro" }}11.0{{ else }}10.0{{ end }}
 
-# Prevent descender clipping (g, j, p, q, y).
-modify_font cell_height 104%
-
 # Keep terminal icons monospaced and separate from emoji fallback.
 symbol_map U+E000-U+F8FF,U+F0000-U+FFFFD,U+100000-U+10FFFD Symbols Nerd Font Mono
 
