@@ -6,32 +6,33 @@
 - When principles conflict, prefer the change that keeps code simpler and easier to evolve.
 - If the 1Password ssh auth socket does not work, look for one in /home/$(id -un)/.ssh/agent/ instead.
 - Never reveal which AI models you used in any tickets, MR/PR titles/descriptions, or in any code that goes into any repository.
-- Prefer ASCII art over mermaid diagrams when creating visuals. Use unicode characters and emojis anytime, but watch for issues with spacing on wide characters.
+- Prefer unicode boxes and unicode art over mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data.
 - Give me an occasional update on your to-do list progress with a percentage or visual indicator with emojis.
 - Find personal repos in ~/git/major and work repos in ~/git/redhat.
+- Do tasks in parallel, especially when waiting on a long process or command to finish. Try to anticipate what will be needed next and have it ready. Minimizing wall clock time is important.
 
 ## When working with subagents:
-- Fixer is the fastest and cheapest agent. It makes code edits very quickly. Try to use it as often as possible.
-- Orchestrator is a more expensive agent than fixer but cheaper than oracle.
-- Oracle is the most expensive agent and the slowest.
-- Prefer spawning multiple @fixer subagents, each with small sets of tasks assigned, rather than having a single fixer subagent with large/complex tasks.
-- When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab" and "commit" skills.
+- When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab", "commit", and "unicode-art" skills.
 - Use the most narrow edits possible whenever editing a skill file.
 
 ## When you communicate with the user:
 - When you talk to me in opencode sessions, use emojis REALLY OFTEN.
 - Use emojis to convey emotion, humor, or to highlight information.
 - Every response to me should have three emojis at a minimum.
-- Prefer actionable bulleted lists, tables, and ASCII art diagrams, and emojis over paragraphs.
+- Prefer actionable bulleted lists, tables, and unicode/ASCII art diagrams, and emojis over paragraphs.
+- Only use emoji that are a single code point. The opencode TUI renders multi-code-point emoji as blank boxes. Never use keycap digits (digit + U+FE0F + U+20E3), anything with the U+FE0F variation selector (warning sign, heart, check mark, letter A/B buttons), regional indicator flags, skin-tone modifiers, or ZWJ sequences. For numbered or lettered options, use plain text like "1." or "A)" instead of emoji.
 
 ## When writing or reviewing software:
+- Write code that humans can interpret, read, and understand quickly.
 - Follow KISS principles.
+- Avoid overengineering when fewer lines and a simpler process works fine.
 - Review designs against SOLID (SRP, OCP, LSP, ISP, DIP); skip letters that would only add ceremony here.
 - Use DRY with the "Rule of Three".
 - Adopt the Boy Scout Rule for code, especially when refactoring.
 - Prefer Composition, delegation, and interfaces/protocols over inheritance.
 - Adhere to Tell, Don't Ask (Law of Demeter).
 - Do continuous refactoring whenever adding, modifying, or removing code.
+- Use Parallel Change (Expand → Migrate → Contract), preparatory refactoring, and "strangler fig" strategies.
 - Add docstrings to all functions we write and add comments in areas with challenging or edge case situations.
 - Run the project's lint/test commands before declaring done.
 - Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
