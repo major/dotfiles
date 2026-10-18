@@ -23,7 +23,8 @@
     "image_preview": false,
     "markdown": "rendered",
     "new_location": "launch",
-    "verbosity": "high"
+    "verbosity": "high",
+    "permissions": "prompt"
   },
   "animations": true,
   "tabs": {
