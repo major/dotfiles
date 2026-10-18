@@ -1,6 +1,7 @@
 ---
 description: My open LTWL/LWLP tickets and the state of their MRs (read-only)
 ---
+
 Ticket and MR data (TSV, from ~/bin/my-tickets):
 !`~/bin/my-tickets "$ARGUMENTS" 2>&1`
 
