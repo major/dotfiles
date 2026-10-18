@@ -74,22 +74,38 @@ hl.config({
     },
 
     decoration = {
+{{- if eq .chezmoi.hostname "amdbox" }}
+        rounding = 10,
+        rounding_power = 2,  -- 1..10; 1 = crisp, 2 = subtle, 4+ = very round
+{{- else }}
         rounding = 0,
         -- Legacy rounding_power = 0 has no exact Lua mapping in 0.56;
         -- the Lua API validates this value to the range 1..10.
+{{- end }}
         active_opacity = 1.0,
         inactive_opacity = 1.0,
         shadow = {
             enabled = true,
+{{- if eq .chezmoi.hostname "amdbox" }}
+            range = 12,
+            render_power = 4,
+{{- else }}
             range = 4,
             render_power = 3,
+{{- end }}
             color = "rgba(1a1a1aee)",
         },
         blur = {
             enabled = true,
+{{- if eq .chezmoi.hostname "amdbox" }}
+            size = 8,
+            passes = 4,
+            vibrancy = 0.3,
+{{- else }}
             size = 3,
             passes = 1,
             vibrancy = 0.1696,
+{{- end }}
         },
     },
 
