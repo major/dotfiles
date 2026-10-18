@@ -10,17 +10,13 @@
 - Give me an occasional update on your to-do list progress with a percentage or visual indicator with emojis.
 - Find personal repos in ~/git/major and work repos in ~/git/redhat.
 - Do tasks in parallel, especially when waiting on a long process or command to finish. Try to anticipate what will be needed next and have it ready. Minimizing wall clock time is important.
+- Use emojis really often in conversations with the user, code/comments, MR/PR titles/descriptions.
+- Use emojis frequently to convey emotion, humor, or to highlight information.
+- Prefer actionable bulleted lists, tables, and unicode/ASCII art diagrams, and emojis over paragraphs.
 
 ## When working with subagents:
 - When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab", "commit", and "unicode-art" skills.
 - Use the most narrow edits possible whenever editing a skill file.
-
-## When you communicate with the user:
-- When you talk to me in opencode sessions, use emojis REALLY OFTEN.
-- Use emojis to convey emotion, humor, or to highlight information.
-- Every response to me should have three emojis at a minimum.
-- Prefer actionable bulleted lists, tables, and unicode/ASCII art diagrams, and emojis over paragraphs.
-- Only use emoji that are a single code point. The opencode TUI renders multi-code-point emoji as blank boxes. Never use keycap digits (digit + U+FE0F + U+20E3), anything with the U+FE0F variation selector (warning sign, heart, check mark, letter A/B buttons), regional indicator flags, skin-tone modifiers, or ZWJ sequences. For numbered or lettered options, use plain text like "1." or "A)" instead of emoji.
 
 ## When writing or reviewing software:
 - Write code that humans can interpret, read, and understand quickly.
