@@ -132,7 +132,46 @@ hl.curve("easeInOutCubic", { type = "bezier", points = { { 0.65, 0.05 }, { 0.36,
 hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
 hl.curve("almostLinear", { type = "bezier", points = { { 0.5, 0.5 }, { 0.75, 1.0 } } })
 hl.curve("quick", { type = "bezier", points = { { 0.15, 0 }, { 0.1, 1 } } })
+{{ if eq .chezmoi.hostname "amdbox" -}}
+hl.curve("easy",     { type = "spring", mass = 1, stiffness = 238.1191, dampening = 24.21279333 })
+hl.curve("snappy",   { type = "spring", mass = 1, stiffness = 350,        dampening = 28 })
+hl.curve("bouncy",   { type = "spring", mass = 1, stiffness = 180,        dampening = 14 })
+hl.curve("overshot", { type = "spring", mass = 1, stiffness = 140,        dampening = 10 })
 
+-- ============================================================================
+--  ANIMATIONS  -  flip `enabled` per row to test; comment a row to use Hyprland defaults.
+--
+--  Built-in defaults (for reference, all speed=1.0):
+--    global          : bezier=linear
+--    border          : bezier=linear
+--    windows         : bezier=linear
+--    windowsIn/Out   : bezier=easeOutQuint
+--    fadeIn/Out/fade : bezier=linear
+--    layers          : bezier=linear
+--    layersIn/Out    : bezier=easeOutQuint
+--    fadeLayersIn/Out: bezier=linear
+--    workspaces      : bezier=easeOutQuint
+--    workspacesIn/Out: bezier=easeOutQuint, style="slide"
+--    zoomFactor      : bezier=linear
+-- ============================================================================
+hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
+hl.animation({ leaf = "border", enabled = true, speed = 1, spring = "bouncy" })
+hl.animation({ leaf = "windows", enabled = true, speed = 4.79, bezier = "easeOutQuint" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 1, spring = "easy", style = "popin 87%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 1, spring = "snappy", style = "popin 87%" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 1, spring = "easy" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 1, bezier = "almostLinear" })
+hl.animation({ leaf = "fade", enabled = true, speed = 3.03, bezier = "quick" })
+hl.animation({ leaf = "layers", enabled = true, speed = 3.81, bezier = "easeOutQuint" })
+hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "easeOutQuint", style = "fade" })
+hl.animation({ leaf = "layersOut", enabled = true, speed = 1.5, bezier = "linear", style = "fade" })
+hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 1.79, bezier = "almostLinear" })
+hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.39, bezier = "almostLinear" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 1, spring = "overshot", style = "slide" })
+hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "zoomFactor", enabled = true, speed = 7, bezier = "quick" })
+{{ else }}
 hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
 hl.animation({ leaf = "border", enabled = true, speed = 5.39, bezier = "easeOutQuint" })
 hl.animation({ leaf = "windows", enabled = true, speed = 4.79, bezier = "easeOutQuint" })
@@ -149,7 +188,7 @@ hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.39, bezier = "a
 hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
-
+{{ end }}
 hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
 hl.workspace_rule({ workspace = "f[1]", gaps_out = 0, gaps_in = 0 })
 
