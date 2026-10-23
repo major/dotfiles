@@ -13,6 +13,7 @@
 - Use emojis really often in conversations with the user, code/comments, MR/PR titles/descriptions.
 - Use emojis frequently to convey emotion, humor, or to highlight information.
 - Prefer actionable bulleted lists, tables, and unicode/ASCII art diagrams, and emojis over paragraphs.
+- Prefer the gitlab MCP server over the glab command, if the MCP server is available. Give me feedback after each gitlab MCP server use about how we can make it more token efficient.
 
 ## When working with subagents:
 - When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab", "commit", and "unicode-art" skills.
@@ -32,6 +33,7 @@
 - Add docstrings to all functions we write and add comments in areas with challenging or edge case situations.
 - Run the project's lint/test commands before declaring done.
 - Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
+- Pull/merge requests must have unicode art showing the before/after logic flow.
 - Require me to say "APPROVE" in all caps before posting any comments to any MR/PR.
 
 ## When writing or reviewing software tests:
@@ -41,7 +43,7 @@
 - Prefer sociable testing over solitary testing.
 - Utilize fixtures and parameterization whenever possible.
 - Remove unneeded tests after refactoring tests or improving characterization.
-- Always limit pytest-xdist to 8 CPUs maximum and override pre-project guidelines or scripts that do otherwise.
+- Any tests we create must return instantaneously and avoid CPU thrashing, especially for developer laptops with Crowdstrike Falcon sensors.
 
 ## When working with git worktrees and branches:
 - Move the entire opencode session (using session_move tool) into the worktree after creating it.

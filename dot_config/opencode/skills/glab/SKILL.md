@@ -62,6 +62,14 @@ glab mr view <iid> --output json  # Check source_branch and target_branch.
 ```
 
 GitLab detects the stack from those branch targets; review and merge bottom-up, checking each MR's target and diff after the previous one merges.
+After creating each child MR, mark it as blocked by its parent so GitLab shows the dependency and prevents an early merge.
+A child MR can depend on several MRs, including MRs in other projects; add only the dependencies that are real (sibling MRs on the same parent usually depend only on the parent).
+The API needs the parent's global `id`, not its `iid`. An HTTP 409 "Block already exists" response is harmless:
+
+```shell
+parent_id=$(glab api "projects/:id/merge_requests?state=opened&source_branch=<parent-branch>" | jq -r '.[0].id')
+glab api -X POST "projects/:id/merge_requests/<child-iid>/blocks?blocking_merge_request_id=$parent_id" | jq -c '{blocking:.blocking_merge_request.iid,blocked:.blocked_merge_request.iid}'
+```
 GitLab's stacked MRs do not require `glab stack` or its local metadata.
 When a parent merges and GitLab retargets its child, check the child's diff and required pipeline before scheduling its merge.
 Auto-merge does not create a passing pipeline after a target change.

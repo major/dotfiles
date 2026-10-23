@@ -80,6 +80,8 @@ git-spice stack submit --dry-run
 git-spice stack submit
 ```
 
+On GitLab, after submission, mark each child MR as blocked by its parent MR using the "Stacked merge requests" section of the `glab` skill.
+
 Do not use `--no-verify` or `--no-publish`. Fork submissions may push branches without opening every PR/MR; report which branches were opened and which were only pushed.
 
 For a single branch, push to the preflight `pushRemote` first:

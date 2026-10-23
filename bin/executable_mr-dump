@@ -1,0 +1,396 @@
+#!/usr/bin/env bash
+# mr-dump: save everything about one GitLab merge request to a single JSON file 📦
+#
+# The output is meant for an LLM that cannot call glab itself. It holds the
+# MR metadata, description, commits, full diffs, every discussion and note,
+# approvals, reviewers, events, linked issues, pipelines, jobs, failed job
+# logs, and (by default) the full head-version content of each changed file.
+# It also records the IDs and SHAs needed to act on the MR later.
+#
+# Every glab call is retried up to 3 times. Core sections (MR, commits,
+# diffs, discussions) stop the script when they fail. Other sections are set
+# to null and the reason is listed in .meta.errors, so a reader can tell
+# "missing" apart from "empty".
+#
+# Usage:
+#   mr-dump 2256                                   # MR in the repo of the current dir
+#   mr-dump -R lightwell/balor-fianna 2256         # explicit project
+#   mr-dump https://host/group/proj/-/merge_requests/2256
+#   mr-dump -o - 2256 | jq .summary                # write to stdout
+#
+# Options:
+#   -R, --repo PROJECT     project URL, or group/project path (a bare path uses
+#                          the current checkout's host, else glab's default host)
+#   -o, --output FILE      output file (default: mr-<iid>.json, "-" for stdout)
+#   -t, --trace-lines N    keep the last N lines of each job log (default 500, 0 = all)
+#       --all-traces       fetch logs for every job, not just failed ones
+#       --no-files         skip full content of changed files
+#       --max-file-bytes N skip changed files larger than N bytes (default 300000)
+#   -h, --help             show this help
+#
+# Needs: bash 4+, glab (authenticated), jq.
+
+set -euo pipefail
+
+MAX_ATTEMPTS=3
+TRACE_LINES=500
+ALL_TRACES=false
+WITH_FILES=true
+MAX_FILE_BYTES=300000
+OUTPUT=""
+REPO=""
+MR_REF=""
+HOST_ARGS=()
+PROJECT=":id"
+
+#######################################
+# Print the header comment as help text.
+#######################################
+usage() {
+  sed -n '2,/^$/{s/^# \{0,1\}//;p}' "$0"
+}
+
+#######################################
+# Print a message to stderr and exit.
+# Arguments: message
+#######################################
+die() {
+  echo "mr-dump: $*" >&2
+  exit 1
+}
+
+#######################################
+# Run glab with retries and exponential backoff (1s, 2s).
+# Stdout goes to the caller; the last attempt's stderr is kept in
+# $LAST_ERR_FILE so callers can report why it failed.
+# Arguments: glab arguments
+#######################################
+glab_retry() {
+  local attempt=1 err
+  err=$(mktemp -p "$WORK")
+  while true; do
+    if glab "$@" 2>"$err"; then
+      rm -f "$err"
+      return 0
+    fi
+    if ((attempt >= MAX_ATTEMPTS)); then
+      LAST_ERR_FILE=$err
+      return 1
+    fi
+    echo "mr-dump: retry $attempt/$((MAX_ATTEMPTS - 1)): glab $*" >&2
+    sleep $((2 ** (attempt - 1)))
+    attempt=$((attempt + 1))
+  done
+}
+
+#######################################
+# Call the GitLab REST API and save the JSON result as one section.
+# Paginated calls are joined into one array. On failure, the section is
+# null and the error text is saved for .meta.errors.
+# Arguments: section name, "paginate" or "single", API path
+#######################################
+fetch() {
+  local name=$1 mode=$2 path=$3 out="$WORK/data/$1.json"
+  local args=(api "${HOST_ARGS[@]}" "$path")
+  [[ $mode == paginate ]] && args+=(--paginate --output ndjson)
+  if glab_retry "${args[@]}" >"$out.raw"; then
+    if [[ $mode == paginate ]]; then
+      jq -s '.' "$out.raw" >"$out"
+    else
+      jq '.' "$out.raw" >"$out"
+    fi && rm -f "$out.raw" && return 0
+    echo "invalid JSON from $path" >"$WORK/errors/$name"
+  else
+    tr -d '\r' <"$LAST_ERR_FILE" >"$WORK/errors/$name"
+  fi
+  rm -f "$out.raw"
+  echo null >"$out"
+  return 1
+}
+
+#######################################
+# Fetch a job log, strip terminal colors and GitLab section markers, keep
+# the last TRACE_LINES lines, and save it as a JSON object.
+# Arguments: job JSON (compact)
+#######################################
+fetch_trace() {
+  local job=$1 id out raw
+  id=$(jq -r '.id' <<<"$job")
+  out="$WORK/traces/$id.json"
+  raw="$WORK/traces/$id.log"
+  if glab_retry api "${HOST_ARGS[@]}" "projects/$PROJECT/jobs/$id/trace" >"$raw"; then
+    # GitLab logs contain ANSI colors, \r progress bars, section markers, and
+    # a "<timestamp> 01E " prefix per line. Drop them to save tokens.
+    sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g; s/section_(start|end):[0-9]+:[^[:space:]]*//g;
+      s/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z [0-9a-f]{2}[EO]\+? ?//' "$raw" |
+      tr -d '\r' >"$raw.clean"
+    if ((TRACE_LINES > 0)); then
+      tail -n "$TRACE_LINES" "$raw.clean" >"$raw"
+    else
+      mv "$raw.clean" "$raw"
+    fi
+    jq -Rs --argjson job "$job" --argjson n "$TRACE_LINES" \
+      '$job + {trace_tail_lines: (if $n == 0 then "all" else $n end), trace: .}' "$raw" >"$out"
+  else
+    jq -n --argjson job "$job" --arg err "$(cat "$LAST_ERR_FILE")" \
+      '$job + {trace: null, trace_error: $err}' >"$out"
+  fi
+  rm -f "$raw" "$raw.clean"
+}
+
+#######################################
+# Fetch the head-version content of one changed file and save it as JSON.
+# Deleted, too-large, and binary files get a "skipped" reason instead.
+# Arguments: file path, head SHA
+#######################################
+fetch_file() {
+  local path=$1 sha=$2 enc out raw size
+  enc=$(jq -rn --arg p "$path" '$p | @uri')
+  out="$WORK/files/$(jq -rn --arg p "$path" '$p | @base64 | gsub("/"; "_")').json"
+  raw="$out.raw"
+  if ! glab_retry api "${HOST_ARGS[@]}" "projects/$PROJECT/repository/files/$enc/raw?ref=$sha" >"$raw"; then
+    jq -n --arg p "$path" --arg e "$(cat "$LAST_ERR_FILE")" '{path: $p, content: null, error: $e}' >"$out"
+  else
+    size=$(stat -c %s "$raw")
+    if ((size > MAX_FILE_BYTES)); then
+      jq -n --arg p "$path" --argjson s "$size" '{path: $p, size: $s, content: null, skipped: "too large"}' >"$out"
+    elif ((size > 0)) && ! grep -Iq . "$raw"; then
+      jq -n --arg p "$path" --argjson s "$size" '{path: $p, size: $s, content: null, skipped: "binary"}' >"$out"
+    else
+      jq -Rs --arg p "$path" --argjson s "$size" '{path: $p, size: $s, content: .}' "$raw" >"$out"
+    fi
+  fi
+  rm -f "$raw"
+}
+
+#######################################
+# Set HOST_ARGS and PROJECT from a project path or URL.
+# Arguments: "group/project" or "https://host/group/project[/-/...]"
+#######################################
+set_project() {
+  local ref=$1 path
+  if [[ $ref =~ ^https?://([^/]+)/(.+)$ ]]; then
+    HOST_ARGS=(--hostname "${BASH_REMATCH[1]}")
+    path=${BASH_REMATCH[2]}
+    path=${path%%/-/*}
+    path=${path%.git}
+  else
+    path=$ref
+  fi
+  PROJECT=$(jq -rn --arg p "${path%/}" '$p | @uri')
+}
+
+#######################################
+# Parse command-line options into globals.
+# Arguments: script arguments
+#######################################
+parse_args() {
+  while (($#)); do
+    case $1 in
+      -R | --repo) REPO=${2:?--repo needs a value}; shift 2 ;;
+      -o | --output) OUTPUT=${2:?--output needs a value}; shift 2 ;;
+      -t | --trace-lines) TRACE_LINES=${2:?--trace-lines needs a value}; shift 2 ;;
+      --all-traces) ALL_TRACES=true; shift ;;
+      --no-files) WITH_FILES=false; shift ;;
+      --max-file-bytes) MAX_FILE_BYTES=${2:?--max-file-bytes needs a value}; shift 2 ;;
+      -h | --help) usage; exit 0 ;;
+      -*) die "unknown option: $1 (see --help)" ;;
+      *) [[ -z $MR_REF ]] || die "only one MR allowed"; MR_REF=$1; shift ;;
+    esac
+  done
+  [[ -n $MR_REF ]] || { usage >&2; exit 1; }
+  [[ $TRACE_LINES =~ ^[0-9]+$ ]] || die "--trace-lines must be a number"
+  [[ $MAX_FILE_BYTES =~ ^[0-9]+$ ]] || die "--max-file-bytes must be a number"
+
+  # An MR URL carries both the project and the IID.
+  if [[ $MR_REF =~ ^(https?://.+)/-/merge_requests/([0-9]+) ]]; then
+    # Save the IID first: set_project runs its own regex and resets BASH_REMATCH.
+    MR_REF=${BASH_REMATCH[2]}
+    set_project "${BASH_REMATCH[1]}"
+  elif [[ -n $REPO ]]; then
+    set_project "$REPO"
+  fi
+  [[ $MR_REF =~ ^[0-9]+$ ]] || die "MR must be an IID or an MR URL: $MR_REF"
+}
+
+#######################################
+# Fetch every MR section. Independent calls run in parallel.
+#######################################
+fetch_all() {
+  local mr="projects/$PROJECT/merge_requests/$MR_REF" pid head_pipeline sha
+  local core=(merge_request commits diffs discussions)
+
+  # The MR itself comes first: later calls need its SHA and pipeline ID.
+  fetch merge_request single "$mr" || die "cannot read MR $MR_REF: $(cat "$WORK/errors/merge_request")"
+  # Use the numeric project ID from now on; it works outside a checkout too.
+  pid=$(jq -r '.project_id' "$WORK/data/merge_request.json")
+  PROJECT=$pid
+  mr="projects/$pid/merge_requests/$MR_REF"
+  sha=$(jq -r '.sha' "$WORK/data/merge_request.json")
+  head_pipeline=$(jq -r '.head_pipeline.id // empty' "$WORK/data/merge_request.json")
+
+  fetch project single "projects/$pid" &
+  fetch commits paginate "$mr/commits?per_page=100" &
+  fetch diffs paginate "$mr/diffs?per_page=100" &
+  fetch discussions paginate "$mr/discussions?per_page=100" &
+  fetch versions paginate "$mr/versions?per_page=100" &
+  fetch approvals single "$mr/approvals" &
+  fetch approval_state single "$mr/approval_state" &
+  fetch reviewers single "$mr/reviewers" &
+  fetch participants paginate "$mr/participants?per_page=100" &
+  fetch award_emoji paginate "$mr/award_emoji?per_page=100" &
+  fetch closes_issues paginate "$mr/closes_issues?per_page=100" &
+  fetch related_issues paginate "$mr/related_issues?per_page=100" &
+  fetch context_commits paginate "$mr/context_commits?per_page=100" &
+  fetch draft_notes paginate "$mr/draft_notes?per_page=100" &
+  fetch label_events paginate "$mr/resource_label_events?per_page=100" &
+  fetch state_events paginate "$mr/resource_state_events?per_page=100" &
+  fetch milestone_events paginate "$mr/resource_milestone_events?per_page=100" &
+  fetch pipelines paginate "$mr/pipelines?per_page=100" &
+  if [[ -n $head_pipeline ]]; then
+    local p="projects/$pid/pipelines/$head_pipeline"
+    fetch head_pipeline single "$p" &
+    fetch head_pipeline_jobs paginate "$p/jobs?include_retried=true&per_page=100" &
+    fetch head_pipeline_bridges paginate "$p/bridges?per_page=100" &
+    fetch head_pipeline_test_report_summary single "$p/test_report_summary" &
+  fi
+  wait
+
+  local name
+  for name in "${core[@]}"; do
+    [[ ! -s $WORK/errors/$name ]] || die "cannot read $name: $(cat "$WORK/errors/$name")"
+  done
+
+  fetch_traces
+  if [[ $WITH_FILES == true ]]; then
+    fetch_files "$sha"
+  fi
+}
+
+#######################################
+# Fetch job logs for failed jobs (or all jobs with --all-traces).
+#######################################
+fetch_traces() {
+  local jobs="$WORK/data/head_pipeline_jobs.json" filter job
+  [[ -f $jobs ]] || return 0
+  filter='.[] | select(.status == "failed")'
+  [[ $ALL_TRACES == true ]] && filter='.[] | select(.status != "skipped" and .status != "created" and .status != "manual")'
+  while read -r job; do
+    fetch_trace "$job" &
+  done < <(jq -c "$filter | {id, name, stage, status, allow_failure, web_url}" "$jobs")
+  wait
+  jq -s 'sort_by(.id)' "$WORK"/traces/*.json >"$WORK/data/job_traces.json" 2>/dev/null ||
+    echo '[]' >"$WORK/data/job_traces.json"
+}
+
+#######################################
+# Fetch the head-version content of every changed, non-deleted file.
+# Arguments: head SHA
+#######################################
+fetch_files() {
+  local sha=$1 path
+  while read -r path; do
+    fetch_file "$path" "$sha" &
+  done < <(jq -r '.[] | select(.deleted_file | not) | .new_path' "$WORK/data/diffs.json")
+  wait
+  jq -s 'sort_by(.path)' "$WORK"/files/*.json >"$WORK/data/changed_files_at_head.json" 2>/dev/null ||
+    echo '[]' >"$WORK/data/changed_files_at_head.json"
+}
+
+#######################################
+# Join all sections into one JSON document with a summary and metadata.
+#######################################
+assemble() {
+  local f name
+  for f in "$WORK"/data/*.json; do
+    name=$(basename "$f" .json)
+    jq -c --arg k "$name" '{($k): .}' "$f"
+  done | jq -s 'add' >"$WORK/sections.json"
+
+  for f in "$WORK"/errors/*; do
+    [[ -e $f ]] || continue
+    jq -Rs --arg k "$(basename "$f")" '{($k): (. | rtrimstr("\n"))}' "$f"
+  done | jq -s 'add // {}' >"$WORK/errors.json"
+
+  jq --slurpfile errors "$WORK/errors.json" \
+    --arg fetched_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --argjson trace_lines "$TRACE_LINES" \
+    --argjson with_files "$WITH_FILES" '
+    . as $d
+    | ($d.merge_request) as $mr
+    | {
+        meta: {
+          tool: "mr-dump",
+          fetched_at: $fetched_at,
+          web_url: $mr.web_url,
+          errors: $errors[0],
+          options: {trace_lines: $trace_lines, changed_files_included: $with_files},
+          notes: [
+            "Sections set to null failed to load; see meta.errors. Empty arrays mean GitLab returned no items.",
+            "diffs[].diff holds unified diff hunks; changed_files_at_head holds full file content at merge_request.sha.",
+            "discussions include system notes (pushes, label changes). Filter with notes[].system == false for human comments.",
+            "job_traces holds the tail of failed job logs from the head pipeline."
+          ]
+        },
+        # IDs and SHAs that a tool needs to comment, reply, resolve, approve, or merge.
+        action_context: {
+          host: ($mr.web_url | capture("^https?://(?<h>[^/]+)").h),
+          project_id: $mr.project_id,
+          project_path: $mr.references.full | sub("!\\d+$"; ""),
+          mr_iid: $mr.iid,
+          head_sha: $mr.sha,
+          diff_refs: $mr.diff_refs,
+          source_branch: $mr.source_branch,
+          target_branch: $mr.target_branch,
+          author: {id: $mr.author.id, username: $mr.author.username},
+          head_pipeline_id: $mr.head_pipeline.id
+        },
+        summary: {
+          title: $mr.title,
+          state: $mr.state,
+          draft: $mr.draft,
+          detailed_merge_status: $mr.detailed_merge_status,
+          has_conflicts: $mr.has_conflicts,
+          labels: $mr.labels,
+          reviewers: [$mr.reviewers[]?.username],
+          assignees: [$mr.assignees[]?.username],
+          approved_by: (if $d.approvals then [$d.approvals.approved_by[]?.user.username] else null end),
+          approvals_left: $d.approvals.approvals_left,
+          commits: ($d.commits | length),
+          files_changed: ($d.diffs | length),
+          discussions_total: ($d.discussions | map(select(any(.notes[]; .system | not))) | length),
+          unresolved_threads: ($d.discussions | map(select(any(.notes[]; .resolvable and (.resolved | not)))) | length),
+          head_pipeline_status: $mr.head_pipeline.status,
+          failed_tests: $d.head_pipeline_test_report_summary.total.failed,
+          failed_jobs: (if $d.head_pipeline_jobs then [$d.head_pipeline_jobs[] | select(.status == "failed") | .name] | unique else null end)
+        }
+      } + $d' "$WORK/sections.json"
+}
+
+#######################################
+# Entry point.
+# Arguments: script arguments
+#######################################
+main() {
+  command -v glab >/dev/null || die "glab is not installed"
+  command -v jq >/dev/null || die "jq is not installed"
+  parse_args "$@"
+
+  WORK=$(mktemp -d "${TMPDIR:-/tmp}/mr-dump.XXXXXX")
+  trap 'rm -rf "$WORK"' EXIT
+  mkdir -p "$WORK"/{data,errors,traces,files}
+
+  fetch_all
+  OUTPUT=${OUTPUT:-mr-$MR_REF.json}
+  if [[ $OUTPUT == - ]]; then
+    assemble
+  else
+    assemble >"$OUTPUT"
+    echo "mr-dump: wrote $OUTPUT ($(stat -c %s "$OUTPUT") bytes)" >&2
+    if [[ -s $WORK/errors.json && $(jq 'length' "$WORK/errors.json") -gt 0 ]]; then
+      echo "mr-dump: some sections failed: $(jq -r 'keys | join(", ")' "$WORK/errors.json")" >&2
+    fi
+  fi
+}
+
+main "$@"
