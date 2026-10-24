@@ -260,6 +260,6 @@
 [".local/share/fonts/IosevkaTerm"]
     type = "archive"
     # renovate: datasource=github-releases depName=be5invis/Iosevka
-    url = "https://github.com/be5invis/Iosevka/releases/download/v34.9.0/PkgTTF-Unhinted-IosevkaTerm-34.9.0.zip"
+    url = "https://github.com/be5invis/Iosevka/releases/download/v34.9.1/PkgTTF-Unhinted-IosevkaTerm-34.9.1.zip"
     include = ["*.ttf"]
     refreshPeriod = "168h"
