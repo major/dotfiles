@@ -34,6 +34,7 @@ Perform these steps in order:
     d. If the MR adds functions, do those functions have adequate testing that follows our core instructions testing guidelines?
     e. If the MR modifies functions, did those functions have adequate testing that follows our core instructions testing guidelines?
     f. Is the MR over-engineered or is it far too complex as if it was written for an enterprise? Is there a simpler way to do the same thing?
+    g. Ignore comments on emdashes, MR labels.
 4. Identify all findings from the MR sorted into HIGH, MEDIUM, LOW, and NIT.
 5. If there is at least one HIGH/MEDIUM finding, ask the oracle agent in the background to validate the findings and their severity. Skip the oracle when there are only LOW/NIT findings. The oracle prompt must:
     a. List each finding with its severity, `file:line`, and the relevant diff hunk pasted inline.
