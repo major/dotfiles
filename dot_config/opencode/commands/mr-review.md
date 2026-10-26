@@ -14,13 +14,13 @@ Merge request reviews have a few core goals:
 
 Perform these steps in order:
 
-- Do not load the glab skill before step 9 (or before the own-MR push). For the read-only steps, use only these commands:
-  - `glab mr view <MR> -F json` for the title, description, author, branches, and labels
+- Use the gitlab MCP server through `execute` (`tools.gitlab.*`) with `project: "<group/project>"` from `git remote get-url origin`. Do not load the glab skill unless an MCP call fails. For the read-only steps, use only:
+  - `get_merge_request(include_description=true)` for the title, description, author, branches, labels, head SHA, pipeline status, and `blocked_by`
   - `git diff $(git merge-base origin/main HEAD)..HEAD` in the worktree for the diff
-  - `glab api "projects/:id/merge_requests/<MR>/discussions?per_page=100" --paginate` for existing threads
-  - `glab ci get --merge-request <MR>` for the pipeline status
+  - `get_merge_request_threads(state="all")` for existing threads
+  - `get_pipeline(pipeline_id)` only if the pipeline failed and you need job details
 - Gather context in two parallel batches, not one command per turn:
-  - Batch 1: `glab mr view`, the discussions, and the pipeline status.
+  - Batch 1: `get_merge_request` and `get_merge_request_threads`, in one `execute` call.
   - Batch 2: create the worktree, move and rename the session, run the diff, and get the Jira ticket with `fields: "summary,description,status,labels"` and `comment_limit: 5`.
 
 1. Review the MR title/description to understand the goals of the change.
@@ -50,11 +50,12 @@ Perform these steps in order:
         b4. How can the author best fix it?
     c. Use bulleted lists, ASCII/unicode art/flow charts, and avoid long paragraphs.
     d. Write the full b1-b4 comment only for HIGH/MEDIUM findings. List LOW/NIT findings as numbered one-liners (`file:line`, problem, fix). If I approve one, post it as a short comment.
+    e. Run `post_review_notes(validate_only=true)` on the drafts before you show them, so line positions GitLab would reject are fixed early.
 8. Wait for me to reply with APPROVE for your comments. Don't use opencode's question tool. Expect me to type exactly "APPROVE" in capital letter.
 9. After my approval:
-    a. Use the glab skill to add the comments effectively. If you spot token efficiency improvements for glab, tell me at the end.
-    b. Assign me as a MR reviewer.
-    c. Assign the MR author as the assignee.
+    a. Post all approved comments in one `post_review_notes(head_sha=<reviewed SHA>)` call. If you spot token efficiency improvements for gitlab-mcp, tell me at the end.
+    b. In that same call, set `add_reviewers=["mhayden"]`.
+    c. In that same call, set `add_assignees=[<MR author>]`.
 
 - Do your work in a git worktree.
 - Name the worktree, branch, and opencode session like this: review/MR-1234
