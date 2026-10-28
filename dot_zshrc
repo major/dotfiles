@@ -5,6 +5,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Make global tools available to plugins without a shell activation hook.
+export PATH="${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$PATH"
+
 # oh-my-zsh config
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -37,8 +40,6 @@ if (( $+functions[_direnv_hook] )); then
     eval "$(direnv export zsh 2>/dev/null)"
   }
 fi
-
-export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$HOME/bin:/usr/local/bin:$PATH
 
 # favorite editor
 export EDITOR=vim
@@ -152,8 +153,9 @@ if [ -f '/home/major/google-cloud-sdk/path.zsh.inc' ]; then . '/home/major/googl
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/major/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/major/google-cloud-sdk/completion.zsh.inc'; fi
 
-export GOROOT=/usr/local/go
-export PATH="$HOME/go/bin:/usr/local/go/bin:$PATH"
+# Let the selected Go installation discover its own SDK, including in old shells.
+unset GOROOT
+export PATH="$HOME/go/bin:$PATH"
 
 # Ctrl-f: pick a project directory under ~/git and cd into it (no sessionizer)
 fzf-cd-widget() {

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# mise config: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# renovate: datasource=github-releases depName=jdx/mise
+mise_version="2026.10.21"
+mise="$HOME/.local/bin/mise"
+
+if [[ "$(uname -s)" != "Linux" || "$(uname -m)" != "x86_64" ]]; then
+  echo "mise bootstrap supports only Linux x86_64" >&2
+  exit 1
+fi
+
+if [[ ! -x "$mise" ]] || [[ "$("$mise" --version 2>/dev/null)" != "$mise_version "* ]]; then
+  cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}"
+  mkdir -p "$cache_dir" "$HOME/.local/bin"
+  download_dir="$(mktemp -d "$cache_dir/mise-install.XXXXXXXX")"
+  install_tmp=""
+  trap 'rm -rf -- "$download_dir"; rm -f -- "$install_tmp"' EXIT
+
+  asset="mise-v${mise_version}-linux-x64"
+  release_url="https://github.com/jdx/mise/releases/download/v${mise_version}"
+  curl --fail --location --silent --show-error "$release_url/$asset" --output "$download_dir/$asset"
+  curl --fail --location --silent --show-error "$release_url/SHASUMS256.txt" --output "$download_dir/SHASUMS256.txt"
+  awk -v asset="$asset" '$2 == "./" asset { print; found++ } END { if (found != 1) exit 1 }' \
+    "$download_dir/SHASUMS256.txt" > "$download_dir/checksum"
+  (cd "$download_dir" && sha256sum --check checksum)
+
+  install_tmp="$(mktemp "$HOME/.local/bin/.mise.XXXXXXXX")"
+  install -m 755 "$download_dir/$asset" "$install_tmp"
+  mv -f -- "$install_tmp" "$mise"
+fi
+
+export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/config.toml"
+"$mise" -C / trust "$MISE_GLOBAL_CONFIG_FILE"
+"$mise" -C / install --yes
+"$mise" -C / reshim
+
+# Preserve the old entrypoints for scripts and shells that already use ~/bin.
+commands=(
+  restic resticprofile flux kubectl kubeseal kustomize helm immich-go hugo
+  k9s stern glab switcher coderabbit bun oc gh go terraform goreleaser
+  golangci-lint sops age age-keygen ant oras herdr lazygit jira lane hx ya yazi
+)
+shims="${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims"
+mkdir -p "$HOME/bin"
+for command in "${commands[@]}"; do
+  # Never overwrite a real file that was not retired during migration.
+  if [[ -e "$HOME/bin/$command" && ! -L "$HOME/bin/$command" ]]; then
+    echo "Keeping existing $HOME/bin/$command; move it aside to use mise" >&2
+    continue
+  fi
+  ln -sfn "$shims/$command" "$HOME/bin/$command"
+done

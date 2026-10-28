@@ -10,12 +10,39 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Automerge chezmoi external tool updates",
-      "matchManagers": ["custom.regex"],
-      "matchFileNames": [".chezmoiexternal.toml"],
+      "description": "Automerge mise tool and font updates",
+      "matchManagers": ["mise", "custom.regex"],
+      "matchFileNames": [
+        "dot_config/mise/config.toml",
+        "run_onchange_after_install-fonts.sh"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false
+    },
+    {
+      "description": "Require review for mise bootstrap updates",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["run_onchange_after_install-tools.sh.tmpl"],
+      "automerge": false,
+      "platformAutomerge": false
+    },
+    {
+      "description": "Resolve Hugo Extended releases from the Hugo repository",
+      "matchManagers": ["mise"],
+      "matchDepNames": ["hugo-extended"],
+      "overrideDatasource": "github-releases",
+      "overridePackageName": "gohugoio/hugo",
+      "extractVersion": "^v(?<version>.+)$"
+    },
+    {
+      "description": "Follow the OpenShift stable client, not the older Conda build",
+      "matchManagers": ["mise"],
+      "matchDepNames": ["oc"],
+      "overrideDatasource": "custom.openshift-stable",
+      "overridePackageName": "openshift-cli",
+      "versioning": "semver",
+      "extractVersion": "^[a-f0-9]+\\s+openshift-client-linux-amd64-rhel9-(?<version>\\d+\\.\\d+\\.\\d+)\\.tar\\.gz$"
     },
     {
       "description": "Require review for opencode plugin updates",
@@ -35,14 +62,28 @@
     "coderabbit-cli": {
       "defaultRegistryUrlTemplate": "https://cli.coderabbit.ai/releases/latest/VERSION",
       "format": "plain"
+    },
+    "openshift-stable": {
+      "defaultRegistryUrlTemplate": "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/sha256sum.txt",
+      "format": "plain"
     }
   },
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/\\.chezmoiexternal\\.toml$/"],
+      "managerFilePatterns": [
+        "/^run_onchange_after_install-(?:fonts\\.sh|tools\\.sh\\.tmpl)$/"
+      ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n\\s*url\\s*=\\s*\"[^\"]*?[-/]v?(?<currentValue>\\d+(?:\\.\\d+)*)[^\"]*\""
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*[a-z_]+_version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^dot_config/mise/config\\.toml$/"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*version\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "versioningTemplate": "semver"
     },
