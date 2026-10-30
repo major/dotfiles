@@ -1,5 +1,6 @@
 ---
 description: Perform a code review on a gitlab merge request at work.
+model: anthropic/claude-opus-5-5#high
 ---
 
 You are reviewing MR $1
@@ -14,14 +15,19 @@ Merge request reviews have a few core goals:
 
 Perform these steps in order:
 
-- Use the gitlab MCP server through `execute` (`tools.gitlab.*`) with `project: "<group/project>"` from `git remote get-url origin`. Do not load the glab skill unless an MCP call fails. For the read-only steps, use only:
-  - `get_merge_request(include_description=true)` for the title, description, author, branches, labels, head SHA, pipeline status, and `blocked_by`
-  - `git diff $(git merge-base origin/main HEAD)..HEAD` in the worktree for the diff
-  - `get_merge_request_threads(state="all")` for existing threads
-  - `get_pipeline(pipeline_id)` only if the pipeline failed and you need job details
-- Gather context in two parallel batches, not one command per turn:
-  - Batch 1: `get_merge_request` and `get_merge_request_threads`, in one `execute` call.
-  - Batch 2: create the worktree, move and rename the session, run the diff, and get the Jira ticket with `fields: "summary,description,status,labels"` and `comment_limit: 5`.
+- Use the gitlab MCP server through `execute` (`tools.gitlab.*`) with `project` from the `mr-review-prep` output. Do not load the glab skill unless an MCP call fails. Call these exact tool paths directly; they work without discovery. For the read-only steps, use only:
+  - `tools.gitlab.get_merge_request({project, iid, include_description: true, include_threads: false})` for the title, description, author, branches, labels, head SHA, pipeline status, `blocked_by`, and the open, resolved, and comment thread counts
+  - `mr-review-prep <iid> [target_branch]` (run with `shell`, not `execute`) for the project, worktree, head SHA, merge base, diff stat, and diff. It creates or fast-forwards `.worktrees/review/MR-<iid>` and saves the full diff to `~/.cache/opencode-tmp/opencode/MR-<iid>/diff.patch`. If it says the diff is large, read that file in ranges with the read tool instead of running `git diff` again. If it refuses because of local changes or commits, stop and tell me.
+  - `tools.gitlab.get_merge_request_threads({project, iid, state: "all", include_mr_status: false})` for existing threads, only when at least one thread count from `get_merge_request` is above 0 (a missing count is 0)
+  - `tools.gitlab.get_pipeline({project, pipeline_id, statuses: ["failed"], include_failure_excerpts: true})` only if the pipeline failed and you need job details; then `tools.gitlab.get_job_log({project, job_id, view: "summary"})` if the excerpt is not enough
+  - `tools.jiranew.get_issue({issue, fields: ["summary", "description", "status", "labels"]})` and `tools.jiranew.get_issue_comments({issue, max_results: 5})`, in the same `execute` call, for the Jira ticket
+  - `tools.gitlab.post_review_notes({project, iid, head_sha, notes: [{file, line, body_path}]})` for validating and posting
+- Do not call `search()`, `get_current_user()`, or `list_mcp_resources()`, and do not load skills other than `unicode-art` (and `commit` on the own-MR fast path). Use `search()` only if a call above fails with an unknown-tool error, and then return only each item's `path` and `signature`.
+- Gather context in three turns, not one command per turn:
+  - Turn 1: run only `mr-review-prep <iid>`.
+  - Turn 2: in one `execute` call, run `get_merge_request`, `session_move` to the worktree, and `session_rename`. Check that `head_sha` matches the script's `head_sha` and that `target_branch` is `main`. If either differs, run `mr-review-prep <iid> <target_branch>` again before reviewing; never review a mismatched checkout.
+  - Turn 3: get the Jira ticket (plus `get_merge_request_threads` when a thread count is above 0) and start the first batch of code reads in the same turn.
+- The worktree's AGENTS.md is injected automatically after `session_move`. Do not read it again.
 
 1. Review the MR title/description to understand the goals of the change.
 2. Find any references to Jira tickets in the MR and gather all of the details from the Jira ticket.
@@ -65,5 +71,5 @@ Perform these steps in order:
   - Wait for me to reply with APPROVE, which may name a subset like "APPROVE 1-3". Then fix the approved items in the worktree, run the project's checks, amend the related commits, and push with `--force-with-lease`.
   - Do not post MR comments or change the reviewer or assignee.
 - If you find existing bugs that are out of scope for the MR itself (code was broken before and after the MR, but it's not in the MR's scope):
-  - Search for existing bugs in the LWLP/LTWL projects are open that cover the problem. Tell me about those and do not open a duplicate bug. Run all searches in one `execute` call with `limit: 15`, and return only `KEY [status] summary` lines.
+  - Search for existing bugs in the LWLP/LTWL projects are open that cover the problem. Tell me about those and do not open a duplicate bug. Run all searches with `tools.jiranew.search_issues({jql, fields: ["summary", "status"], max_results: 15})` in one `execute` call, and return only `KEY [status] summary` lines.
   - If no similar bugs exist, briefly explain to me about the problem, the failure scenario, and acceptance criteria for the bug being fixed.
