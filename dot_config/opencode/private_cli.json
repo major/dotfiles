@@ -8,7 +8,9 @@
     "mode": "dark"
   },
   "plugins": [
-    "-oc-go-usage"
+    "-oc-go-usage",
+    "-oc-vertex-usage",
+    "-oc-cache-usage"
   ],
   "diffs": {
     "wrap": "word",

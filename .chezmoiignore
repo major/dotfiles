@@ -4,3 +4,14 @@ renovate.json
 .config/opencode/bun.lock
 .config/opencode/node_modules
 .config/nvim/lazy-lock.json
+
+# Local credentials, instruction overrides, and project artifacts
+.config/opencode/service*.json
+.config/opencode/AGENTS_*.md
+.config/opencode/plans
+
+# Generated caches and backups
+.config/opencode/**/.pytest_cache
+.config/opencode/**/.ruff_cache
+.config/opencode/**/__pycache__
+.config/opencode/**/*.bak

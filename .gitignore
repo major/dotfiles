@@ -139,3 +139,11 @@ dmypy.json
 /dot_pi/agent/npm/
 /dot_pi/agent/git/
 /dot_pi/agent/bin/
+
+# Keep only the reviewed plugin cache helpers
+!/dot_config/opencode/plugins/oc-codex-usage/lib/
+/dot_config/opencode/plugins/oc-codex-usage/lib/*
+!/dot_config/opencode/plugins/oc-codex-usage/lib/usage-cache.ts
+!/dot_config/opencode/plugins/oc-opencode-go/lib/
+/dot_config/opencode/plugins/oc-opencode-go/lib/*
+!/dot_config/opencode/plugins/oc-opencode-go/lib/usage-cache.ts

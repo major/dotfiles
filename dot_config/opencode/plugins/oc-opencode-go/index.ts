@@ -1,0 +1,1 @@
+export default { id: "oc-opencode-go", setup() {} }

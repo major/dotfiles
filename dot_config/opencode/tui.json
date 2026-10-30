@@ -5,9 +5,5 @@
     "sound": true,
     "volume": 0.2,
     "sound_pack": "opencode.default"
-  },
-  "plugins": [],
-  "plugin": [
-    "oh-my-opencode-slim"
-  ]
+  }
 }

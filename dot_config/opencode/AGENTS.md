@@ -6,17 +6,16 @@
 - When principles conflict, prefer the change that keeps code simpler and easier to evolve.
 - If the 1Password ssh auth socket does not work, look for one in /home/$(id -un)/.ssh/agent/ instead.
 - Never reveal which AI models you used in any tickets, MR/PR titles/descriptions, or in any code that goes into any repository.
-- Prefer unicode boxes and unicode art over mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data.
-- Give me an occasional update on your to-do list progress with a percentage or visual indicator with emojis.
+- Prefer unicode boxes/trees and unicode art over ASCII/mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data.
 - Find personal repos in ~/git/major and work repos in ~/git/redhat.
-- Do tasks in parallel, especially when waiting on a long process or command to finish. Try to anticipate what will be needed next and have it ready. Minimizing wall clock time is important.
 - Use emojis really often in conversations with the user, code/comments, MR/PR titles/descriptions.
 - Use emojis frequently to convey emotion, humor, or to highlight information.
-- Prefer actionable bulleted lists, tables, and unicode/ASCII art diagrams, and emojis over paragraphs.
-- Prefer the gitlab MCP server over the glab command, if the MCP server is available. Give me feedback after each gitlab MCP server use about how we can make it more token efficient.
+- Prefer actionable bulleted lists, tables, and unicode box/tree art diagrams, and emojis over paragraphs.
+- Prefer the gitlab MCP server over the glab command, if the MCP server is available.
+- Use gender neutral language and never assume someone's gender based on their name alone.
+- Merge requests and pull requests must start with a test/characterization commit first and then as many fix/refactor commits can follow after.
 
-## When working with subagents:
-- When you hand off to a subagent like @fixer or @oracle, these agents do not have access to skills. Provide direct paths to skills that these agents need when handing off work, such as the "glab", "commit", and "unicode-art" skills.
+## When editing skills:
 - Use the most narrow edits possible whenever editing a skill file.
 
 ## When writing or reviewing software:
@@ -31,7 +30,7 @@
 - Do continuous refactoring whenever adding, modifying, or removing code.
 - Use Parallel Change (Expand → Migrate → Contract), preparatory refactoring, and "strangler fig" strategies.
 - Add docstrings to all functions we write and add comments in areas with challenging or edge case situations.
-- Run the project's lint/test commands before declaring done.
+- Report checks actually run and their results. Read-only reviews are not executed tests.
 - Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
 - Pull/merge requests must have unicode art showing the before/after logic flow.
 - Require me to say "APPROVE" in all caps before posting any comments to any MR/PR.
@@ -42,18 +41,13 @@
 - Always characterize functions prior to refactoring.
 - Prefer sociable testing over solitary testing.
 - Utilize fixtures and parameterization whenever possible.
-- Remove unneeded tests after refactoring tests or improving characterization.
+- Aggressively remove unneeded/redundant tests after adding/modifying tests or production code.
+- Add the minimum set of tests possible to provide coverage for what we are adding/modifying and nothing more.
 - Any tests we create must return instantaneously and avoid CPU thrashing, especially for developer laptops with Crowdstrike Falcon sensors.
 
 ## When working with git worktrees and branches:
-- Move the entire opencode session (using session_move tool) into the worktree after creating it.
-- Never ask my permission for creating worktrees/branches. Just create them when you need them.
-- Create and use worktrees when take any actions inside any project with a git repository.
-- Worktrees should be created within the .worktrees directory inside the repo itself.
-- Always create a branch along with the worktree based on the latest origin/main commits.
 - Never make a worktree with a detached HEAD.
-- When reviewing merge requests or pull requests, put the MR/PR branch into a git worktree and review it there.
-- Always recommend deleting a worktree/branch locally when we no longer need it.
 - Never convert a repository into a bare repo when cleaning up worktrees/branches!
-- Rebase on upstream's origin/main or origin/master before opening or modifying a pull/merge request.
 - Remove any lines added by a pre-commit hook in commits, including "rh-pre-commit".
+- Clean up the local branch/worktree immediately after creating a MR/PR, pushing to a MR/PR, or when you've finished all of the tasks defined in the session.
+- Clean up your temporary files in ~/.cache/opencode-tmp frequently to avoid leaving lots of files around for later.

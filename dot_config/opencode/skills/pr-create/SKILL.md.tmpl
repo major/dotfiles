@@ -26,7 +26,7 @@ The helper scripts in this skill's `scripts/` directory are for active PR/MR cre
 - Save full output in the approved scratch directory and inspect only the exit code and tail:
 
   ```bash
-  log="$(mktemp --tmpdir=/home/major/.cache/opencode-tmp/opencode pr-gate.XXXXXX.log)"
+  log="$(mktemp --tmpdir={{ .chezmoi.homeDir }}/.cache/opencode-tmp/opencode pr-gate.XXXXXX.log)"
   <project-check-command> >"$log" 2>&1; code=$?
   printf 'exit: %s\n' "$code"; tail -n 60 "$log"
   ```
@@ -67,7 +67,7 @@ The helper scripts in this skill's `scripts/` directory are for active PR/MR cre
 
 - Write a concise, human title and body that follow the project template and conventions.
 - Keep each paragraph on one line; use newlines only for Markdown structure.
-- Save the body to a temporary file under `/home/major/.cache/opencode-tmp/opencode`, for example `tmp="$(mktemp --tmpdir=/home/major/.cache/opencode-tmp/opencode pr-create.XXXXXX.md)"`.
+- Save the body to a temporary file under `{{ .chezmoi.homeDir }}/.cache/opencode-tmp/opencode`, for example `tmp="$(mktemp --tmpdir={{ .chezmoi.homeDir }}/.cache/opencode-tmp/opencode pr-create.XXXXXX.md)"`.
 - For a stack, prepare a title and template-compliant body for each branch, and inspect existing PRs/MRs before updating them. Do not use `--fill` instead.
 - Remove the temporary file manually after the PR/MR is created or updated.
 

@@ -58,7 +58,7 @@ if [ -z "$base_remote_arg" ] && command -v gh >/dev/null 2>&1 && printf '%s\n' "
   done
 fi
 # GitLab equivalent: `glab api` has no --jq, so pipe through jq. A GitLab
-# remote isn't necessarily gitlab.com (e.g. gitlab.cee.redhat.com), so match
+# remote isn't necessarily gitlab.com, so match
 # on "gitlab" rather than a fixed hostname.
 if [ -z "$base_remote_arg" ] && [ -z "$fork_probed_base" ] && command -v glab >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 && printf '%s\n' "${remotes[@]}" | grep -qi gitlab; then
   glab_login="$(glab api user 2>/dev/null | jq -r '.username // empty')"

@@ -28,6 +28,9 @@ Follow these rules, then run the checker.
 
 In the opencode TUI the same rules apply. Emoji are fine around a diagram, never inside one.
 
+In Jira, use ASCII only (`.` `'` `-` `|` for boxes): its code font lacks box-drawing glyphs, so they drift.
+Avoid `+` in Jira too, even in code blocks: `+text+` becomes underline.
+
 ## Layout rules
 
 - Pad every line of a box with spaces so the right edge is in the same column on every line.
