@@ -40,7 +40,7 @@ lazygit = "0.66.2"
 herdr = "0.9.5"
 
 # Site generation and photo uploads
-hugo-extended = "0.168.0"
+hugo-extended = "0.169.0"
 "github:simulot/immich-go" = "0.32.0"
 
 # Tools without registry shorthands
