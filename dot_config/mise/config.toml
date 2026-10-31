@@ -23,7 +23,7 @@ kubeswitch = "0.9.3"
 
 # Source hosting
 github-cli = "2.103.2"
-glab = "1.124.0"
+glab = "1.126.0"
 
 # Infrastructure and releases
 terraform = "1.17.0"
