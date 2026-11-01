@@ -31,9 +31,19 @@
       "effect": "deny"
     },
     {
+      "action": "read",
+      "resource": "~/git/*/AGENTS.md",
+      "effect": "allow"
+    },
+    {
       "action": "external_directory",
       "resource": "*",
       "effect": "ask"
+    },
+    {
+      "action": "external_directory",
+      "resource": "~/git/*",
+      "effect": "allow"
     },
     {
       "action": "websearch",
