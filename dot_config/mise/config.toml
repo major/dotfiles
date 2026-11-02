@@ -48,7 +48,7 @@ hugo-extended = "0.168.0"
 
 # The registry's ant package is Apache Ant, not the Anthropic CLI.
 [tools."github:anthropics/anthropic-cli"]
-version = "2.3.0"
+version = "2.4.0"
 asset_pattern = "ant_{{ version }}_linux_amd64.tar.gz"
 filter_bins = ["ant"]
 
