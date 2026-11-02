@@ -3,7 +3,7 @@ set -euo pipefail
 
 # mise config: {{ include "dot_config/mise/config.toml" | sha256sum }}
 # renovate: datasource=github-releases depName=jdx/mise
-mise_version="2026.10.21"
+mise_version="2026.10.25"
 mise="$HOME/.local/bin/mise"
 
 if [[ "$(uname -s)" != "Linux" || "$(uname -m)" != "x86_64" ]]; then
