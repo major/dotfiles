@@ -147,3 +147,6 @@ dmypy.json
 !/dot_config/opencode/plugins/oc-opencode-go/lib/
 /dot_config/opencode/plugins/oc-opencode-go/lib/*
 !/dot_config/opencode/plugins/oc-opencode-go/lib/usage-cache.ts
+!/dot_config/opencode/plugins/oc-claude-usage/lib/
+/dot_config/opencode/plugins/oc-claude-usage/lib/*
+!/dot_config/opencode/plugins/oc-claude-usage/lib/usage-cache.test.ts
