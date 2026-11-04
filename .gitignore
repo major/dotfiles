@@ -150,3 +150,5 @@ dmypy.json
 !/dot_config/opencode/plugins/oc-claude-usage/lib/
 /dot_config/opencode/plugins/oc-claude-usage/lib/*
 !/dot_config/opencode/plugins/oc-claude-usage/lib/usage-cache.test.ts
+!/dot_config/opencode/plugins/oc-claude-usage/lib/usage.ts
+!/dot_config/opencode/plugins/oc-claude-usage/lib/usage.test.ts

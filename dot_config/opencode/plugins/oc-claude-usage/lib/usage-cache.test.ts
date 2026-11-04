@@ -56,14 +56,14 @@ describe("existing quota cache", () => {
       throw new Error("must not refresh while locked");
     }).finally(() => finish.resolve());
     await first;
-    const next = await loadUsageCache("fixture", 60_000, async () => {
+    const next = await loadUsageCache<{ percent: number }>("fixture", 60_000, async () => {
       throw new Error("must read the fresh cache");
     });
 
     // Assert
     expect(competing).toBeUndefined();
     expect(next?.value).toEqual({ percent: 22 });
-    expect(next?.error).toBeUndefined();
+    expect(next).not.toHaveProperty("error");
   });
 
   test("keeps stale usage and caches refresh failures", async () => {
@@ -80,12 +80,12 @@ describe("existing quota cache", () => {
     };
 
     // Act
-    const failed = await loadUsageCache("fixture", 60_000, refresh);
-    const cached = await loadUsageCache("fixture", 60_000, refresh);
+    const failed = await loadUsageCache<{ percent: number }>("fixture", 60_000, refresh);
+    const cached = await loadUsageCache<{ percent: number }>("fixture", 60_000, refresh);
 
     // Assert
     expect(failed?.value).toEqual({ percent: 22 });
-    expect(failed?.error).toBe("usage unavailable");
+    expect(failed).toHaveProperty("error", "usage unavailable");
     expect(cached).toEqual(failed);
     expect(calls).toBe(1);
   });
