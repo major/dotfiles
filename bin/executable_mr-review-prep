@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# mr-review-prep: set up a review worktree for a GitLab MR and save its diff.
+#
+# Usage: mr-review-prep IID [TARGET_BRANCH]
+#
+# Run from anywhere inside the repository. The script:
+#   1. fetches the target branch (default: main) and the MR head ref
+#   2. creates or fast-forwards .worktrees/review/MR-IID on branch review/MR-IID
+#   3. writes the diff from the merge base to
+#      ~/.cache/opencode-tmp/opencode/MR-IID/diff.patch
+#   4. prints a short summary, the diff stat, and the full diff if it is small
+#
+# It refuses to touch an existing worktree that has uncommitted changes or
+# local commits that are not in the MR head, so own-MR fixes are never lost.
+set -euo pipefail
+
+iid=${1:?usage: mr-review-prep IID [TARGET_BRANCH]}
+target=${2:-main}
+inline_max=${MR_REVIEW_INLINE_MAX:-40000}
+
+common_dir=$(git rev-parse --path-format=absolute --git-common-dir)
+root=${common_dir%/.git}
+wt="$root/.worktrees/review/MR-$iid"
+branch="review/MR-$iid"
+mr_ref="refs/remotes/origin/merge-requests/$iid"
+out="$HOME/.cache/opencode-tmp/opencode/MR-$iid"
+mkdir -p "$out"
+
+# The GitLab server is sometimes flaky, so retry the fetch.
+for attempt in 1 2 3; do
+  if git -C "$root" fetch -q origin "+refs/heads/$target:refs/remotes/origin/$target" \
+    "+refs/merge-requests/$iid/head:$mr_ref"; then
+    break
+  fi
+  if [ "$attempt" -eq 3 ]; then
+    echo "error: fetch failed 3 times" >&2
+    exit 1
+  fi
+  sleep 3
+done
+head=$(git -C "$root" rev-parse "$mr_ref")
+
+# Refuse to move a branch that has commits the MR head does not contain.
+if git -C "$root" rev-parse -q --verify "refs/heads/$branch" >/dev/null &&
+  ! git -C "$root" merge-base --is-ancestor "refs/heads/$branch" "$head"; then
+  echo "error: $branch has local commits that are not in the MR head" >&2
+  exit 1
+fi
+
+if [ -d "$wt" ]; then
+  if [ -n "$(git -C "$wt" status --porcelain)" ]; then
+    echo "error: $wt has uncommitted changes" >&2
+    exit 1
+  fi
+  git -C "$wt" checkout -q -B "$branch" "$head"
+else
+  git -C "$root" worktree add -q -B "$branch" "$wt" "$head"
+fi
+
+base=$(git -C "$wt" merge-base "origin/$target" HEAD)
+git -C "$wt" diff "$base..HEAD" >"$out/diff.patch"
+bytes=$(wc -c <"$out/diff.patch")
+project=$(git -C "$root" remote get-url origin | sed -E 's#^(git@[^:]+:|[a-z+]+://[^/]+/)##; s#\.git$##')
+
+echo "project: $project"
+echo "worktree: $wt"
+echo "head_sha: $head"
+echo "merge_base: $base (origin/$target)"
+echo "diff: $out/diff.patch ($bytes bytes)"
+echo
+git -C "$wt" diff --stat=160 "$base..HEAD"
+if [ "$bytes" -le "$inline_max" ]; then
+  echo
+  cat "$out/diff.patch"
+else
+  echo
+  echo "Diff is larger than $inline_max bytes; read diff.patch in ranges."
+fi
