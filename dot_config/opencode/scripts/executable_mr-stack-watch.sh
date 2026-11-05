@@ -4,7 +4,7 @@
 # Polls with glab (no model tokens) and exits only when something needs action.
 #
 # Usage: mr-stack-watch.sh [--once] [--reset] [--project group/proj] [--author user] [--interval SEC] [iid ...]
-#   --once   print a compact status table and exit
+#   --once   print a compact status table and exit: iid STATE[/reason] sha src -> target
 #   iid ...  track only these MRs (default: all my open MRs in the project)
 # Only eligible MRs are considered: mine, not a draft, fully approved, and no open
 # review threads. Anything else shows as SKIP/<reason> in --once and never wakes the model.
@@ -78,7 +78,10 @@ fetch_all() {
     m=$(add_approval "$m")
     if jq -e '.state == "opened" and .merge_when_pipeline_succeeds != true
               and .detailed_merge_status == "ci_must_pass"' <<<"$m" >/dev/null; then
-      api "merge_requests/$(jq -r .iid <<<"$m")" | jq -c .
+      # The per-MR read has no fully_approved, so carry it over. Without it,
+      # classify sees null and reports PENDING instead of READY or FAILED.
+      api "merge_requests/$(jq -r .iid <<<"$m")" \
+        | jq -c --argjson fa "$(jq -c .fully_approved <<<"$m")" '. + {fully_approved: $fa}'
     else
       echo "$m"
     fi
@@ -130,7 +133,7 @@ while true; do
   while IFS='|' read -r iid state reason sha target source; do
     [ -n "$iid" ] || continue
     if [ "$state" = STACKED ]; then stacked[$iid]=1; save_parent_tip "$iid" "$target"; fi
-    table+="$iid $state${reason:+/$reason} ${sha:0:9} -> $target"$'\n'
+    table+="$iid $state${reason:+/$reason} ${sha:0:9} $source -> $target"$'\n'
     case "$state" in
       MERGED) continue ;;
       CLOSED) key="$iid CLOSED" ;;
