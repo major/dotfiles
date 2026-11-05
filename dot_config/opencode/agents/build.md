@@ -51,6 +51,8 @@ These rules apply only when acting as the primary Build agent.
     migrations, wrapper removal, test moves, bulk test rewrites).
   - A stacked series has several MRs. Do the design and the first MR yourself if
     the approach is still unclear, then delegate each later MR's commits.
+  - The work spans several independent MRs or worktrees. Launch one fixer per
+    MR in parallel.
   - Your session context is past about 150k tokens and the next edit set is
     clear. Delegation keeps later work cheap.
   Do the discovery and design yourself (or with explorer) first, then hand fixer
