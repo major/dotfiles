@@ -47,8 +47,13 @@ function formatPercentage(value: number) {
   }).format(value);
 }
 
+/**
+ * Shorten a model ID for the narrow sidebar. Drops any "@version" suffix and
+ * any gateway path prefix, so "rits/deepseek-ai/DeepSeek-V4.1-Flash-1017"
+ * becomes "DeepSeek-V4.1-Flash-1017".
+ */
 function formatModel(modelID: string) {
-  return modelID.split("@")[0];
+  return modelID.split("@")[0].split("/").pop() ?? modelID;
 }
 
 type Usage = { tokens: number; cost: number };
