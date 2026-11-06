@@ -68,25 +68,11 @@
         "headers": {
           "x-api-key": "{env:EXA_API_KEY}"
         }
-      },
-      "gitlab": {
-        "type": "local",
-        // --refresh makes uvx check GitHub for new commits on every start
-        "command": [
-          "uvx",
-          "--refresh",
-          "--from",
-          "git+https://github.com/major/gitlab-mcp.git@main",
-          "gitlab-mcp"
-        ],
-        "environment": {
-          "GITLAB_TOKEN": "{env:GITLAB_TOKEN}"
-        }
       }
     }
   },
   "plugins": [
-    "@mhayden/opencode-mythos-plugin@0.1.1",
+    "-@mhayden/opencode-mythos-plugin@0.1.1",
     "-opencode.prompt.verbosity"
   ],
   "references": {

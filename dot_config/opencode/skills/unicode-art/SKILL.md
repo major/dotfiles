@@ -38,6 +38,7 @@ Avoid `+` in Jira too, even in code blocks: `+text+` becomes underline.
 - Keep one label per line inside a box. Put long notes below the diagram.
 - Line up vertical arrows under the exact column of the box they point to.
 - Always put the diagram in a fenced code block so the renderer uses a monospace font.
+- If you're showing a before/after scenario, put the diagrams side by side so it's easier for humans to see the differences.
 
 ## Check before posting
 

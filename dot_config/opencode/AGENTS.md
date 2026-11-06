@@ -14,6 +14,7 @@
 - Prefer the gitlab MCP server over the glab command, if the MCP server is available.
 - Use gender neutral language and never assume someone's gender based on their name alone.
 - Merge requests and pull requests must start with a test/characterization commit first and then as many fix/refactor commits can follow after.
+- Translate all times/dates to America/Chicago time unless specified otherwise.
 
 ## When editing skills:
 - Use the most narrow edits possible whenever editing a skill file.
@@ -32,8 +33,10 @@
 - Add docstrings to all functions we write and add comments in areas with challenging or edge case situations.
 - Report checks actually run and their results. Read-only reviews are not executed tests.
 - Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
+- When a change adds or edits a safety gate, override, or bypass, list every place that enforces the same rule and keep them in sync. Check for a bound or cap, the patch's own files, partial or failed runs, `None` vs empty, real layouts from at least 2 projects, and an audit trail. When review finds one gap, look for the same gap in every gate before pushing.
 - Pull/merge requests must have unicode art showing the before/after logic flow.
 - Require me to say "APPROVE" in all caps before posting any comments to any MR/PR.
+- Never run `mutmut` directly. Run it as `~/bin/mutmut-bounded <mutmut args>`, which uses the memory-capped `mutmut.slice` systemd user slice and limits `--max-children` (default 4, override with `MUTMUT_MAX_CHILDREN`), because mutmut can exhaust all of the RAM on this machine quickly.
 
 ## When writing or reviewing software tests:
 - Use Test-Driven Development (TDD) and follow the Testing Pyramid from Mike Cohn..
