@@ -41,7 +41,7 @@ herdr = "0.9.5"
 
 # Site generation and photo uploads
 hugo-extended = "0.168.0"
-"github:simulot/immich-go" = "0.32.0"
+"github:simulot/immich-go" = "1.21.3"
 
 # Tools without registry shorthands
 "github:ankitpokhrel/jira-cli" = "1.7.0"
