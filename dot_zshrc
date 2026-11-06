@@ -56,9 +56,9 @@ export HISTTIMEFORMAT="[%F %T] "
 export HISTFILESIZE=1000000000
 export HISTSIZE=1000000000
 
-# Use 1Password only for local shells, never for SSH sessions.
-if [[ -z "${SSH_CONNECTION:-}" && -S "$HOME/.1password/agent.sock" ]]; then
-  export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+# Always use the systemd ssh-agent, in local and SSH sessions alike.
+if [[ -S "${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.socket" ]]; then
+  export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.socket"
 fi
 
 # ensure gpg works properly in each terminal.
