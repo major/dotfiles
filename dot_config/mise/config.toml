@@ -22,7 +22,7 @@ stern = "1.35.0"
 kubeswitch = "0.9.3"
 
 # Source hosting
-github-cli = "2.103.2"
+github-cli = "2.103.3"
 glab = "1.124.0"
 
 # Infrastructure and releases
