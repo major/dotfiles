@@ -27,7 +27,7 @@ glab = "1.124.0"
 
 # Infrastructure and releases
 terraform = "1.17.1"
-goreleaser = "2.19.0"
+goreleaser = "2.20.0"
 golangci-lint = "2.15.0"
 oras = "1.3.6"
 
