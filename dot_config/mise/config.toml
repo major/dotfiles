@@ -13,7 +13,7 @@ restic = "0.19.1"
 
 # Kubernetes and GitOps
 flux2 = "2.9.6"
-kubectl = "1.37.1"
+kubectl = "1.37.2"
 kubeseal = "0.41.1"
 kustomize = "5.8.3"
 helm = "4.3.1"
