@@ -1,4 +1,5 @@
 renovate.json
+tests
 .config/opencode/package.json
 .config/opencode/package-lock.json
 .config/opencode/bun.lock

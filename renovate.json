@@ -10,12 +10,14 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Automerge mise tool and font updates",
+      "description": "Group and automerge mise tool and font updates",
       "matchManagers": ["mise", "custom.regex"],
       "matchFileNames": [
         "dot_config/mise/config.toml",
         "run_onchange_after_install-fonts.sh"
       ],
+      "groupName": "mise tools and fonts",
+      "separateMajorMinor": true,
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false
