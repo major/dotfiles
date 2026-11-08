@@ -31,3 +31,17 @@ test("tool and font automerge stays scoped away from review-required updates", (
     assert.equal(rule.platformAutomerge, false);
   }
 });
+
+/** Keep breaking upgrades separate while bundling routine tool and font updates. */
+test("tool and font updates share a group without absorbing review-required updates", () => {
+  // Arrange
+  const expectedGroup = "mise tools and fonts";
+
+  // Act
+  const groupedRules = config.packageRules.filter((rule) => rule.groupName);
+
+  // Assert
+  assert.equal(toolRule.groupName, expectedGroup);
+  assert.equal(toolRule.separateMajorMinor, true);
+  assert.deepEqual(groupedRules, [toolRule]);
+});
