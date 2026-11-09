@@ -10,6 +10,11 @@ symbol_map U+E000-U+F8FF,U+F0000-U+FFFFD,U+100000-U+10FFFD Symbols Nerd Font Mon
 
 shell /usr/bin/zsh
 
+# Keep this workaround: Kitty 0.49+ restores the maximized state that Hyprland
+# reports for tiled windows, making new terminals cover the workspace.
+# https://github.com/kovidgoyal/kitty/issues/10442
+remember_window_size no
+
 # Send literal LF for multiline terminal input.
 map shift+enter send_text all \x0a
 map kp_enter send_text all \x0a
