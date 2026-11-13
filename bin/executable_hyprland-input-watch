@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""Move amdbox's left Dell out of Hyprland's layout when its input changes.
+
+Run with --check for a read-only status report. Normal shutdown restores an
+output disabled by this process. After a crash, restore manually if necessary:
+
+    hyprctl eval 'hl.monitor({ output = "DP-1", mode = "preferred",
+        position = "auto-left", scale = 1, disabled = false })'
+
+Restarting never adopts an already-disabled output. Workspace placement is
+left to Hyprland, just as with a physical disconnect and reconnect.
+"""
+
+import argparse
+import fcntl
+import json
+import logging
+import os
+import re
+import signal
+import subprocess
+import threading
+import time
+from contextlib import contextmanager
+from pathlib import Path
+
+LEFT_SERIAL = "85P0F34"
+RIGHT_SERIAL = "55P0F34"
+DISPLAYPORT = 0x0F
+KNOWN_INPUTS = {DISPLAYPORT, 0x11, 0x1B}  # DP, HDMI, and Dell's USB-C value.
+INTERVAL = 3
+LOG = logging.getLogger("hyprland-input-watch")
+
+
+def command(args):
+    """Run one external operation with bounded time and captured diagnostics."""
+    try:
+        result = subprocess.run(
+            args, check=True, capture_output=True, text=True, timeout=8
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        raise RuntimeError(f"{args[0]} failed: {error}") from error
+    return result.stdout.strip()
+
+
+def read_monitors():
+    """Read all outputs, including disabled ones, without accepting bad data."""
+    try:
+        monitors = json.loads(command(["hyprctl", "-j", "monitors", "all"]))
+    except ValueError as error:
+        raise RuntimeError("hyprctl returned invalid monitor JSON") from error
+    if not isinstance(monitors, list) or any(
+        not isinstance(monitor, dict) for monitor in monitors
+    ):
+        raise RuntimeError("hyprctl returned an invalid monitor list")
+    return monitors
+
+
+def find_monitor(monitors, serial):
+    """Require one matching identity and explicit name and enabled-state fields."""
+    matches = [monitor for monitor in monitors if monitor.get("serial") == serial]
+    if len(matches) != 1:
+        return None
+    monitor = matches[0]
+    if (
+        not isinstance(monitor.get("name"), str)
+        or not monitor["name"]
+        or not isinstance(monitor.get("disabled"), bool)
+    ):
+        return None
+    return monitor
+
+
+def read_input():
+    """Ask the specific Dell for a known input, never inferring from an error."""
+    output = command(["ddcutil", "--sn", LEFT_SERIAL, "--terse", "getvcp", "60"])
+    match = re.fullmatch(r"VCP 60 SNC x([0-9a-fA-F]{2})", output)
+    if not match or int(match[1], 16) not in KNOWN_INPUTS:
+        raise RuntimeError(f"unrecognized input response: {output!r}")
+    return int(match[1], 16)
+
+
+@contextmanager
+def lock_instance(path):
+    """Keep one locked inode open through shutdown; never unlink a live lock."""
+    with path.open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
+
+
+class Watcher:
+    """Debounce input changes and own only this process's disable attempts."""
+
+    def __init__(self):
+        """Initialize observation and ownership state without changing outputs."""
+        self.stop = threading.Event()
+        self.owned = False
+        self.verified = False
+        self.candidate = None
+        self.samples = 0
+        self.last_error = None
+
+    def report(self, message):
+        """Log a persistent failure once instead of on every polling attempt."""
+        if message != self.last_error:
+            LOG.warning("%s", message)
+            self.last_error = message
+
+    def change(self, disabled):
+        """Recheck identity and safety immediately before a verified mutation."""
+        monitors = read_monitors()
+        left = find_monitor(monitors, LEFT_SERIAL)
+        right = find_monitor(monitors, RIGHT_SERIAL)
+        if left is None:
+            return False
+        if disabled:
+            if (
+                self.stop.is_set()
+                or left["disabled"]
+                or right is None
+                or right["disabled"]
+                or right.get("dpmsStatus") is not True
+            ):
+                return False
+            # A timed-out IPC request may still have disabled the output.
+            self.owned = True
+            self.verified = False
+        elif not self.owned or not left["disabled"]:
+            return False
+
+        fields = (
+            f"output = {json.dumps(left['name'])}, disabled = {str(disabled).lower()}"
+        )
+        if not disabled:
+            fields += ', mode = "preferred", position = "auto-left", scale = 1'
+        error_message = None
+        try:
+            if command(["hyprctl", "eval", f"hl.monitor({{ {fields} }})"]) != "ok":
+                error_message = "hyprctl rejected the monitor rule"
+        except RuntimeError as error:
+            error_message = str(error)
+
+        observed = None
+        for attempt in range(10):
+            try:
+                observed = find_monitor(read_monitors(), LEFT_SERIAL)
+            except RuntimeError as error:
+                error_message = str(error)
+                observed = None
+                break
+            if observed is not None and observed["disabled"] is disabled:
+                self.owned = disabled
+                self.verified = disabled
+                self.last_error = None
+                LOG.info("%s %s", "disabled" if disabled else "restored", left["name"])
+                return True
+            if attempt < 9:
+                time.sleep(0.1)
+
+        if disabled and observed is not None and observed["disabled"] is False:
+            self.owned = False
+            self.verified = False
+        self.report(error_message or "monitor state change could not be confirmed")
+        return False
+
+    def step(self):
+        """Process one observation, stopping rather than fighting an override."""
+        try:
+            left = find_monitor(read_monitors(), LEFT_SERIAL)
+            if self.owned and not self.verified and left is not None:
+                # Recover an interrupted verification without adopting a
+                # display that was disabled before this process started.
+                self.verified = left["disabled"]
+                self.owned = left["disabled"]
+                if not self.owned:
+                    self.candidate, self.samples = None, 0
+                    return True
+            # Check overrides even if the next DDC query fails.
+            if (
+                self.owned
+                and self.verified
+                and left is not None
+                and left["disabled"] is False
+            ):
+                self.owned = False
+                self.verified = False
+                LOG.info("left output was re-enabled externally; stopping")
+                return False
+            source = read_input()
+            if source == self.candidate:
+                self.samples = min(self.samples + 1, 2)
+            else:
+                self.candidate, self.samples = source, 1
+            if self.samples == 2 and not self.stop.is_set():
+                if source == DISPLAYPORT and self.owned:
+                    self.change(False)
+                elif source != DISPLAYPORT and not self.owned:
+                    self.change(True)
+        except RuntimeError as error:
+            self.candidate, self.samples = None, 0
+            self.report(str(error))
+        return True
+
+    def close(self):
+        """Restore an owned, still-identifiable output during graceful shutdown."""
+        if not self.owned:
+            return
+        try:
+            left = find_monitor(read_monitors(), LEFT_SERIAL)
+            if left is not None and left["disabled"]:
+                self.change(False)
+            elif left is not None:
+                self.owned = False
+                self.verified = False
+            else:
+                self.report("left display is unavailable; manual restore may be needed")
+        except RuntimeError as error:
+            self.report(f"shutdown restore failed: {error}")
+
+
+def main():
+    """Report status or watch until shutdown while holding the singleton lock."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check", action="store_true", help="report status without changes"
+    )
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
+    watcher = Watcher()
+
+    def request_stop(signum, frame):
+        """Defer shutdown and output restoration to the normal control flow."""
+        watcher.stop.set()
+
+    try:
+        if args.check:
+            monitors = read_monitors()
+            left = find_monitor(monitors, LEFT_SERIAL)
+            right = find_monitor(monitors, RIGHT_SERIAL)
+            print(
+                json.dumps(
+                    {
+                        "left": left["name"] if left else None,
+                        "left_disabled": left["disabled"] if left else None,
+                        "right": right["name"] if right else None,
+                        "input": f"0x{read_input():02x}",
+                    },
+                    indent=2,
+                )
+            )
+            return 0
+        signal.signal(signal.SIGTERM, request_stop)
+        signal.signal(signal.SIGINT, request_stop)
+        path = Path(os.environ["XDG_RUNTIME_DIR"]) / "hyprland-input-watch.lock"
+        with lock_instance(path):
+            LOG.info(
+                "watching left Dell %s; waiting %ss between checks",
+                LEFT_SERIAL,
+                INTERVAL,
+            )
+            try:
+                while not watcher.stop.is_set():
+                    if not watcher.step() or watcher.stop.wait(INTERVAL):
+                        break
+            finally:
+                watcher.close()
+    except (KeyError, OSError, RuntimeError) as error:
+        LOG.error("%s", error)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
