@@ -35,7 +35,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("uwsm app -- waypaper --restore")
     hl.exec_cmd("uwsm app -s b -- /usr/libexec/polkit-gnome-authentication-agent-1")
 {{- if eq .chezmoi.hostname "amdbox" }}
-    hl.exec_cmd("uwsm app -s b -t service -u hyprland-input-watch.service -- hyprland-input-watch")
+    hl.exec_cmd("uwsm app -s b -t service -u hyprland-input-watch.service -p TimeoutStopSec=60s -- hyprland-input-watch")
 {{- end }}
 end)
 
