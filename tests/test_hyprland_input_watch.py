@@ -44,7 +44,7 @@ class Desktop:
 
     def run(self, args, **kwargs):
         """Return command responses and simulate compositor state changes."""
-        assert kwargs["timeout"] == 8 and kwargs["check"] is True
+        assert 0 < kwargs["timeout"] <= 8 and kwargs["check"] is True
         if args[0] == "ddcutil":
             assert "--sn" in args and "85P0F34" in args
             if isinstance(self.source, Exception):
@@ -76,7 +76,7 @@ class WatcherTests(unittest.TestCase):
         self.commands = patch.object(
             watch.subprocess, "run", side_effect=self.run_external
         )
-        self.commands.start()
+        self.run_mock = self.commands.start()
         self.addCleanup(self.commands.stop)
         self.sleep = patch.object(watch.time, "sleep")
         self.sleep.start()
@@ -271,19 +271,41 @@ class WatcherTests(unittest.TestCase):
                 self.desktop.monitor_output = "null"
             return result
 
-        with patch.object(watch.subprocess, "run", side_effect=fail_verification):
+        for early_override in (False, True):
+            with self.subTest(early_override=early_override):
+                self.desktop = Desktop()
+                self.watcher = watch.Watcher()
+                with patch.object(
+                    watch.subprocess, "run", side_effect=fail_verification
+                ):
+                    self.switch_away()
+                self.assertTrue(self.watcher.owned)
+                self.assertFalse(self.watcher.verified)
+
+                self.desktop.monitor_output = None
+                if not early_override:
+                    self.watcher.step()
+                    self.assertTrue(self.watcher.verified)
+                self.desktop.monitors[0]["disabled"] = False
+                self.desktop.source = subprocess.TimeoutExpired("ddcutil", 8)
+
+                self.assertFalse(self.watcher.step())
+                self.assertFalse(self.watcher.owned)
+
+    def test_verification_uses_one_deadline(self):
+        """Cap the whole verification phase, not just each individual query."""
+        self.desktop.apply_changes = False
+        clock = iter((100.0, 100.5))
+        with patch.object(
+            watch.time, "monotonic", side_effect=lambda: next(clock, 103.0)
+        ):
             self.switch_away()
-        self.assertTrue(self.watcher.owned)
-        self.assertFalse(self.watcher.verified)
 
-        self.desktop.monitor_output = None
-        self.watcher.step()
-        self.assertTrue(self.watcher.verified)
-        self.desktop.monitors[0]["disabled"] = False
-        self.desktop.source = subprocess.TimeoutExpired("ddcutil", 8)
-
-        self.assertFalse(self.watcher.step())
-        self.assertFalse(self.watcher.owned)
+        verification_calls = [
+            call for call in self.run_mock.call_args_list if call.kwargs["timeout"] < 8
+        ]
+        self.assertEqual(len(verification_calls), 1)
+        self.assertEqual(verification_calls[0].kwargs["timeout"], 1.5)
 
     def test_failed_query_while_disabled_keeps_the_existing_layout(self):
         """A DDC failure must not restore or repeatedly disable an owned output."""

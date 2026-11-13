@@ -32,21 +32,23 @@ INTERVAL = 3
 LOG = logging.getLogger("hyprland-input-watch")
 
 
-def command(args):
+def command(args, timeout=8):
     """Run one external operation with bounded time and captured diagnostics."""
     try:
         result = subprocess.run(
-            args, check=True, capture_output=True, text=True, timeout=8
+            args, check=True, capture_output=True, text=True, timeout=timeout
         )
     except (OSError, subprocess.SubprocessError) as error:
         raise RuntimeError(f"{args[0]} failed: {error}") from error
     return result.stdout.strip()
 
 
-def read_monitors():
+def read_monitors(timeout=8):
     """Read all outputs, including disabled ones, without accepting bad data."""
     try:
-        monitors = json.loads(command(["hyprctl", "-j", "monitors", "all"]))
+        monitors = json.loads(
+            command(["hyprctl", "-j", "monitors", "all"], timeout=timeout)
+        )
     except ValueError as error:
         raise RuntimeError("hyprctl returned invalid monitor JSON") from error
     if not isinstance(monitors, list) or any(
@@ -112,6 +114,8 @@ class Watcher:
         left = find_monitor(monitors, LEFT_SERIAL)
         right = find_monitor(monitors, RIGHT_SERIAL)
         if left is None:
+            if not disabled and self.owned:
+                self.report("left display identity is unavailable; restore blocked")
             return False
         if disabled:
             if (
@@ -141,9 +145,13 @@ class Watcher:
             error_message = str(error)
 
         observed = None
+        deadline = time.monotonic() + 2
         for attempt in range(10):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or (disabled and self.stop.is_set()):
+                break
             try:
-                observed = find_monitor(read_monitors(), LEFT_SERIAL)
+                observed = find_monitor(read_monitors(timeout=remaining), LEFT_SERIAL)
             except RuntimeError as error:
                 error_message = str(error)
                 observed = None
@@ -154,8 +162,9 @@ class Watcher:
                 self.last_error = None
                 LOG.info("%s %s", "disabled" if disabled else "restored", left["name"])
                 return True
-            if attempt < 9:
-                time.sleep(0.1)
+            remaining = deadline - time.monotonic()
+            if attempt < 9 and remaining > 0:
+                time.sleep(min(0.1, remaining))
 
         if disabled and observed is not None and observed["disabled"] is False:
             self.owned = False
@@ -174,7 +183,10 @@ class Watcher:
                 self.owned = left["disabled"]
                 if not self.owned:
                     self.candidate, self.samples = None, 0
-                    return True
+                    LOG.info(
+                        "left output is enabled after an uncertain disable; stopping"
+                    )
+                    return False
             # Check overrides even if the next DDC query fails.
             if (
                 self.owned
