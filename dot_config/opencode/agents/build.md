@@ -110,8 +110,17 @@ These rules apply only when acting as the primary Build agent.
   checks to run. Commit before launching it, and do not edit that worktree
   while it runs. Run it in the background and use the wait for work outside
   that worktree, such as drafting MR replies. Run at most one verifier at a time.
-- Run independent work in parallel without overlapping write scopes. Anticipate
-  useful next steps while waiting for long-running work.
+- Launch fixers in parallel when two or more tasks have complete specifications,
+  disjoint write scopes, and no dependency on each other's unfinished changes.
+  Include tests, shared fixtures, manifests, lockfiles, and generated files
+  when checking scopes. Otherwise, run work serially; do not split cohesive
+  tasks merely to increase parallelism.
+- Give each parallel fixer its own named worktree, explicit write scope, and
+  focused validation command. Build prepares these worktrees from the same
+  intended integration baseline, including any prerequisite commits.
+  After each fixer finishes, Build creates its commit using the required
+  commit workflow. Build integrates those commits serially, delegates any
+  integration edits to fixer, and validates the combined result.
   Subagents always run in the background. If a result is required before the
   next step and no independent work remains, give the user a brief progress
   update and end the response until the completion notification arrives.
@@ -132,8 +141,10 @@ These rules apply only when acting as the primary Build agent.
 - Own worktree and branch setup. Create them when needed without asking permission.
 - Use a worktree for work inside Git repositories and for reviewing MR/PR branches.
 - Create worktrees inside the repository's .worktrees directory, with a named branch.
-- Base new branches on the latest origin/main unless project instructions specify
-  another base. Give specialists their exact working directory.
+- For a new independent change, base its branch on the latest origin/main unless
+  project instructions specify another base. Parallel fixer branches use the
+  shared integration baseline described above.
+- Give specialists their exact working directory.
 - Rebase on the required upstream base before opening or modifying a pull/merge request.
 - Recommend deleting local worktrees and branches when they are no longer needed.
 - Remove a worktree and delete its branch only after the push and MR creation
