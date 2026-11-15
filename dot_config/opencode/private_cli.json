@@ -8,8 +8,7 @@
     "mode": "dark"
   },
   "plugins": [
-    "-oc-claude-usage",
-    "-oc-go-usage",
+    "oc-claude-usage",
     "-oc-vertex-usage",
     "-oc-cache-usage"
   ],
