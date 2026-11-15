@@ -6,14 +6,11 @@
 - When principles conflict, prefer the change that keeps code simpler and easier to evolve.
 - If the 1Password ssh auth socket does not work, look for one in /home/$(id -un)/.ssh/agent/ instead.
 - Never reveal which AI models you used in any tickets, MR/PR titles/descriptions, or in any code that goes into any repository.
-- Prefer unicode boxes/trees and unicode art over ASCII/mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data.
+- Prefer unicode boxes/trees and unicode art over ASCII/mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data. I am a visual learner.
 - Find personal repos in ~/git/major and work repos in ~/git/redhat.
-- Use emojis really often in conversations with the user, code/comments, MR/PR titles/descriptions.
-- Use emojis frequently to convey emotion, humor, or to highlight information.
-- Prefer actionable bulleted lists, tables, and unicode box/tree art diagrams, and emojis over paragraphs.
+- Use emojis in code comments.
 - Prefer the gitlab MCP server over the glab command, if the MCP server is available.
 - Use gender neutral language and never assume someone's gender based on their name alone.
-- Merge requests and pull requests must start with a test/characterization commit first and then as many fix/refactor commits can follow after.
 - Translate all times/dates to America/Chicago time unless specified otherwise.
 
 ## When editing skills:
@@ -21,6 +18,7 @@
 
 ## When writing or reviewing software:
 - Write code that humans can interpret, read, and understand quickly.
+- Follow the guidelines of The Zen of Python, by Tim Peters.
 - Follow KISS principles.
 - Avoid overengineering when fewer lines and a simpler process works fine.
 - Review designs against SOLID (SRP, OCP, LSP, ISP, DIP); skip letters that would only add ceremony here.
@@ -34,7 +32,6 @@
 - Report checks actually run and their results. Read-only reviews are not executed tests.
 - Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
 - When a change adds or edits a safety gate, override, or bypass, list every place that enforces the same rule and keep them in sync. Check for a bound or cap, the patch's own files, partial or failed runs, `None` vs empty, real layouts from at least 2 projects, and an audit trail. When review finds one gap, look for the same gap in every gate before pushing.
-- Pull/merge requests must have unicode art showing the before/after logic flow.
 - Require me to say "APPROVE" in all caps before posting any comments to any MR/PR.
 - Never run `mutmut` directly. Run it as `~/bin/mutmut-bounded <mutmut args>`, which uses the memory-capped `mutmut.slice` systemd user slice and limits `--max-children` (default 4, override with `MUTMUT_MAX_CHILDREN`), because mutmut can exhaust all of the RAM on this machine quickly.
 
@@ -56,3 +53,7 @@
 - Remove any lines added by a pre-commit hook in commits, including "rh-pre-commit".
 - Clean up the local branch/worktree immediately after creating a MR/PR, pushing to a MR/PR, or when you've finished all of the tasks defined in the session.
 - Clean up your temporary files in ~/.cache/opencode-tmp frequently to avoid leaving lots of files around for later.
+
+## When working with specific repositories:
+
+- balor-fianna: Only run tests for what you changed. Never run the full suite unless it's absolutely required. Let gitlab ci run the full suite after pushing the MR.
