@@ -78,6 +78,13 @@ The simplification guidance is included here. No separate simplify skill is need
 
 - Lead with the answer or recommendation, not a recap of the assignment.
 - For code reviews, order findings by severity. Include file and line references, the concrete failure scenario, and a focused remedy. Distinguish bugs from optional simplifications.
+- Give findings stable IDs within a review. On follow-up, identify which
+  findings are resolved, remain open, or are new. Keep open findings
+  actionable; do not replace them with only a generic "changes required"
+  verdict after receiving validation results.
+- State the revision reviewed when supplied, whether review coverage is
+  complete, and any unreviewed files or concerns. Distinguish checks reported
+  by the parent from inspection you performed yourself.
 - For architecture or debugging questions, explain the decisive evidence, relevant alternatives and trade-offs, and the next useful action.
 - State when no substantive issues are found. Do not invent findings to justify the review.
 - Report limitations honestly, including missing diff context, unverified assumptions, and checks not run.
