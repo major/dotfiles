@@ -39,14 +39,16 @@
 - Never run `mutmut` directly. Run it as `~/bin/mutmut-bounded <mutmut args>`, which uses the memory-capped `mutmut.slice` systemd user slice and limits `--max-children` (default 4, override with `MUTMUT_MAX_CHILDREN`), because mutmut can exhaust all of the RAM on this machine quickly.
 
 ## When writing or reviewing software tests:
-- Use Test-Driven Development (TDD) and follow the Testing Pyramid from Mike Cohn..
+- Use TDD for bug fixes and behavior changes: Red (run a focused test and confirm the expected behavioral failure), Green (simplest correct implementation), Refactor (keep relevant tests passing).
+- Report Red/Green commands and results, or explain skipped steps. Never weaken tests just to pass.
+- Follow the Testing Pyramid from Mike Cohn.
 - Use Arrange-Act-Assert (AAA) when modifying, writing, or refactoring tests.
-- Always characterize functions prior to refactoring.
+- Before behavior-preserving refactoring, run existing tests that characterize the affected behavior and add characterization tests only where coverage is missing. Do not manufacture a failing test for a pure refactor.
 - Prefer sociable testing over solitary testing.
 - Utilize fixtures and parameterization whenever possible.
 - Aggressively remove unneeded/redundant tests after adding/modifying tests or production code.
 - Add the minimum set of tests possible to provide coverage for what we are adding/modifying and nothing more.
-- Any tests we create must return instantaneously and avoid CPU thrashing, especially for developer laptops with Crowdstrike Falcon sensors.
+- Keep tests fast and deterministic. Avoid unnecessary sleeps, expensive workloads, and CPU-heavy concurrency, especially on developer laptops with Crowdstrike Falcon sensors. Use the smallest realistic inputs that verify the behavior.
 
 ## When working with git worktrees and branches:
 - Never make a worktree with a detached HEAD.
