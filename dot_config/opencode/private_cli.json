@@ -8,13 +8,14 @@
     "mode": "dark"
   },
   "plugins": [
+    "-oc-claude-usage",
     "-oc-go-usage",
     "-oc-vertex-usage",
     "-oc-cache-usage"
   ],
   "diffs": {
     "wrap": "word",
-    "view": "auto",
+    "view": "unified",
     "single": false,
     "tree": true
   },
