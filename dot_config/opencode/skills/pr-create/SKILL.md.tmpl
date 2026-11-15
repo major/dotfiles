@@ -52,8 +52,8 @@ The helper scripts in this skill's `scripts/` directory are for active PR/MR cre
 
 - Review `git diff --stat <baseRemote>/<baseBranch>...HEAD` and `git diff --name-only` first; inspect focused paths, not a large full diff.
 - Load and follow the `commit` skill. Commits must be cryptographically signed and signed off.
-- For a new stacked branch, use `git-spice branch create --no-commit <branch>`, then commit with the commit skill.
-- Inspect stack state with `git-spice log short`; after changing a branch under others, run `git-spice upstack restack`.
+- For a new stacked branch, use `git switch -c <branch> <parentBranch>`, then commit with the commit skill.
+- Inspect stack order with `git log --graph --oneline --decorate`; after changing a parent branch, rebase each child onto its updated parent in order, preserving only the child's own commits.
 - After rebasing, verify no intended changes were dropped. If commits were skipped or moved, compare affected paths against upstream changes since the old merge base and preserve relevant updates.
 - Gate: intended changes are committed and history is clear of temporary or unrelated commits.
 
@@ -73,18 +73,13 @@ The helper scripts in this skill's `scripts/` directory are for active PR/MR cre
 
 ## Phase 8: Push and open
 
-For a stack, inspect the order, target, remotes, and metadata, then run the dry run before submission:
+For a stack, process branches parent first using the commands below. Switch to each branch and set `baseBranch` to its parent branch; use the preflight base for the bottom branch. Verify each target and remote before pushing or opening its PR/MR.
 
-```bash
-git-spice stack submit --dry-run
-git-spice stack submit
-```
+On GitLab, after opening the MRs, mark each child MR as blocked by its parent MR using the "Stacked merge requests" section of the `glab` skill.
 
-On GitLab, after submission, mark each child MR as blocked by its parent MR using the "Stacked merge requests" section of the `glab` skill.
+Do not use `--no-verify`. If a previously pushed branch was rebased, use `--force-with-lease`, never `--force`.
 
-Do not use `--no-verify` or `--no-publish`. Fork submissions may push branches without opening every PR/MR; report which branches were opened and which were only pushed.
-
-For a single branch, push to the preflight `pushRemote` first:
+Push to the preflight `pushRemote` first:
 
 ```bash
 git push -u <pushRemote> "$(git branch --show-current)"
