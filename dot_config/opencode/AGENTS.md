@@ -1,59 +1,40 @@
 # AGENTS.md
 
-- Never use emdashes when modifying content to any project.
-- Write in US English using a language style that is easy to understand even for people who speak English as a second language.
-- Principles are guides, not laws; favor code that is easy to read and change.
-- When principles conflict, prefer the change that keeps code simpler and easier to evolve.
-- If the 1Password ssh auth socket does not work, look for one in /home/$(id -un)/.ssh/agent/ instead.
-- Never reveal which AI models you used in any tickets, MR/PR titles/descriptions, or in any code that goes into any repository.
-- Prefer unicode boxes/trees and unicode art over ASCII/mermaid diagrams when creating visuals. Load the `unicode-art` skill before drawing any diagram, and use a Markdown table for rows and columns of data. I am a visual learner.
+- Never use em dashes in content for any project.
+- Write US English that is easy to follow for people who speak English as a second language.
+- Principles are guides, not laws. When principles conflict, prefer the change that keeps code simpler and easier to evolve.
+- Never reveal which AI models you used in tickets, MR/PR titles or descriptions, or code committed to any repository.
+- Prefer unicode boxes, trees, and art over ASCII or mermaid diagrams. Load the `unicode-art` skill before drawing any diagram. Use a Markdown table for rows and columns of data. I am a visual learner.
 - Find personal repos in ~/git/major and work repos in ~/git/redhat.
 - Use emojis in code comments.
-- Prefer the gitlab MCP server over the glab command, if the MCP server is available.
-- Use gender neutral language and never assume someone's gender based on their name alone.
-- Translate all times/dates to America/Chicago time unless specified otherwise.
+- Use gender neutral language. Never assume someone's gender from their name.
+- Translate all times and dates to America/Chicago time unless specified otherwise.
 
 ## When editing skills:
-- Use the most narrow edits possible whenever editing a skill file.
+- Use the narrowest possible edits when changing a skill file.
 
 ## When writing or reviewing software:
-- Write code that humans can interpret, read, and understand quickly.
-- Follow the guidelines of The Zen of Python, by Tim Peters.
-- Follow KISS principles.
-- Avoid overengineering when fewer lines and a simpler process works fine.
-- Review designs against SOLID (SRP, OCP, LSP, ISP, DIP); skip letters that would only add ceremony here.
-- Use DRY with the "Rule of Three".
-- Adopt the Boy Scout Rule for code, especially when refactoring.
-- Prefer Composition, delegation, and interfaces/protocols over inheritance.
-- Adhere to Tell, Don't Ask (Law of Demeter).
-- Do continuous refactoring whenever adding, modifying, or removing code.
-- Use Parallel Change (Expand → Migrate → Contract), preparatory refactoring, and "strangler fig" strategies.
-- Add docstrings to all functions we write and add comments in areas with challenging or edge case situations.
-- Report checks actually run and their results. Read-only reviews are not executed tests.
-- Clearly identify which review findings apply to the code change inside the diff in the MR/PR versus code outside the diff.
-- When a change adds or edits a safety gate, override, or bypass, list every place that enforces the same rule and keep them in sync. Check for a bound or cap, the patch's own files, partial or failed runs, `None` vs empty, real layouts from at least 2 projects, and an audit trail. When review finds one gap, look for the same gap in every gate before pushing.
+- Write code that humans can read, interpret, and understand quickly.
+- Follow The Zen of Python (Tim Peters) and KISS. Avoid overengineering; fewer lines and a simpler process win when they work fine.
+- Review designs against SOLID (SRP, OCP, LSP, ISP, DIP). Skip letters that would only add ceremony here.
+- Use DRY with the Rule of Three. Adopt the Boy Scout Rule, especially when refactoring. Do continuous refactoring whenever you add, modify, or remove code.
+- Prefer composition, delegation, and interfaces or protocols over inheritance. Adhere to Tell, Don't Ask (Law of Demeter).
+- Use Parallel Change (Expand → Migrate → Contract), preparatory refactoring, and strangler fig strategies.
+- Add docstrings to all functions we write. Add comments in areas with challenging or edge-case behavior.
+- When a change adds or edits a safety gate, override, or bypass, list every place that enforces the same rule and keep them in sync. Check for a bound or cap, the patch's own files, partial or failed runs, `None` vs empty, real layouts from at least 2 projects, and an audit trail. When review finds one gap, check every gate for the same gap before pushing.
 - Require me to say "APPROVE" in all caps before posting any comments to any MR/PR.
-- Never run `mutmut` directly. Run it as `~/bin/mutmut-bounded <mutmut args>`, which uses the memory-capped `mutmut.slice` systemd user slice and limits `--max-children` (default 4, override with `MUTMUT_MAX_CHILDREN`), because mutmut can exhaust all of the RAM on this machine quickly.
+- Never run `mutmut` directly. Run `~/bin/mutmut-bounded <mutmut args>` instead. It uses the memory-capped `mutmut.slice` systemd user slice and limits `--max-children` (default 4, override with `MUTMUT_MAX_CHILDREN`), because mutmut can exhaust all RAM on this machine quickly.
 
 ## When writing or reviewing software tests:
-- Use TDD for bug fixes and behavior changes: Red (run a focused test and confirm the expected behavioral failure), Green (simplest correct implementation), Refactor (keep relevant tests passing).
-- Report Red/Green commands and results, or explain skipped steps. Never weaken tests just to pass.
-- Follow the Testing Pyramid from Mike Cohn.
-- Use Arrange-Act-Assert (AAA) when modifying, writing, or refactoring tests.
-- Before behavior-preserving refactoring, run existing tests that characterize the affected behavior and add characterization tests only where coverage is missing. Do not manufacture a failing test for a pure refactor.
-- Prefer sociable testing over solitary testing.
-- Utilize fixtures and parameterization whenever possible.
-- Aggressively remove unneeded/redundant tests after adding/modifying tests or production code.
-- Add the minimum set of tests possible to provide coverage for what we are adding/modifying and nothing more.
+- Use TDD for bug fixes and behavior changes: Red (a focused test confirms the expected behavioral failure), Green (simplest correct implementation), Refactor (keep relevant tests passing).
+- Report Red/Green commands and results, or explain skipped steps. Never weaken tests to make them pass.
+- Follow Mike Cohn's Testing Pyramid. Prefer sociable over solitary tests. Use Arrange-Act-Assert (AAA) when writing, modifying, or refactoring tests.
+- Use fixtures and parameterization whenever possible.
+- Before behavior-preserving refactoring, run existing tests that characterize the affected behavior. Add characterization tests only where coverage is missing. Do not manufacture a failing test for a pure refactor.
+- Add the minimum tests needed to cover what you add or modify, and nothing more. Aggressively remove unneeded or redundant tests after changing tests or production code.
 - Keep tests fast and deterministic. Avoid unnecessary sleeps, expensive workloads, and CPU-heavy concurrency, especially on developer laptops with Crowdstrike Falcon sensors. Use the smallest realistic inputs that verify the behavior.
 
 ## When working with git worktrees and branches:
 - Never make a worktree with a detached HEAD.
-- Never convert a repository into a bare repo when cleaning up worktrees/branches!
-- Remove any lines added by a pre-commit hook in commits, including "rh-pre-commit".
-- Clean up the local branch/worktree immediately after creating a MR/PR, pushing to a MR/PR, or when you've finished all of the tasks defined in the session.
-- Clean up your temporary files in ~/.cache/opencode-tmp frequently to avoid leaving lots of files around for later.
-
-## When working with specific repositories:
-
-- balor-fianna: Only run tests for what you changed. Never run the full suite unless it's absolutely required. Let gitlab ci run the full suite after pushing the MR.
+- Clean up the local branch and worktree immediately after creating or pushing to an MR/PR, or when all tasks in the session are done. Never convert a repository into a bare repo while cleaning up.
+- Clean up your temporary files in ~/.cache/opencode-tmp often, so they do not pile up.
