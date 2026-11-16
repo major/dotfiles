@@ -2,7 +2,7 @@
 
 This automatically discovered local plugin shows personal Claude usage in the sidebar. It reads Claude Code's personal credential store, not Anthropic API, Mythos, or Vertex credentials. The usage endpoint is unofficial and may change.
 
-`CLAUDE_CONFIG_DIR` selects the credential directory and defaults to `~/.claude`. The five-hour and weekly windows show used percentages and reset countdowns.
+`CLAUDE_CONFIG_DIR` selects the credential directory and defaults to `~/.claude`. The five-hour and weekly windows show used percentages and reset countdowns. When the account has them enabled, the sidebar also shows model-scoped weekly limits. The sidebar also shows the remaining prepaid usage credit balance, read with the organization id from Claude Code's `.claude.json`.
 
 Open Claude Code and sign in if the login is missing or expired. The plugin never refreshes credentials itself. It refreshes usage every five minutes by default; the optional `interval` plugin option accepts milliseconds of at least 60,000. The shared cache is checked every five seconds, and failures are cached for the same interval as successes.
 
