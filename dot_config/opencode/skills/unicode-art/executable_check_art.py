@@ -3,8 +3,13 @@
 
 Usage:
     check_art.py FILE [--max-width N]
+    check_art.py DOC.md [--max-width N]
     some-command | check_art.py -
 
+A .md file is checked block by block: each fenced block with box-drawing or
+risky glyphs is checked, and line numbers refer to the Markdown file. A fence
+whose info string includes the word `bad` (for example ```text bad) is skipped,
+so deliberately bad examples can stay in a document.
 Exit code 0 means clean, 1 means problems were found.
 """
 
@@ -36,6 +41,22 @@ def display_width(text):
     return width
 
 
+def is_risky(char):
+    """Tell whether one character often renders with the wrong width.
+
+    Args:
+        char: A single character.
+
+    Returns:
+        True for non-ASCII characters that are not light box glyphs and are
+        wide or ambiguous width, or that are arrows and symbols from U+2190 on.
+    """
+    if ord(char) < 128 or char in SAFE_BOX:
+        return False
+    wide = unicodedata.east_asian_width(char) in ("W", "F", "A")
+    return wide or ord(char) >= 0x2190
+
+
 def risky_glyphs(line):
     """Find characters that often render with the wrong width.
 
@@ -47,14 +68,12 @@ def risky_glyphs(line):
     """
     found = set()
     for char in line:
-        if ord(char) < 128 or char in SAFE_BOX:
-            continue
-        if unicodedata.east_asian_width(char) in ("W", "F", "A") or ord(char) >= 0x2190:
+        if is_risky(char):
             found.add(char)
     return sorted(found)
 
 
-def box_groups(lines):
+def box_groups(lines, first_line=1):
     """Group consecutive lines that look like the same box.
 
     Lines join a group when their last visible character is a box edge and
@@ -63,12 +82,13 @@ def box_groups(lines):
 
     Args:
         lines: All lines of the diagram.
+        first_line: The file line number of the first line.
 
     Returns:
         A list of groups, each a list of (line_number, line) tuples.
     """
     groups, current, indent = [], [], None
-    for number, line in enumerate(lines, 1):
+    for number, line in enumerate(lines, first_line):
         stripped = line.rstrip()
         line_indent = display_width(stripped) - display_width(stripped.lstrip())
         is_edge = bool(stripped) and stripped[-1] in BOX_EDGES
@@ -84,25 +104,67 @@ def box_groups(lines):
     return groups
 
 
-def check(lines, max_width):
+def fenced_blocks(text):
+    """Find the fenced code blocks in Markdown text.
+
+    Args:
+        text: The full Markdown document.
+
+    Returns:
+        A list of (first_line, info, lines) tuples, where first_line is the
+        file line number of the block's first content line and info is the
+        text after the opening fence, such as "text bad". An unclosed fence
+        at the end of the file is ignored.
+    """
+    blocks, current, info, first_line = [], None, "", 0
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.startswith("```"):
+            if current is not None:
+                current.append(line)
+        elif current is None:
+            current, info, first_line = [], line[3:].strip(), number + 1
+        else:
+            blocks.append((first_line, info, current))
+            current = None
+    return blocks
+
+
+def has_art(lines):
+    """Tell whether a block looks like art rather than code or commands.
+
+    A block is art if it has a light box glyph or any glyph that is_risky
+    flags, such as double or heavy lines. Plain ASCII code and shell
+    commands are not art and are skipped in Markdown mode.
+
+    Args:
+        lines: The lines of one fenced block.
+
+    Returns:
+        True if any character is a SAFE_BOX glyph or a risky glyph.
+    """
+    return any(char in SAFE_BOX or is_risky(char) for line in lines for char in line)
+
+
+def check(lines, max_width, first_line=1):
     """Collect all problems in a diagram.
 
     Args:
         lines: All lines of the diagram.
         max_width: Largest allowed display width for any line.
+        first_line: The file line number of the first line.
 
     Returns:
         A list of human-readable problem strings.
     """
     problems = []
-    for number, line in enumerate(lines, 1):
+    for number, line in enumerate(lines, first_line):
         width = display_width(line.rstrip())
         if width > max_width:
             problems.append(f"line {number}: width {width} exceeds {max_width}")
         glyphs = risky_glyphs(line)
         if glyphs:
             problems.append(f"line {number}: risky glyphs {' '.join(glyphs)}")
-    for group in box_groups(lines):
+    for group in box_groups(lines, first_line):
         widths = {n: display_width(text) for n, text in group}
         expected = max(set(widths.values()), key=list(widths.values()).count)
         for number, width in widths.items():
@@ -110,6 +172,26 @@ def check(lines, max_width):
                 problems.append(
                     f"line {number}: box edge at column {width}, others at {expected}"
                 )
+    return problems
+
+
+def check_markdown(text, max_width):
+    """Check every fenced block in a Markdown document that has box glyphs.
+
+    Args:
+        text: The full Markdown document.
+        max_width: Largest allowed display width for any line.
+
+    Blocks whose info string includes the word "bad" are skipped.
+
+    Returns:
+        A list of problem strings, with line numbers from the Markdown file.
+    """
+    problems = []
+    for first_line, info, lines in fenced_blocks(text):
+        if "bad" in info.split() or not has_art(lines):
+            continue
+        problems.extend(check(lines, max_width, first_line))
     return problems
 
 
@@ -128,7 +210,10 @@ def main():
     else:
         with open(args.file, encoding="utf-8") as handle:
             text = handle.read()
-    problems = check(text.splitlines(), args.max_width)
+    if args.file.endswith(".md"):
+        problems = check_markdown(text, args.max_width)
+    else:
+        problems = check(text.splitlines(), args.max_width)
     for problem in problems:
         print(problem)
     print("OK" if not problems else f"{len(problems)} problem(s) found")
