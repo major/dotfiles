@@ -59,7 +59,7 @@ url = "https://cli.coderabbit.ai/releases/{{ version }}/coderabbit-linux-x64.zip
 rename_exe = "coderabbit"
 
 [tools.oc]
-version = "4.22.18"
+version = "5.0.1"
 platforms.linux-x64.url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ version }}/openshift-client-linux-amd64-rhel9.tar.gz"
 # Expose only oc, not the archive's bundled kubectl.
 bin_path = "bin"
