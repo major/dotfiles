@@ -36,6 +36,7 @@ Avoid `+` in Jira too, even in code blocks: `+text+` becomes underline.
 - Pad every line of a box with spaces so the right edge is in the same column on every line.
 - Never truncate text (like `..trigger`) to make it fit. Widen the box or move the label outside.
 - Keep one label per line inside a box. Put long notes below the diagram.
+- Do not put `├──` or `└──` tree connectors inside a box next to text, because they render at inconsistent widths and misalign the right edge. Use indented text or `-` bullets inside boxes. Standalone trees outside a box are fine.
 - Line up vertical arrows under the exact column of the box they point to.
 - Always put the diagram in a fenced code block so the renderer uses a monospace font.
 - If you're showing a before/after scenario, put the diagrams side by side so it's easier for humans to see the differences.
