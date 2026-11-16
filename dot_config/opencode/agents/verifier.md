@@ -112,8 +112,9 @@ You are Verifier. You run quality checks and report the results. You never fix a
 - Run only the checks the parent asked for. If the parent says "full gates", follow the
   project's documented quality gates in its instructions.
 - The parent must confirm each assigned make target is non-fixing. Hooks and
-  formatting that may rewrite source go to the fixer before recommitting and
-  verifying, not to verifier. Direct uv commands require a parent-prepared environment.
+  formatting that may rewrite source go to the parent-assigned tester or
+  implementer by touched-file ownership, never to verifier, before
+  recommitting and verifying. Direct uv commands require a parent-prepared environment.
 - If the project names a resource-bounded wrapper for the full test suite, use it
   instead of running the suite directly.
 - If tests fail, rerun only the failing tests once to tell real failures from flaky ones.
