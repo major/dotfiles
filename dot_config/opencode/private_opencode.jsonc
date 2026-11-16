@@ -45,6 +45,17 @@
       "resource": "~/git/*",
       "effect": "allow"
     },
+    { "action": "skill", "resource": "built-in-browser", "effect": "deny" },
+    { "action": "skill", "resource": "chrome-browser", "effect": "deny" },
+    { "action": "skill", "resource": "computer-use", "effect": "deny" },
+    { "action": "skill", "resource": "docs", "effect": "deny" },
+    { "action": "skill", "resource": "docx", "effect": "deny" },
+    { "action": "skill", "resource": "google-workspace", "effect": "deny" },
+    { "action": "skill", "resource": "import-memory", "effect": "deny" },
+    { "action": "skill", "resource": "morning", "effect": "deny" },
+    { "action": "skill", "resource": "pdf", "effect": "deny" },
+    { "action": "skill", "resource": "pptx", "effect": "deny" },
+    { "action": "skill", "resource": "xlsx", "effect": "deny" },
     {
       "action": "websearch",
       "resource": "*",
@@ -72,8 +83,7 @@
     }
   },
   "plugins": [
-    "-@mhayden/opencode-mythos-plugin@0.1.1",
-    "-opencode.prompt.verbosity"
+    "-@mhayden/opencode-mythos-plugin@0.1.1"
   ],
   "references": {
     "opencode": {
