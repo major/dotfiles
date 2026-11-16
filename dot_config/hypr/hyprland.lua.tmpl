@@ -249,6 +249,7 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(lock))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(emojiPicker))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw")) -- 🔔 toggle swaync notification center
 
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd(picker))
 hl.bind("Print", hl.dsp.exec_cmd(screenshot .. ' && notify-send "Area Screenshot Taken" -t 2000'))
