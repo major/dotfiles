@@ -14,11 +14,6 @@
   "websearch": {
     "provider": "exa"
   },
-  "agents": {
-    "build": {
-      "model": "anthropic/claude-sonnet-5-5#high"
-    }
-  },
   "permissions": [
     {
       "action": "read",
@@ -43,6 +38,11 @@
     {
       "action": "external_directory",
       "resource": "~/git/*",
+      "effect": "allow"
+    },
+    {
+      "action": "external_directory",
+      "resource": "~/.cache/opencode-tmp/*",
       "effect": "allow"
     },
     { "action": "skill", "resource": "built-in-browser", "effect": "deny" },
