@@ -4,7 +4,7 @@ set -euo pipefail
 # renovate: datasource=github-releases depName=googlefonts/noto-emoji
 noto_version="2.051"
 # renovate: datasource=github-releases depName=be5invis/Iosevka
-iosevka_version="34.9.1"
+iosevka_version="34.9.2"
 
 fonts_dir="${HOME}/.local/share/fonts"
 state_dir="${XDG_STATE_HOME:-${HOME}/.local/state}/dotfiles"
